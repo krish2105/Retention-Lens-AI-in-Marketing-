@@ -301,3 +301,11 @@ COMPOSITION: Perfectly centred, bold silhouette, readable at 60 px, solid backgr
 
 ## Handing them back
 Drop the PNGs into `RetentionLens_AUR_Complete_Image_Collection/assets/generated/` and tell Claude. Claude will check sizes and transparency, compress to WebP (under 400 KB, under 120 KB for spot art), place them in `apps/web/public/img/`, and log the generation date in the README image disclosure.
+
+## Series 2 import log (2026-11-01)
+
+Imported from `RetentionLens_AUR_All_Images.zip`. Web copies are in `apps/web/public/img/` (WebP; spot art trimmed to its subject and squared at 512 px).
+
+- **In place:** 12a/b/c, 13, 14–22, 23, 24, 25, 26 (portrait, used as the A4 report cover), 27 (plus a 1584×396 LinkedIn crop in the collection folder), and 11 light (v1 chosen; v2 kept as an alternative).
+- **Still needed:** AUR-11 **dark** hero (the dark theme uses AUR-01 until then); optional light versions of AUR-13 and AUR-23.
+- **Brand decision:** app and home-screen icons are built from the AUR-08 lens mark on #070912. AUR-28 (magnifier) is kept in the collection but not used, so the brand mark stays consistent.

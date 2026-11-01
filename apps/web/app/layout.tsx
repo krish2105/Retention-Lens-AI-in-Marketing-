@@ -11,7 +11,7 @@ const plex = IBM_Plex_Mono({ subsets: ["latin", "latin-ext"], weight: ["400", "5
 export const metadata: Metadata = {
   title: "RetentionLens",
   description: "90-day lapse risk and customer value for wholesale accounts, with human-approved outreach.",
-  icons: { icon: `${base}/img/aur-08-mark.webp` },
+  icons: { icon: [{ url: `${base}/icon-192.png`, sizes: "192x192" }, { url: `${base}/icon-512.png`, sizes: "512x512" }], apple: `${base}/apple-touch-icon.png` },
   openGraph: { images: [`${base}/img/aur-10-og.webp`] },
 };
 
