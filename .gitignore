@@ -26,3 +26,6 @@ research/experiments/*
 # Private course material: university outline is not for a public repo
 course/outline.docx
 *.egg-info/
+
+# Model run artefacts (predictions carry customer IDs)
+artefacts/

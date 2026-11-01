@@ -3,7 +3,14 @@ name = "retentionlens"
 version = "0.1.0"
 description = "RetentionLens ML pipeline (MAIB AI 208)"
 requires-python = ">=3.12,<3.13"
-dependencies = ["pandas>=2.2,<3", "pyarrow>=16", "openpyxl>=3.1,<4"]
+dependencies = [
+    "pandas>=2.2,<3",
+    "pyarrow>=16",
+    "openpyxl>=3.1,<4",
+    "pymc-marketing>=1.3,<2",
+    "lightgbm>=4",
+    "scikit-learn>=1.5",
+]
 
 [dependency-groups]
 dev = ["pytest>=8"]
