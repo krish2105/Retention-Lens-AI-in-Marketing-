@@ -104,7 +104,7 @@ jobs:
           [ -f supabase/config.toml ] || supabase init --force
           # Container names come from project_id; the repo folder ends in '-', which is not a valid hostname.
           sed -i 's/^project_id = .*/project_id = "retentionlens"/' supabase/config.toml
-          EXCLUDE=studio,imgproxy,inbucket,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,storage-api,gotrue,kong,rest
-          supabase start -x $EXCLUDE || (supabase stop --no-backup; sleep 30; supabase start --debug -x $EXCLUDE)
+          EXCLUDE=studio,imgproxy,mailpit,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,storage-api,gotrue,kong,postgrest
+          supabase start --ignore-health-check -x $EXCLUDE || (supabase stop --no-backup; sleep 30; supabase start --debug --ignore-health-check -x $EXCLUDE)
       - name: Row-level security isolation test
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/tests/rls_isolation.sql
