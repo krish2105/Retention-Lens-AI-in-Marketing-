@@ -39,3 +39,19 @@ def test_gbm_is_deterministic_for_a_seed():
     a = GbmModel().fit(train, seed=7).predict_lapse(test)
     b = GbmModel().fit(train, seed=7).predict_lapse(test)
     np.testing.assert_allclose(a, b)
+
+
+REAL = __import__("pathlib").Path(__file__).resolve().parents[2] / "data" / "interim" / "transactions_flagged.parquet"
+
+
+@pytest.mark.skipif(not REAL.exists(), reason="real data not downloaded; run `cli data` first")
+def test_btyd_smoke_on_real_history():
+    from retentionlens.features.snapshot import build_snapshot, prepare
+    from retentionlens.models.btyd import BtydModel
+
+    snap = build_snapshot(prepare(pd.read_parquet(REAL)), "2011-03-01").head(300)
+    model = BtydModel().fit(snap, seed=7)
+    p, v = model.predict_lapse(snap), model.predict_value(snap)
+    assert p.shape == v.shape == (300,)
+    assert np.all((p >= 0) & (p <= 1)) and np.all(v >= 0)
+    assert np.corrcoef(p, snap["recency_days"])[0, 1] > 0
