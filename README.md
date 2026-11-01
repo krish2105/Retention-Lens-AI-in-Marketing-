@@ -11,6 +11,8 @@
 ![Next.js 15](https://img.shields.io/badge/Next.js-15-000000)
 ![Data CC BY 4.0](https://img.shields.io/badge/data-CC%20BY%204.0-0E7490)
 
+**Live demo (read-only snapshot): https://krish2105.github.io/Retention-Lens-AI-in-Marketing-/** · AI drafting and decisions need the local install below.
+
 Built for **AI in Marketing (MAIB AI 208)** as a solo project and portfolio piece. It runs on one real, licensed dataset: [UCI Online Retail II](https://archive.ics.uci.edu/dataset/502/online+retail+ii), 1,067,371 invoice lines from a UK giftware wholesaler, 2009–2011.
 
 ---
@@ -28,7 +30,7 @@ Built for **AI in Marketing (MAIB AI 208)** as a solo project and portfolio piec
 | **Model lab** | Every model on every cutoff, a calibration chart, and a "does it really win?" table |
 | **Course evidence** | Each learning outcome and weekly topic mapped to the screen or file that shows it |
 
-Light, dark and system themes switch with a circular reveal. The UI respects reduced motion and reduced transparency, and every 3D view has a table or 2D fallback.
+Light, dark and system themes switch with a circular reveal. The UI respects reduced motion and reduced transparency, and every 3D view has a table or 2D fallback. An axe-core 4.10 scan (WCAG 2.2 AA) reports 0 violations on 9 pages across both themes, and the layout works at 375 px.
 
 ## Results (all numbers come from saved run files)
 
@@ -89,7 +91,9 @@ cd services/api && uv venv --python 3.12 .venv && uv pip install --python .venv/
 cd apps/web && npm install && echo "NEXT_PUBLIC_API_URL=http://localhost:8001" > .env.local && npm run dev
 ```
 
-Open http://localhost:3000. Tests: `cd ml && uv run pytest` (48) · `PYTHONPATH=services/api pytest services/api/tests` (14) · `cd apps/web && npx next build`.
+Open http://localhost:3000. Tests: `cd ml && uv run pytest` (48) · `PYTHONPATH=services/api pytest services/api/tests` (15) · `cd apps/web && npx next build`.
+
+The public demo is a static export of the same UI, with the serving JSON copied by `scripts/export_static_data.py` and deployed by `.github/workflows/pages.yml`.
 
 ## Repository layout
 
@@ -98,6 +102,7 @@ ml/retentionlens/    data, features, models, eval, serving, signals, product
 services/api/        FastAPI app, outreach drafting (app/genai), tests, live eval script
 apps/web/            Next.js 15 Aurora UI (theme, 3D terrain and galaxy, all screens)
 docs/                data card, model card, design spec, plans
+labs/                lab scaffolds for weeks 2, 4, 6, 8 and 10 (analysis left for the student)
 reports/             generated results (data profile, model results, GenAI evaluation, research)
 project/             state, decisions, session log, source register, gap analysis
 ```

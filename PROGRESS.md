@@ -18,7 +18,11 @@ Last updated: 2026-11-01. Everything listed here was checked by running it. What
 | **P5** Signals (outcome B) | Done, merged | Wikipedia CC0 seasonality (Christmas r 0.34 → 0.90 with 1-month lead), co-purchase network, 600 SYNTHETIC posts, toscrape.com scraper |
 | **P6** Outreach studio (outcome D) | Done, merged | Local qwen2.5:7b drafts, checker, critic, PECR consent gate, idempotent approval, CSV export, audit log; live eval `reports/genai_eval.md` |
 | **P7** Product lab | Done, merged | Basket rules, portfolio matrix, loyalty, elasticity confounding lesson |
-| **P8** README, evidence page, CI | Done | `README.md`, `/evidence` page, `.github/workflows/ci.yml` |
+| **P8** README, evidence page, CI | Done | `README.md`, `/evidence` page, `.github/workflows/ci.yml` (green on GitHub) |
+| Deploy | Done, live | https://krish2105.github.io/Retention-Lens-AI-in-Marketing-/ (read-only static demo, GitHub Pages workflow) |
+| Accessibility | Checked | axe-core 4.10 WCAG 2.2 AA: 0 violations on 9 pages, both themes; 375 px layout OK |
+| Critic calibration | Tool built | `services/api/evals/calibrate_critic.py`; 16-row labelling sheet `reports/critic_labels.csv` awaits human labels |
+| Labs | Scaffolds | `labs/week-*` with commands, evidence and rubric headings |
 
 ## Tests (run 2026-11-01)
 

@@ -13,6 +13,7 @@ Kept current at every push so any session (local or cloud) can continue. Last up
 | P6 outreach studio | **Done**: local qwen2.5:7b drafts from structured facts only, numeric/pressure/offer/PII checker, critic pass, PECR consent gate, idempotent approval, CSV export, audit log, red-team tests; live eval script `services/api/evals/run_eval.py` |
 | P7 product lab | **Done**: basket rules (lift), portfolio matrix, product loyalty, elasticity shown as a confounding lesson |
 | P8 README, evidence page, CI | **Done**: professional README with real metrics, `/evidence` outcome map, GitHub Actions (ml, api, web) |
+| Deploy | **Live** https://krish2105.github.io/Retention-Lens-AI-in-Marketing-/ via `.github/workflows/pages.yml` (static export; refresh data with `python3 scripts/export_static_data.py` after `cli serve`) |
 | Remaining | See `REMAINING.md` (critic calibration, demo video, labs, presentation, report) |
 
 ## Rebuild everything from a clean clone

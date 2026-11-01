@@ -20,3 +20,6 @@ Re-ran tests (ML 33 passed, demo API 6 passed). Wrote `PROGRESS.md` and `REMAINI
 
 ### 2026-11-01 — P3–P8 built without stopping (owner request)
 Serving builder, FastAPI, Aurora UI (theme toggle, 3D terrain + galaxy), segments + lookalikes, signals (web CC0, network, synthetic social, scraper), outreach studio with local qwen2.5:7b + checks + consent gate + idempotent approval, product lab, evidence page, CI, README. Each phase merged to main and pushed. Findings: Christmas sales lead web interest by one month (r 0.90 lagged); critic flags 15/16 drafts (needs human calibration); elasticities confounded by price breaks.
+
+### 2026-11-01 — Deploy, verify, accessibility
+Static read-only export deployed to GitHub Pages and verified live (data files 200, no console errors). CI green after pinning setup-uv. axe-core WCAG 2.2 AA: fixed scrollable-region and theme-token contrast issues; 0 violations on 9 pages both themes; 375 px OK. Added critic calibration tool + labelling sheet, lab scaffolds, reading list; archived starter docs.
