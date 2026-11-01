@@ -102,6 +102,7 @@ jobs:
       - name: Start Supabase (migrations apply on start)
         run: |
           [ -f supabase/config.toml ] || supabase init --force
-          supabase start -x studio,imgproxy,inbucket,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta
+          EXCLUDE=studio,imgproxy,inbucket,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,storage-api,gotrue,kong,rest
+          supabase start -x $EXCLUDE || (supabase stop --no-backup; sleep 30; supabase start --debug -x $EXCLUDE)
       - name: Row-level security isolation test
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/tests/rls_isolation.sql

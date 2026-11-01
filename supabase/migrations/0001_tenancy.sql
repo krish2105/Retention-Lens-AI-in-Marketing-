@@ -156,7 +156,14 @@ create policy audit_read on public.audit_events for select using (public.is_memb
 create policy audit_insert on public.audit_events for insert with check (public.is_member(org_id));
 
 -- Uploaded files: one Storage bucket, one folder per org (path "<org_id>/<file>").
-insert into storage.buckets (id, name, public) values ('uploads', 'uploads', false) on conflict (id) do nothing;
-create policy uploads_read on storage.objects for select using (bucket_id = 'uploads' and public.is_member((storage.foldername(name))[1]));
-create policy uploads_write on storage.objects for insert with check (bucket_id = 'uploads' and public.has_role((storage.foldername(name))[1], 'reviewer'));
-create policy uploads_delete on storage.objects for delete using (bucket_id = 'uploads' and public.has_role((storage.foldername(name))[1], 'owner'));
+-- The storage schema is created by Supabase's storage service, which may start after migrations run;
+-- the guard keeps a fresh local stack (CI) from failing. Re-run this block once storage is up.
+do $$
+begin
+  if exists (select 1 from information_schema.tables where table_schema = 'storage' and table_name = 'objects') then
+    insert into storage.buckets (id, name, public) values ('uploads', 'uploads', false) on conflict (id) do nothing;
+    execute $p$create policy uploads_read on storage.objects for select using (bucket_id = 'uploads' and public.is_member((storage.foldername(name))[1]))$p$;
+    execute $p$create policy uploads_write on storage.objects for insert with check (bucket_id = 'uploads' and public.has_role((storage.foldername(name))[1], 'reviewer'))$p$;
+    execute $p$create policy uploads_delete on storage.objects for delete using (bucket_id = 'uploads' and public.has_role((storage.foldername(name))[1], 'owner'))$p$;
+  end if;
+end $$;
