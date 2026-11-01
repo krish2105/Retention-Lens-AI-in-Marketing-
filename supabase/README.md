@@ -4,7 +4,9 @@
 security on every tenant table and per-org folders in a private Storage bucket.
 `tests/rls_isolation.sql` proves that a member of org B cannot read org A and that viewers cannot write.
 
-Status: **not applied.** It needs a Supabase project owned by the project owner. Steps:
+Status: **verified in CI, not applied to a hosted project.** The `rls` job in `.github/workflows/ci.yml` starts a local
+Supabase Postgres, applies the migration and runs the isolation test on every push (first green run: commit 5b81f51).
+The Storage policies are guarded and only apply once the storage service exists. A hosted project needs the owner's account. Steps:
 
 1. Create a project at supabase.com (free tier), then `supabase link --project-ref <ref>`.
 2. `supabase db push` to apply the migration.

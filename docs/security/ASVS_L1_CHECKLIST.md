@@ -14,7 +14,7 @@ Sign-off by a second person is still needed (R3 gate).
 | Sessions | 3.4.1–3.4.3 cookie Secure, HttpOnly, SameSite | Met | `RL_COOKIE_SECURE=1` when hosted |
 | Access control | 4.1.1 enforced on the server | Met | `ctx`/`require` on every route; every query filters `org_id` |
 | Access control | 4.1.3 least privilege | Met | owner / reviewer / viewer; viewer write → 403 (tested) |
-| Access control | 4.2.1 no direct object reference across tenants | Met | `test_two_tenant_isolation` (drafts, datasets, audit by id) |
+| Access control | 4.2.1 no direct object reference across tenants | Met | `test_two_tenant_isolation` (drafts, datasets, audit by id); Postgres RLS leak test in CI (`supabase/tests/rls_isolation.sql`) |
 | Access control | 4.2.2 CSRF protection | Met | JSON bodies and a custom header force a CORS pre-flight; origins allow-listed |
 | Validation | 5.1.3 input validated on the server | Met | Pydantic models with lengths and enums; upload type and size limits |
 | Output | 5.3.x encoding; CSV/formula injection | Met | React escaping; CSV cells starting `= + - @` neutralised (tested) |

@@ -16,7 +16,7 @@
 - Backups scheduled in the API (`RL_BACKUP_HOURS`); restore drill re-run on a seeded synthetic database.
 - `/api/funnel` (upload → scored → first decision minutes), usability kit with SUS, uptime workflow.
 - Exercises log template; `labs/*/EVIDENCE.md` generated from run files; 63-second captioned demo video.
-- CI job applying the Supabase migration to a local stack and running the RLS leak test (see CI for its latest result).
+- Supabase migration applied to a local stack in CI and the RLS leak test passes (commit 5b81f51, all 7 CI jobs green).
 - Ollama currently has no models installed (`qwen2.5:7b` missing): drafts use the labelled template until it is pulled again.
 
 ## Not verified / not done

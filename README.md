@@ -148,7 +148,7 @@ Runbook: [`docs/OPERATIONS.md`](docs/OPERATIONS.md). Pilot and research kits: [`
 ml/retentionlens/    data, features, models, eval, serving, signals, product
 services/api/        FastAPI app, outreach drafting (app/genai), tests, live eval script
 apps/web/            Next.js 15 Aurora UI (site, app, 3D, Playwright e2e in e2e/)
-supabase/            Postgres schema with row-level security and an isolation test (not yet applied)
+supabase/            Postgres schema with row-level security; isolation test passes in CI on a local Supabase stack
 docs/                data card, model card, design spec, plans
 labs/                lab scaffolds for weeks 2, 4, 6, 8 and 10 (analysis left for the student)
 reports/             generated results (data profile, model results, GenAI evaluation, research)
