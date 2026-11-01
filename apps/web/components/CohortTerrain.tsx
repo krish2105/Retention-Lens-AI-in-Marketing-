@@ -1,5 +1,5 @@
 "use client";
-import { Html, OrbitControls } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -61,12 +61,6 @@ function Bars({ cells, tokens, onHover }: { cells: Cell[]; tokens: Tokens; onHov
         <planeGeometry args={[months + 2, cohorts + 2]} />
         <meshBasicMaterial color={tokens.violet} transparent opacity={0.07} />
       </mesh>
-      <Html position={[0, -0.2, cohorts / 2 + 1.6]} center style={{ color: tokens.muted, fontSize: 11, whiteSpace: "nowrap", fontFamily: "var(--font-mono)" }}>
-        months since first order →
-      </Html>
-      <Html position={[-months / 2 - 1.8, -0.2, 0]} center style={{ color: tokens.muted, fontSize: 11, whiteSpace: "nowrap", fontFamily: "var(--font-mono)" }}>
-        ← first-order month
-      </Html>
     </>
   );
 }
@@ -76,7 +70,8 @@ export default function CohortTerrain({ cohorts, tokens }: { cohorts: Cohort[]; 
   const [hover, setHover] = useState<Cell | null>(null);
   const [webgl, setWebgl] = useState(true);
   const reduced = useReducedMotion();
-  useEffect(() => setWebgl(hasWebGL()), []);
+  const [coarse, setCoarse] = useState(false);
+  useEffect(() => { setWebgl(hasWebGL()); setCoarse(window.matchMedia("(pointer: coarse)").matches); }, []);
 
   if (!webgl) {
     return <p className="state">3D needs WebGL, which this browser doesn&apos;t provide. The same data is in the table below.</p>;
@@ -88,8 +83,10 @@ export default function CohortTerrain({ cohorts, tokens }: { cohorts: Cohort[]; 
         <directionalLight position={[10, 20, 12]} intensity={1.5} />
         <directionalLight position={[-12, 8, -10]} intensity={0.4} color={tokens.violet} />
         <Bars cells={cells} tokens={tokens} onHover={setHover} />
-        <OrbitControls enablePan={false} minDistance={14} maxDistance={48} maxPolarAngle={Math.PI / 2.15} enableDamping={!reduced} />
+        <OrbitControls enabled={!coarse} enablePan={false} minDistance={14} maxDistance={48} maxPolarAngle={Math.PI / 2.15} enableDamping={!reduced} />
       </Canvas>
+      <span className="axis-label axis-x">months since first order →</span>
+      <span className="axis-label axis-z">← first-order month</span>
       {hover && (
         <div className="scene-tip glass">
           <strong>{hover.cohort} cohort</strong> · {hover.size} customers

@@ -95,8 +95,8 @@ function AccountDrawer({ id, onClose }: { id: string; onClose: () => void }) {
                 <ResponsiveContainer>
                   <BarChart data={chart} margin={{ top: 4, right: 4, bottom: 0, left: -10 }}>
                     <CartesianGrid stroke={tokens.edge} vertical={false} />
-                    <XAxis dataKey="month" tick={{ fill: tokens.muted, fontSize: 10 }} />
-                    <YAxis tick={{ fill: tokens.muted, fontSize: 10 }} />
+                    <XAxis dataKey="month" tick={{ fill: tokens.muted, fontSize: 11 }} />
+                    <YAxis tick={{ fill: tokens.muted, fontSize: 11 }} />
                     <Tooltip contentStyle={{ background: tokens.bg, border: `1px solid ${tokens.edge}`, color: tokens.ink }} formatter={(v) => money(Math.abs(Number(v)))} />
                     <Legend wrapperStyle={{ color: tokens.muted, fontSize: 11 }} />
                     <Bar dataKey="sales" name="Spend" fill={tokens.cyan} radius={[4, 4, 0, 0]} />

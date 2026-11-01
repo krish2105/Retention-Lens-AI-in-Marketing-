@@ -1,5 +1,5 @@
 "use client";
-import { Html, OrbitControls } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -60,32 +60,27 @@ function Points({ points, tokens, mode, onHover }: { points: GalaxyPoint[]; toke
 }
 
 function Axes({ tokens }: { tokens: Tokens }) {
-  const style = { color: tokens.muted, fontSize: 11, whiteSpace: "nowrap" as const, fontFamily: "var(--font-mono)" };
-  return (
-    <>
-      <gridHelper args={[14, 14, tokens.edge, tokens.edge]} position={[0, -4.3, 0]} />
-      <Html position={[6.6, -4.3, 0]} style={style}>more recent →</Html>
-      <Html position={[-6.4, 4.4, 0]} style={style}>↑ more purchase days</Html>
-      <Html position={[0, -4.3, 6.8]} style={style}>higher net spend →</Html>
-    </>
-  );
+  return <gridHelper args={[14, 14, tokens.edge, tokens.edge]} position={[0, -4.3, 0]} />;
 }
 
 export default function Galaxy({ points, tokens, mode }: { points: GalaxyPoint[]; tokens: Tokens; mode: ColourMode }) {
   const [hover, setHover] = useState<GalaxyPoint | null>(null);
   const [webgl, setWebgl] = useState(true);
   const reduced = useReducedMotion();
-  useEffect(() => setWebgl(hasWebGL()), []);
+  const [coarse, setCoarse] = useState(false);
+  useEffect(() => { setWebgl(hasWebGL()); setCoarse(window.matchMedia("(pointer: coarse)").matches); }, []);
   if (!webgl) return <p className="state">3D needs WebGL, which this browser doesn&apos;t provide. Use the segment table below.</p>;
   return (
-    <div className="scene" style={{ height: 520 }} role="img" aria-label={`3D scatter of ${points.length} accounts by recency, purchase days and net spend. The segment table below has the same information.`}>
+    <div className="scene tall" role="img" aria-label={`3D scatter of ${points.length} accounts by recency, purchase days and net spend. The segment table below has the same information.`}>
       <Canvas flat frameloop={reduced ? "demand" : "always"} dpr={[1, 1.5]} camera={{ position: [11, 7, 13], fov: 42 }} gl={{ antialias: true, alpha: true }}>
         <ambientLight intensity={0.8} />
         <pointLight position={[8, 10, 8]} intensity={60} />
         <Points points={points} tokens={tokens} mode={mode} onHover={setHover} />
         <Axes tokens={tokens} />
-        <OrbitControls enablePan={false} minDistance={8} maxDistance={30} autoRotate={!reduced && !hover} autoRotateSpeed={0.35} />
+        <OrbitControls enabled={!coarse} enablePan={false} minDistance={8} maxDistance={30} autoRotate={!reduced && !hover} autoRotateSpeed={0.35} />
       </Canvas>
+      <span className="axis-label axis-x">more recent → · higher spend ↘</span>
+      <span className="axis-label axis-z">↑ more purchase days</span>
       {hover && (
         <div className="scene-tip glass">
           <strong>Account {hover.id}</strong> · {hover.segment}

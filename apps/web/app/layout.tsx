@@ -1,18 +1,28 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import { Shell } from "@/components/Shell";
 import { Providers } from "./providers";
 import "./globals.css";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH || "";
-const space = Space_Grotesk({ subsets: ["latin"], variable: "--font-space", display: "swap" });
-const plex = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex", display: "swap" });
+const space = Space_Grotesk({ subsets: ["latin", "latin-ext"], variable: "--font-space", display: "swap" });
+const plex = IBM_Plex_Mono({ subsets: ["latin", "latin-ext"], weight: ["400", "500"], variable: "--font-plex", display: "swap" });
 
 export const metadata: Metadata = {
   title: "RetentionLens",
   description: "90-day lapse risk and customer value for wholesale accounts, with human-approved outreach.",
   icons: { icon: `${base}/img/aur-08-mark.webp` },
   openGraph: { images: [`${base}/img/aur-10-og.webp`] },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f3f4fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#070912" },
+  ],
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

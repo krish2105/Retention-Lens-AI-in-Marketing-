@@ -56,8 +56,8 @@ export function Shell({ children }: { children: ReactNode }) {
         <div className="main" id="main">
           <div style={{ display: "flex", justifyContent: STATIC ? "space-between" : "flex-end", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
             {STATIC && (
-              <p className="badge" style={{ textTransform: "none", letterSpacing: 0, fontSize: 12 }}>
-                Public demo · read-only snapshot scored 2011-12-10 · <a href="https://github.com/krish2105/Retention-Lens-AI-in-Marketing-">run it locally</a> for AI drafting and decisions
+              <p className="demo-banner">
+                <strong>Public demo</strong> · read-only snapshot scored 2011-12-10 · <a href="https://github.com/krish2105/Retention-Lens-AI-in-Marketing-">run it locally</a> for AI drafting and decisions
               </p>
             )}
             <ThemeToggle />

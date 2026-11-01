@@ -33,25 +33,36 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const choose = (next: string, event: React.MouseEvent) => {
-    const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    document.documentElement.style.setProperty("--vt-x", `${event.clientX}px`);
-    document.documentElement.style.setProperty("--vt-y", `${event.clientY}px`);
-    if (doc.startViewTransition && !reduce) doc.startViewTransition(() => setTheme(next));
-    else setTheme(next);
-  };
   const options = [
     { value: "light", label: "Light", icon: "sun" },
     { value: "dark", label: "Dark", icon: "moon" },
     { value: "system", label: "System", icon: "system" },
   ];
+  // Server render does not know the saved theme; place the thumb only after mount to avoid a hydration mismatch.
+  const active = mounted ? Math.max(0, options.findIndex((o) => o.value === theme)) : 0;
+  const choose = (next: string, event: React.MouseEvent<HTMLButtonElement>) => {
+    if (next === theme) return;
+    const root = document.documentElement;
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } };
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Reveal grows from the centre of the chosen button, so keyboard use looks the same as a click.
+    const box = event.currentTarget.getBoundingClientRect();
+    root.style.setProperty("--vt-x", `${box.left + box.width / 2}px`);
+    root.style.setProperty("--vt-y", `${box.top + box.height / 2}px`);
+    if (!doc.startViewTransition || reduce) {
+      setTheme(next);
+      return;
+    }
+    root.classList.add("theme-switching");
+    doc.startViewTransition(() => setTheme(next)).finished.finally(() => root.classList.remove("theme-switching"));
+  };
   return (
-    <div className="segmented glass" role="group" aria-label="Colour theme">
+    <div className="segmented glass theme-toggle" role="group" aria-label="Colour theme" data-ready={mounted}>
+      <span className="thumb" aria-hidden="true" style={{ transform: `translateX(${active * 100}%)` }} />
       {options.map((o) => (
-        <button key={o.value} type="button" aria-pressed={mounted ? theme === o.value : false} onClick={(e) => choose(o.value, e)}>
+        <button key={o.value} type="button" aria-pressed={mounted ? theme === o.value : false} aria-label={`${o.label} theme`} onClick={(e) => choose(o.value, e)}>
           <Icon name={o.icon} />
-          {o.label}
+          <span className="label">{o.label}</span>
         </button>
       ))}
     </div>

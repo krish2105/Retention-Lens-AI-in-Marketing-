@@ -63,8 +63,8 @@ export default function SignalsPage() {
                     <ResponsiveContainer>
                       <LineChart data={MONTHS.map((m, i) => ({ m, sales: t.sales_index[i], web: t.web_index[i] }))} margin={{ top: 6, right: 6, bottom: 0, left: -24 }}>
                         <CartesianGrid stroke={tokens.edge} vertical={false} />
-                        <XAxis dataKey="m" tick={{ fill: tokens.muted, fontSize: 9 }} interval={1} />
-                        <YAxis tick={{ fill: tokens.muted, fontSize: 9 }} />
+                        <XAxis dataKey="m" tick={{ fill: tokens.muted, fontSize: 11 }} interval={1} />
+                        <YAxis tick={{ fill: tokens.muted, fontSize: 11 }} />
                         <Tooltip contentStyle={{ background: tokens.bg, border: `1px solid ${tokens.edge}`, color: tokens.ink }} formatter={(v) => Number(v).toFixed(2)} />
                         <Line dataKey="sales" name="Sales" stroke={tokens.cyan} dot={false} strokeWidth={2} />
                         <Line dataKey="web" name="Web interest" stroke={tokens.magenta} dot={false} strokeWidth={2} />

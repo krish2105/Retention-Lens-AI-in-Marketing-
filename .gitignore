@@ -32,3 +32,4 @@ artefacts/
 *.tsbuildinfo
 .next-static/
 apps/web/out/
+.vercel/
