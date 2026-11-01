@@ -16,7 +16,7 @@ UPLOAD_ONLY_HINT = "This view is built for the reference dataset only; it is not
 class Env:
     def __init__(self, settings: Settings):
         self.settings = settings
-        self.db = Database(settings.state_db)
+        self.db = Database(settings.state_db, settings.database_url, settings.db_schema)
         self.reference = ServingStore(settings.serving_dir)
         self.limiter = RateLimiter()
         self._stores: dict[Path, ServingStore] = {}

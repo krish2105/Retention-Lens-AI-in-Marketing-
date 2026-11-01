@@ -20,6 +20,12 @@ An earlier run hit the API's own per-IP rate limit (429s), which is why the load
 - `GET /api/status` (public): database, reference data, scoring worker, jobs by status, local AI. Shown at `/status`.
 - `X-Request-ID` is returned on every response; quote it when reporting a problem.
 
+## Database
+
+SQLite by default (`RL_STATE_DB`); Postgres when `RL_DATABASE_URL` is set, with the API's tables in their own schema
+(`RL_DB_SCHEMA`, default `retentionlens`) and a connection pool of up to 10. The full API test suite runs on both in CI.
+On Postgres, backups and point-in-time recovery are the provider's (Supabase/Render), so the in-process SQLite backups switch off.
+
 ## Backups and restore
 
 - Scheduled inside the API: every `RL_BACKUP_HOURS` (default 24) to `RL_BACKUP_DIR`, keeps 14, SHA-256 sidecars; `/status` shows the newest. Manual: `python3 scripts/backup_db.py`.

@@ -13,6 +13,8 @@ REPO = Path(__file__).resolve().parents[3]
 class Settings:
     serving_dir: Path
     state_db: Path
+    database_url: str
+    db_schema: str
     data_dir: Path
     ollama_url: str
     ollama_model: str
@@ -45,6 +47,8 @@ def load_settings() -> Settings:
     return Settings(
         serving_dir=Path(os.environ.get("RL_SERVING_DIR", REPO / "artefacts" / "serving")),
         state_db=Path(os.environ.get("RL_STATE_DB", state / "retentionlens.sqlite3")),
+        database_url=os.environ.get("RL_DATABASE_URL", ""),
+        db_schema=os.environ.get("RL_DB_SCHEMA", "retentionlens"),
         data_dir=Path(os.environ.get("RL_DATA_DIR", state / "orgs")),
         ollama_url=os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434"),
         ollama_model=os.environ.get("OLLAMA_MODEL", "qwen2.5:7b"),

@@ -1,6 +1,8 @@
 import importlib
 import json
+import os
 import shlex
+import uuid
 import sys
 from pathlib import Path
 
@@ -46,6 +48,10 @@ def _app(serving, tmp_path, monkeypatch, **extra):
     monkeypatch.setenv("OLLAMA_URL", "http://127.0.0.1:9")
     monkeypatch.setenv("RL_BACKUP_DIR", str(tmp_path / "backups"))
     monkeypatch.setenv("RL_BACKUP_HOURS", "0")
+    # RL_TEST_DATABASE_URL runs the whole suite on Postgres, one fresh schema per test.
+    if os.environ.get("RL_TEST_DATABASE_URL"):
+        monkeypatch.setenv("RL_DATABASE_URL", os.environ["RL_TEST_DATABASE_URL"])
+        monkeypatch.setenv("RL_DB_SCHEMA", f"t_{uuid.uuid4().hex[:12]}")
     for key, value in extra.items():
         monkeypatch.setenv(key, value)
     import app.main as main
