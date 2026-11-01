@@ -15,6 +15,13 @@ Last edited: 2026-11-01 (audit + research + design spec; no application code cha
 - Archive SHA-256 572e3627…67bfb recorded in `project/DATA_SOURCE_REGISTER.csv`; report `reports/data_profile.md`; card `docs/DATA_CARD.md`.
 - Finding: the two workbook sheets overlap 2010-12-01..09; 22,202 rows repeat across sheets (flagged, first copy kept).
 
+## P2 models — VERIFIED 2026-11-01 (branch `p2-models`)
+- `cd ml && uv run pytest -q` → 33 passed.
+- `uv run python -m retentionlens.cli models --include-test` → run `20261101T084302Z-test` (24 s); dev-only run `20261101T084223Z-dev` first, identical dev numbers.
+- Frozen test 2011-09-01 (5,224 customers): BG/NBD PR-AUC 0.820 / Brier 0.1864 best; LightGBM 0.819 / 0.1938; logistic 0.814 / 0.1875. Value Gini: BG/NBD+GG 0.825 best.
+- LightGBM beats BG/NBD on 0 of 4 cutoffs (lapse), logistic on 1 of 4; beats only the recency rule and naive value (4 of 4).
+- Limitation found: seasonality not modelled; all models under-predict peak-season spend (actual £2.62M vs BG/NBD+GG £1.80M). See `docs/MODEL_CARD.md`.
+
 ## NOT verified / still absent
 - Browser rendering, theme toggle, mobile layout, keyboard flow, screenshots: **not run**.
 - No ML code, no dataset (DATA_SOURCE_REGISTER.csv header-only), no metrics, no lab/exercise artifacts, no GenAI component, no web/social source, no auth, not a git repo.
@@ -34,4 +41,4 @@ See `project/BLOCKERS.md` (added: B/D scope, Cloud Lab, "deep learning" rubric w
 - UI mockups (4 directions): private canvas https://claude.ai/artifact/MxLac3pzFvSX4fyx9M7Ty9
 
 ## Next runnable task
-P2: write the plan for baselines + BG/NBD/Gamma-Gamma + LightGBM evaluated on 4 rolling cutoffs (spec section 5), after merging `p1-data-pipeline`.
+After merging `p2-models`: P3 = FastAPI endpoints over run artefacts + Aurora UI shell (theme, Overview, Accounts) showing real run values. Owner-generated images sit untracked in `RetentionLens_AUR_Complete_Image_Collection/` for the UI phase.

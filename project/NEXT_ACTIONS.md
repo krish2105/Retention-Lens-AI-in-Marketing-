@@ -21,7 +21,9 @@
 - [ ] Add source import with strict validation and audit trail.
 
 ## M2 — academic result
-- [ ] P2: rolling-cutoff labels, baselines, BG/NBD + Gamma-Gamma, LightGBM, metrics per cutoff.
+- [x] P2: rolling-cutoff labels, baselines, BG/NBD + Gamma-Gamma, LightGBM, metrics per cutoff (2026-11-01; BG/NBD wins).
+- [ ] P2b (optional): seasonality-aware features or same-season training; conformal intervals once MAPIE v1 API verified.
+- [ ] P3: API over run artefacts + Aurora UI shell.
 - [ ] Implement baselines and justified own model or user-study protocol.
 - [ ] Record true metrics / interviews, error analysis and limitations.
 - [ ] Connect evaluated results to decision UI and export.

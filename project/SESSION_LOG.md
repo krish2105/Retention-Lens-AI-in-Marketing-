@@ -11,3 +11,6 @@ Ran 5 research tracks (sources in `research_notes/RetentionLens product and UI r
 
 ### 2026-11-01 — P1 data pipeline built and run on the real file
 Plan `docs/superpowers/plans/2026-11-01-p1-data-pipeline.md` executed test-first on branch `p1-data-pipeline`: `ml/` package (download+sha256, real-header loader, issue flags, profile, CLI). 15 tests pass. Real run: 1,067,371 rows, 5,942 customers, 22.8% missing Customer ID, 34,335 duplicates (22,202 from the Dec 2010 sheet overlap). Wrote `docs/DATA_CARD.md`. Untested: nothing downstream uses these files yet (P2).
+
+### 2026-11-01 — P2 models on rolling cutoffs
+Plan `docs/superpowers/plans/2026-11-01-p2-models.md` executed test-first on branch `p2-models`: snapshots (leakage test), recency/logistic/naive/BG-NBD+GG/LightGBM models, metrics, experiment runner, `models` CLI. 33 tests pass. Dev run then one frozen-test run. Result: BG/NBD strongest; LightGBM does not beat logistic or BG/NBD. Seasonality under-prediction documented in `docs/MODEL_CARD.md`. Untested: conformal intervals, ZILN, UI use of these outputs.

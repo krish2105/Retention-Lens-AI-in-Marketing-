@@ -21,6 +21,13 @@ cd ml && uv sync --python 3.12 && uv run pytest && uv run python -m retentionlen
 ```
 Downloads UCI Online Retail II (CC BY 4.0) into gitignored `data/raw/`, checks its SHA-256, flags data-quality issues without dropping rows, and writes `reports/data_profile.md`. Dataset facts and known issues: `docs/DATA_CARD.md`.
 
+## ML pipeline (P2: models)
+```bash
+cd ml && uv run python -m retentionlens.cli models            # dev cutoffs only
+cd ml && uv run python -m retentionlens.cli models --include-test  # adds the frozen 2011-09-01 test
+```
+Compares a recency rule, logistic RFM, BG/NBD + Gamma-Gamma and LightGBM on rolling 90-day cutoffs. Results: `reports/model_results.md`; findings and limits: `docs/MODEL_CARD.md`.
+
 ## Domain
 **Problem:** 90-day repeat-purchase and customer value forecasting with human-led account reviews
 **Target user:** Small wholesaler owner or lifecycle marketer
