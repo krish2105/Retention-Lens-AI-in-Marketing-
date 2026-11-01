@@ -29,6 +29,8 @@ class Settings:
     holdout_share: float
     queue_size: int
     rate_limit_per_minute: int
+    backup_hours: float
+    backup_dir: Path
 
 
 def load_settings() -> Settings:
@@ -59,4 +61,6 @@ def load_settings() -> Settings:
         holdout_share=float(os.environ.get("RL_HOLDOUT_SHARE", "0.2")),
         queue_size=int(os.environ.get("RL_QUEUE_SIZE", "25")),
         rate_limit_per_minute=int(os.environ.get("RL_RATE_LIMIT_PER_MIN", "600")),
+        backup_hours=float(os.environ.get("RL_BACKUP_HOURS", "24")),
+        backup_dir=Path(os.environ.get("RL_BACKUP_DIR", state / "backups")),
     )

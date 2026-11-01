@@ -44,6 +44,8 @@ def _app(serving, tmp_path, monkeypatch, **extra):
     monkeypatch.setenv("RL_DATA_DIR", str(tmp_path / "orgs"))
     monkeypatch.setenv("RL_ML_CMD", FAKE_INGEST)
     monkeypatch.setenv("OLLAMA_URL", "http://127.0.0.1:9")
+    monkeypatch.setenv("RL_BACKUP_DIR", str(tmp_path / "backups"))
+    monkeypatch.setenv("RL_BACKUP_HOURS", "0")
     for key, value in extra.items():
         monkeypatch.setenv(key, value)
     import app.main as main

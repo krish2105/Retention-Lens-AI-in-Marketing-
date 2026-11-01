@@ -13,6 +13,28 @@ from collections import defaultdict, deque
 
 SCRYPT_N, SCRYPT_R, SCRYPT_P = 2**14, 8, 1
 MIN_PASSWORD = 12  # OWASP ASVS L1 2.1.1
+# A short offline deny-list of the most common passwords that are 12+ characters long (ASVS 2.1.7 asks for a
+# breached-password check; an online k-anonymity lookup can replace this when the API is hosted).
+COMMON_PASSWORDS = {
+    "123456789012", "1234567890123", "qwertyuiopas", "qwerty123456", "password1234", "password12345", "passwordpassword",
+    "iloveyou1234", "abcdefghijkl", "abc123abc123", "letmein12345", "welcome12345", "administrator", "changeme1234",
+    "football1234", "baseball1234", "monkey123456", "dragon123456", "sunshine1234", "princess1234", "trustno11234",
+    "superman1234", "1q2w3e4r5t6y", "qazwsxedcrfv", "zaq12wsxcde3", "aaaaaaaaaaaa", "111111111111", "000000000000",
+    "123123123123", "passw0rd1234", "p@ssw0rd1234", "mypassword123", "secret123456", "retentionlens", "wholesale1234",
+}
+
+
+def password_problem(password: str, email: str) -> str | None:
+    """Plain-language reason a password is refused, or None."""
+    lowered = password.lower()
+    local = email.split("@")[0].lower()
+    if lowered in COMMON_PASSWORDS:
+        return "That password is too common; choose another"
+    if len(set(lowered)) < 4:
+        return "Use a password with more variety"
+    if len(local) >= 4 and local in lowered:
+        return "Don't include your email name in the password"
+    return None
 
 
 def hash_password(password: str) -> str:

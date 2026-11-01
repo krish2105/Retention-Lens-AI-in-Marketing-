@@ -19,6 +19,7 @@ from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field, field_validator
 
 from . import billing, datasets, loop, ops, tenancy
+from .backup import BackupScheduler
 from .db import now
 from .env import Env
 from .genai.drafting import TONES, Facts, OllamaClient, check_draft, generate
@@ -62,7 +63,8 @@ app.include_router(tenancy.router(env, ctx, require, provision_user, create_org)
 app.include_router(datasets.router(env, ctx, require, runner, worker))
 app.include_router(loop.router(env, ctx, require))
 app.include_router(billing.router(env, ctx, require))
-app.include_router(ops.router(env, metrics, lambda: worker.thread.is_alive()))
+backups = BackupScheduler(settings.state_db, settings.backup_dir, settings.backup_hours)
+app.include_router(ops.router(env, metrics, lambda: worker.thread.is_alive(), backups))
 
 SORTABLE = {"value_at_risk_90", "p_lapse", "expected_value_90", "recency_days", "net_sales_total", "frequency"}
 

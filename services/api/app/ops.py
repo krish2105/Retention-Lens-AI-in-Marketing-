@@ -96,7 +96,7 @@ def install(app, env: Env, metrics: Metrics) -> None:
         return response
 
 
-def router(env: Env, metrics: Metrics, worker_alive) -> APIRouter:
+def router(env: Env, metrics: Metrics, worker_alive, backups=None) -> APIRouter:
     api = APIRouter()
 
     @api.get("/api/metrics")
@@ -121,6 +121,13 @@ def router(env: Env, metrics: Metrics, worker_alive) -> APIRouter:
             components["local_ai"] = {"ok": True}
         except httpx.HTTPError:
             components["local_ai"] = {"ok": False, "detail": "Not running: drafts fall back to the template"}
+        if backups is not None:
+            from .backup import latest
+
+            newest = latest(backups.out)
+            components["backups"] = {"ok": backups.last_error is None and (newest is not None or backups.hours == 0),
+                                     "detail": backups.last_error or (f"Latest {newest['created_at']}, every {backups.hours:g} h" if newest
+                                                                     else ("Scheduled backups are off" if backups.hours == 0 else f"First backup due within {backups.hours:g} h"))}
         snap = metrics.snapshot()
         core = all(components[c]["ok"] for c in ("database", "scoring_worker"))
         return {"status": "operational" if core else "degraded", "components": components,

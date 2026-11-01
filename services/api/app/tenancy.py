@@ -7,6 +7,7 @@ Modes (RL_AUTH_MODE):
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import secrets
@@ -25,6 +26,7 @@ from .security import (
     InvalidToken,
     hash_password,
     new_token,
+    password_problem,
     token_hash,
     verify_hs256_jwt,
     verify_password,
@@ -220,6 +222,9 @@ def router(env: Env, ctx, require, provision_user, create_org) -> APIRouter:
     def signup(body: SignUp, request: Request, response: Response):
         local_only()
         limited(request, "auth", 10, 60)
+        problem = password_problem(body.password, body.email)
+        if problem:
+            raise HTTPException(422, problem)
         if env.db.rows("SELECT id FROM users WHERE email=?", (body.email,)):
             raise HTTPException(409, "An account with this email already exists; sign in instead")
         user = provision_user(body.email, body.name.strip(), password=body.password)
@@ -230,8 +235,16 @@ def router(env: Env, ctx, require, provision_user, create_org) -> APIRouter:
     def signin(body: SignIn, request: Request, response: Response):
         local_only()
         limited(request, "auth", 10, 60)
-        rows = env.db.rows("SELECT * FROM users WHERE email=?", (body.email.strip().lower(),))
+        email = body.email.strip().lower()
+        # Per-account throttle on top of the per-IP one, so spreading attempts over many IPs does not help.
+        if not env.limiter.allow(f"signin-account:{email}", 10, 900):
+            raise HTTPException(429, "Too many attempts for this account; wait 15 minutes")
+        rows = env.db.rows("SELECT * FROM users WHERE email=?", (email,))
         if not verify_password(body.password, rows[0]["password_hash"] if rows else None):
+            # Logged without the email itself: a short hash links repeated attempts on one account.
+            with env.db.connect() as db:
+                env.db.audit(db, "anonymous", "signin_failed", f"account:{hashlib.sha256(email.encode()).hexdigest()[:12]}",
+                             {"ip": _client_ip(request), "known_account": bool(rows)}, "security")
             raise HTTPException(401, "Email or password is wrong")
         member = env.db.rows("SELECT org_id FROM memberships WHERE user_id=? ORDER BY created_at LIMIT 1", (rows[0]["id"],))
         if not member:

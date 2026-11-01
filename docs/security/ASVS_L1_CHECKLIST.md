@@ -8,7 +8,7 @@ Sign-off by a second person is still needed (R3 gate).
 | Passwords | 2.1.1 at least 12 characters | Met | `SignUp` model; `test_signup_signin_signout_and_password_rules` |
 | Passwords | 2.4.1 stored with an approved slow hash | Met | scrypt N=2^14 in `app/security.py` |
 | Passwords | 2.2.1 anti-automation on sign-in | Met | 10 attempts/min per IP; `test_signin_is_rate_limited` |
-| Passwords | 2.1.x breached-password check | Not met | No HaveIBeenPwned check yet |
+| Passwords | 2.1.7 breached/common-password check | Partly | Offline deny-list, low-variety and email-in-password checks (tested); online k-anonymity lookup when hosted |
 | Sessions | 3.2.1 new token at sign-in, 3.2.2 ≥128 bits | Met | `secrets.token_urlsafe(32)`, only the SHA-256 stored |
 | Sessions | 3.3.1 sign-out invalidates the session | Met | Session row deleted; test checks 401 after sign-out |
 | Sessions | 3.4.1–3.4.3 cookie Secure, HttpOnly, SameSite | Met | `RL_COOKIE_SECURE=1` when hosted |
@@ -25,10 +25,10 @@ Sign-off by a second person is still needed (R3 gate).
 | Config | 14.4.x security headers | Met | nosniff, frame DENY, no-referrer, CSP on API responses, HSTS when secure |
 | Dependencies | 14.2.1 components up to date, scanned | Met | `pip-audit`, `npm audit --audit-level=high`, CodeQL in CI |
 | Logging | 7.1.1 no credentials or bodies in logs | Met | Access log has route, status and timing only |
-| Audit | 7.2.x security events logged | Partly | Decisions, invites, roles, deletions logged; failed sign-ins not logged yet |
+| Audit | 7.2.x security events logged | Met | Decisions, invites, roles, deletions and failed sign-ins (email hashed) logged; per-account sign-in throttle |
 | Data | 8.3.x export and deletion | Met | `/api/org/export`, `/api/org/delete` (tested) |
 | Comms | 9.1.1 TLS everywhere | Pending | Depends on hosting (Render/Azure provide TLS); not deployed yet |
 | Rate limits | 11.1.4 anti-automation on costly actions | Met | Uploads 20/h per org, drafts 30/min per org, global per-IP limit |
 
-Open items: breached-password check, logging failed sign-ins, hosted TLS, external sign-off, and a
+Open items: online breached-password lookup, hosted TLS, external sign-off, and a
 penetration test before real customer data.

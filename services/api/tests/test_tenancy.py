@@ -9,6 +9,7 @@ from app.security import sign_hs256_jwt
 PASSWORD = "correct horse battery"
 
 
+
 @pytest.fixture
 def local(make_app):
     return make_app(RL_AUTH_MODE="local").app
@@ -137,3 +138,37 @@ def test_signin_is_rate_limited(local):
     anon = TestClient(local)
     codes = [anon.post("/api/auth/signin", json={"email": "nobody@x.com", "password": "whatever-123"}).status_code for _ in range(12)]
     assert codes[:10] == [401] * 10 and codes[-1] == 429
+
+
+def test_weak_passwords_refused_and_failed_signins_audited(local):
+    import app.main as main
+
+    anon = TestClient(local)
+    for bad in ("password1234", "aaaaaaaaaaaab", "aliceinwonderland"):
+        r = anon.post("/api/auth/signup", json={"email": "alice@a.com", "name": "A", "password": bad})
+        assert r.status_code == 422, bad
+    signup(local, "alice@a.com", "Alpha")
+    anon.post("/api/auth/signin", json={"email": "alice@a.com", "password": "not the password"})
+    events = main.database.rows("SELECT * FROM audit_events WHERE org_id='security'")
+    assert len(events) == 1 and events[0]["action"] == "signin_failed" and "alice" not in events[0]["subject"]
+
+
+def test_per_account_signin_throttle(local, monkeypatch):
+    import app.main as main
+
+    signup(local, "alice@a.com", "Alpha")
+    codes = []
+    for i in range(11):
+        # A different address each time: only the per-account limit can stop this.
+        monkeypatch.setattr(main.env.limiter, "allow", _only_account_limit(main.env.limiter))
+        codes.append(TestClient(local).post("/api/auth/signin", json={"email": "alice@a.com", "password": f"wrong-{i}-password"}).status_code)
+    assert codes[-1] == 429
+
+
+def _only_account_limit(limiter):
+    original = type(limiter).allow
+
+    def allow(key, limit, window):
+        return True if key.startswith("auth:") or key.startswith("global:") else original(limiter, key, limit, window)
+
+    return allow

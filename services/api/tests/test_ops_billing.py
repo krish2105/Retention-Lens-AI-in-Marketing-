@@ -76,3 +76,13 @@ def test_production_refuses_auth_off(monkeypatch):
         load_settings()
     monkeypatch.setenv("RL_AUTH_MODE", "local")
     assert load_settings().auth_mode == "local"
+
+
+def test_backup_now_and_status(client, tmp_path):
+    import app.main as main
+    from app.backup import backup_now, latest
+
+    target = backup_now(main.settings.state_db, tmp_path / "b")
+    meta = latest(tmp_path / "b")
+    assert target.exists() and meta["file"] == target.name and len(meta["sha256"]) == 64
+    assert client.get("/api/status").json()["components"]["backups"]["detail"] == "Scheduled backups are off"

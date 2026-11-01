@@ -22,7 +22,8 @@ An earlier run hit the API's own per-IP rate limit (429s), which is why the load
 
 ## Backups and restore
 
-- Nightly: `python3 scripts/backup_db.py` (online SQLite backup + SHA-256, keeps 14).
+- Scheduled inside the API: every `RL_BACKUP_HOURS` (default 24) to `RL_BACKUP_DIR`, keeps 14, SHA-256 sidecars; `/status` shows the newest. Manual: `python3 scripts/backup_db.py`.
+- Realistic drill data: `scripts/seed_synthetic_state.py --db <scratch path>` fills a scratch database through the API (SYNTHETIC).
 - Monthly drill: `cd scripts && python3 restore_drill.py` → `reports/restore_drill.md`. A failed drill is an incident.
 - Uploaded files live under `RL_DATA_DIR`; back up that folder with the host's disk snapshots.
 - On Supabase: use point-in-time recovery and still run a restore drill into a branch database.

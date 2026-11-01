@@ -49,9 +49,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--db", type=Path, default=DEFAULT_DB)
     parser.add_argument("--backups", type=Path, default=REPO / "services" / "api" / ".state" / "backups")
+    parser.add_argument("--label", default="the local API database")
     args = parser.parse_args()
     result = drill(args.db, args.backups)
-    lines = ["# Restore drill", "", f"Run {result['at']} by `python3 scripts/restore_drill.py` against the local API database.", "",
+    lines = ["# Restore drill", "", f"Run {result['at']} by `python3 scripts/restore_drill.py` against {args.label}.", "",
              f"- Result: **{'PASSED' if result['passed'] else 'FAILED'}**",
              f"- Backup `{result['backup']}`, {result['bytes']:,} bytes, checksum {'matches' if result['checksum_ok'] else 'DOES NOT match'}",
              f"- `PRAGMA integrity_check`: {result['integrity']}",
