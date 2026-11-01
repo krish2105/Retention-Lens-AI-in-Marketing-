@@ -9,7 +9,8 @@ Kept current at every push so any session (local or cloud) can continue. Last up
 | P1 data, P2 models | Done (see `PROGRESS.md`) |
 | P3 API + Aurora UI shell | **Done**: `cli serve`, FastAPI (`services/api`), Next.js Overview / Accounts / Model lab / Data / Settings, 3D cohort terrain, light/dark/system theme |
 | P4 segments + 3D galaxy + lookalikes | **Done**: RFM segments + playbook, k-means (k by silhouette), 3D galaxy (5.8k instanced points), lookalike model (test AUC 0.821) |
-| P5 signals | Next |
+| P5 signals | **Done**: Wikipedia seasonality vs sales (Christmas r 0.34 same month, 0.90 with 1-month lead), co-purchase network (3 communities), 600 SYNTHETIC posts with lexicon sentiment + injection flags, polite toscrape.com scraper |
+| P6 outreach studio | Next |
 | P5 signals, P6 outreach studio, P7 product lab, P8 README/evidence/CI | Pending (see `REMAINING.md`) |
 
 ## Rebuild everything from a clean clone

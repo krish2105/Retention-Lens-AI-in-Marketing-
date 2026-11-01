@@ -35,6 +35,8 @@ def prepare(lines: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(
         {
             "customer_id": usable["customer_id"],
+            "invoice": usable["invoice"],
+            "description": usable["description"],
             "day": usable["invoice_date"].dt.normalize(),
             "stock_code": usable["stock_code"],
             "country": usable["country"],
