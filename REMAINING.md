@@ -15,7 +15,8 @@ Last updated: 2026-11-01 (after P3–P8). Completed work is in [PROGRESS.md](PRO
 | Item | Why | Est. hours |
 |---|---|---|
 | Fill `human_label` in `reports/critic_labels.csv` (16 drafts), then run `calibrate_critic.py score` | The tool and sheet are built; the labels must come from a person | 1 |
-| Demo recording (2–3 min) and README screenshots | Final-project evidence; screenshot capture was skipped while the browser was in use | 2 |
+| Demo recording (2–3 min) | Screenshots, deck and PDF report are done; a narrated walkthrough video is not | 1 |
+| Turn off Vercel Authentication for `retentionlens` | The safety check blocked Claude from changing this security setting | 0.1 |
 | Keyboard-only walkthrough and a screen-reader pass | axe scan (0 violations) and the 375 px layout are done; manual assistive-tech testing is not | 2 |
 | Seasonality-aware features (optional) | All models under-predict peak-season spend | 4 |
 | Conformal uncertainty intervals (optional) | Check the MAPIE v1 API first | 3 |

@@ -14,6 +14,8 @@ Kept current at every push so any session (local or cloud) can continue. Last up
 | P7 product lab | **Done**: basket rules (lift), portfolio matrix, product loyalty, elasticity shown as a confounding lesson |
 | P8 README, evidence page, CI | **Done**: professional README with real metrics, `/evidence` outcome map, GitHub Actions (ml, api, web) |
 | Deploy | **Live** https://krish2105.github.io/Retention-Lens-AI-in-Marketing-/ via `.github/workflows/pages.yml` (static export; refresh data with `python3 scripts/export_static_data.py` after `cli serve`) |
+| Vercel | Deployed: retentionlens-demo.vercel.app (`cd apps/web && vercel deploy --prod --build-env NEXT_PUBLIC_STATIC=1`, then `vercel alias set <url> retentionlens-demo.vercel.app`). Public access needs the owner to turn off Vercel Authentication |
+| Submission pack | `submissions/` deck + PDF report + screenshots; rebuild with `design/deck/build.js` and `design/report/` |
 | Remaining | See `REMAINING.md` (critic calibration, demo video, labs, presentation, report) |
 
 ## Rebuild everything from a clean clone

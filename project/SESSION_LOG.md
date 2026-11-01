@@ -23,3 +23,6 @@ Serving builder, FastAPI, Aurora UI (theme toggle, 3D terrain + galaxy), segment
 
 ### 2026-11-01 — Deploy, verify, accessibility
 Static read-only export deployed to GitHub Pages and verified live (data files 200, no console errors). CI green after pinning setup-uv. axe-core WCAG 2.2 AA: fixed scrollable-region and theme-token contrast issues; 0 violations on 9 pages both themes; 375 px OK. Added critic calibration tool + labelling sheet, lab scaffolds, reading list; archived starter docs.
+
+### 2026-11-01 — Errors, theme redesign, mobile pass, Vercel, deck and report
+Fixed React "unmount a root while rendering" errors (removed drei Html labels) and a toggle hydration mismatch. Redesigned theme change (feathered View Transition reveal from the toggle + sliding indicator). Playwright audit: 11 pages x 6 widths (320–768) x 2 themes, fixed sidebar overflow, iOS input zoom, tap targets, small fonts, long links; live Pages site re-audited clean apart from exempt inline links (then padded). Deployed to Vercel (retentionlens-demo.vercel.app); Vercel SSO protection still on (disabling was blocked by the safety classifier; owner must run it). Built 14-slide PPTX (design/deck/build.js) and 11-page PDF report (design/report/) from result files, with 15 live screenshots.
