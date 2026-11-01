@@ -15,12 +15,13 @@
 
 ## M1 — research input
 - [x] 2026-11-01: research report + design spec written (awaiting owner review).
-- [ ] P1: data pipeline per spec section 4 (download+sha256, real headers, cleaning, profile report, data card).
-- [ ] Verify current data source schema/licence, capture hash and data card.
+- [x] P1: data pipeline per spec section 4 (2026-11-01, 15 tests, real-file profile) (download+sha256, real headers, cleaning, profile report, data card).
+- [x] Verify current data source schema/licence, capture hash and data card.
 - [ ] Define holdout and baseline BEFORE modifying model pipeline.
 - [ ] Add source import with strict validation and audit trail.
 
 ## M2 — academic result
+- [ ] P2: rolling-cutoff labels, baselines, BG/NBD + Gamma-Gamma, LightGBM, metrics per cutoff.
 - [ ] Implement baselines and justified own model or user-study protocol.
 - [ ] Record true metrics / interviews, error analysis and limitations.
 - [ ] Connect evaluated results to decision UI and export.

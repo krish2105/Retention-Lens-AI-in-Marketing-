@@ -14,6 +14,13 @@
 
 **Demo scope:** sample records are fictional; the API stores reviews and CSV imports in local SQLite, a deterministic domain demonstration is available, and the frontend provides a functional theme toggle and review actions. **The training pipeline, real data connectors, advanced views, security and commercial production features are documented requirements to implement, not already built.**
 
+## ML pipeline (P1: data)
+Requires [uv](https://docs.astral.sh/uv/) and Python 3.12.
+```bash
+cd ml && uv sync --python 3.12 && uv run pytest && uv run python -m retentionlens.cli data
+```
+Downloads UCI Online Retail II (CC BY 4.0) into gitignored `data/raw/`, checks its SHA-256, flags data-quality issues without dropping rows, and writes `reports/data_profile.md`. Dataset facts and known issues: `docs/DATA_CARD.md`.
+
 ## Domain
 **Problem:** 90-day repeat-purchase and customer value forecasting with human-led account reviews
 **Target user:** Small wholesaler owner or lifecycle marketer

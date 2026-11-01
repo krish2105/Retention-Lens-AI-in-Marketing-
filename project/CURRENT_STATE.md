@@ -9,6 +9,12 @@ Last edited: 2026-11-01 (audit + research + design spec; no application code cha
 - `npm install` + `npx next build` in `apps/web` (Node v26.10.0): compiled, types OK.
 - Contrast computed from CSS tokens: accent/page 4.61:1, white-on-accent 4.93:1, dark accent/page 9.07:1 (AA body text passes; `--muted` unchecked).
 
+## P1 data pipeline — VERIFIED 2026-11-01 (branch `p1-data-pipeline`)
+- `cd ml && uv run pytest -q` → 15 passed (Python 3.12, pandas 2.3.3).
+- `uv run python -m retentionlens.cli data` → 1,067,371 rows, 2009-12-01..2011-12-09, 5,942 customers, 794,163 rows usable for customer models (35 s run).
+- Archive SHA-256 572e3627…67bfb recorded in `project/DATA_SOURCE_REGISTER.csv`; report `reports/data_profile.md`; card `docs/DATA_CARD.md`.
+- Finding: the two workbook sheets overlap 2010-12-01..09; 22,202 rows repeat across sheets (flagged, first copy kept).
+
 ## NOT verified / still absent
 - Browser rendering, theme toggle, mobile layout, keyboard flow, screenshots: **not run**.
 - No ML code, no dataset (DATA_SOURCE_REGISTER.csv header-only), no metrics, no lab/exercise artifacts, no GenAI component, no web/social source, no auth, not a git repo.
@@ -28,4 +34,4 @@ See `project/BLOCKERS.md` (added: B/D scope, Cloud Lab, "deep learning" rubric w
 - UI mockups (4 directions): private canvas https://claude.ai/artifact/MxLac3pzFvSX4fyx9M7Ty9
 
 ## Next runnable task
-Owner approves the spec; then write the P1 implementation plan (data pipeline: checksum download, real-header loader, cleaning, profile report) and build it test-first.
+P2: write the plan for baselines + BG/NBD/Gamma-Gamma + LightGBM evaluated on 4 rolling cutoffs (spec section 5), after merging `p1-data-pipeline`.
