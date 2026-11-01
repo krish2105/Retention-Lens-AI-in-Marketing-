@@ -1,5 +1,8 @@
 import importlib
 import json
+import shlex
+import sys
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -32,12 +35,29 @@ def serving(tmp_path):
     return d
 
 
-@pytest.fixture
-def client(serving, tmp_path, monkeypatch):
+FAKE_INGEST = f"{shlex.quote(sys.executable)} {shlex.quote(str(Path(__file__).with_name('fake_ingest.py')))}"
+
+
+def _app(serving, tmp_path, monkeypatch, **extra):
     monkeypatch.setenv("RL_SERVING_DIR", str(serving))
     monkeypatch.setenv("RL_STATE_DB", str(tmp_path / "state.sqlite3"))
+    monkeypatch.setenv("RL_DATA_DIR", str(tmp_path / "orgs"))
+    monkeypatch.setenv("RL_ML_CMD", FAKE_INGEST)
     monkeypatch.setenv("OLLAMA_URL", "http://127.0.0.1:9")
+    for key, value in extra.items():
+        monkeypatch.setenv(key, value)
     import app.main as main
 
     importlib.reload(main)
-    return TestClient(main.app)
+    return main
+
+
+@pytest.fixture
+def client(serving, tmp_path, monkeypatch):
+    return TestClient(_app(serving, tmp_path, monkeypatch).app)
+
+
+@pytest.fixture
+def make_app(serving, tmp_path, monkeypatch):
+    """Build the app with extra environment, e.g. make_app(RL_AUTH_MODE="local")."""
+    return lambda **extra: _app(serving, tmp_path, monkeypatch, **extra)

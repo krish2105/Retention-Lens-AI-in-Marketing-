@@ -12,18 +12,11 @@ import csv
 import json
 import sys
 
+from app.calibration import cohen_kappa  # noqa: F401  (re-exported for tests)
 from app.settings import REPO
 
 LABELS = REPO / "reports" / "critic_labels.csv"
 FIELDS = ["customer_id", "segment", "tone", "subject", "body", "critic_verdict", "critic_issues", "human_label", "human_note"]
-
-
-def cohen_kappa(a: list[str], b: list[str]) -> float:
-    n = len(a)
-    observed = sum(x == y for x, y in zip(a, b)) / n
-    cats = set(a) | set(b)
-    expected = sum((a.count(c) / n) * (b.count(c) / n) for c in cats)
-    return 1.0 if expected == 1 else (observed - expected) / (1 - expected)
 
 
 def export() -> None:

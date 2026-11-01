@@ -17,6 +17,7 @@ ARTEFACTS = {
     "lookalikes": "lookalikes.json",
     "signals": "signals.json",
     "product_lab": "product_lab.json",
+    "validation": "validation.json",
 }
 
 
@@ -25,14 +26,15 @@ class NotBuilt(LookupError):
 
 
 class ServingStore:
-    def __init__(self, directory: Path):
+    def __init__(self, directory: Path, missing_hint: str | None = None):
         self.directory = directory
+        self.missing_hint = missing_hint
         self._cache: dict[str, tuple[float, object]] = {}
 
     def get(self, name: str):
         path = self.directory / ARTEFACTS[name]
         if not path.exists():
-            raise NotBuilt(f"{path.name} not found; run `uv run python -m retentionlens.cli serve` in ml/")
+            raise NotBuilt(self.missing_hint or f"{path.name} not found; run `uv run python -m retentionlens.cli serve` in ml/")
         mtime = path.stat().st_mtime
         cached = self._cache.get(name)
         if cached is None or cached[0] != mtime:
