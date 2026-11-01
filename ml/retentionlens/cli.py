@@ -72,7 +72,7 @@ def run_models(repo: Path, include_test: bool) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog="retentionlens")
-    parser.add_argument("command", choices=["data", "models"])
+    parser.add_argument("command", choices=["data", "models", "serve"])
     parser.add_argument("--include-test", action="store_true", help="also score the frozen test cutoff (run once)")
     args = parser.parse_args()
     if args.command == "data":
@@ -81,6 +81,12 @@ def main() -> None:
     elif args.command == "models":
         results = run_models(REPO, args.include_test)
         print(json.dumps({"run_id": results["run_id"], "comparison": results["comparison"]}))
+    elif args.command == "serve":
+        from .serving.build import build_serving
+        from .serving.extras import EXTRA_BUILDERS
+
+        summary = build_serving(REPO, EXTRA_BUILDERS)
+        print(json.dumps({k: summary[k] for k in ("scoring_cutoff", "accounts", "bands", "value_at_risk_high")}))
 
 
 if __name__ == "__main__":

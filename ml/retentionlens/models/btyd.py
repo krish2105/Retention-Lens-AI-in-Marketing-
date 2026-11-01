@@ -51,6 +51,12 @@ class BtydModel:
         p = self.purchases.expected_probability_no_purchase(t=horizon_days, data=_purchase_frame(snap))
         return np.clip(_posterior_mean(p), 0.0, 1.0)
 
+    def predict_alive(self, snap: pd.DataFrame) -> np.ndarray:
+        return np.clip(_posterior_mean(self.purchases.expected_probability_alive(data=_purchase_frame(snap))), 0.0, 1.0)
+
+    def predict_purchases(self, snap: pd.DataFrame, horizon_days: int = 90) -> np.ndarray:
+        return _posterior_mean(self.purchases.expected_purchases(data=_purchase_frame(snap), future_t=horizon_days))
+
     def predict_value(self, snap: pd.DataFrame, horizon_days: int = 90) -> np.ndarray:
         expected = _posterior_mean(self.purchases.expected_purchases(data=_purchase_frame(snap), future_t=horizon_days))
         spend = np.full(len(snap), self.population_spend)
