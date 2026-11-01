@@ -14,3 +14,6 @@ Plan `docs/superpowers/plans/2026-11-01-p1-data-pipeline.md` executed test-first
 
 ### 2026-11-01 — P2 models on rolling cutoffs
 Plan `docs/superpowers/plans/2026-11-01-p2-models.md` executed test-first on branch `p2-models`: snapshots (leakage test), recency/logistic/naive/BG-NBD+GG/LightGBM models, metrics, experiment runner, `models` CLI. 33 tests pass. Dev run then one frozen-test run. Result: BG/NBD strongest; LightGBM does not beat logistic or BG/NBD. Seasonality under-prediction documented in `docs/MODEL_CARD.md`. Untested: conformal intervals, ZILN, UI use of these outputs.
+
+### 2026-11-01 — Progress and remaining-work summary
+Re-ran tests (ML 33 passed, demo API 6 passed). Wrote `PROGRESS.md` and `REMAINING.md` at the repo root. Remaining estimate ~80 h (P3–P8 ~51 h + course deliverables ~30 h). Owner's 11 final AUR images are generated but untracked (36 MB); compress before committing.
