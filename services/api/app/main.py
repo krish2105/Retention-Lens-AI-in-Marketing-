@@ -1,109 +1,137 @@
-"""RetentionLens local development API. NOT FOR CUSTOMER DATA OR PUBLIC EXPOSURE.
+"""RetentionLens API. Localhost decision-support service: no authentication, not for public exposure."""
+from __future__ import annotations
 
-Dataset/demo reviewers operate on synthetic records; no authentication or tenant isolation.
-"""
-import csv
-import io
-import os
-import sqlite3
-from pathlib import Path
-from fastapi import FastAPI, HTTPException
+from typing import Literal
+
+import httpx
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from .domain import domain_example
 
-APP_NAME = "RetentionLens"
-HERE=Path(__file__).resolve()
-ROOT=HERE.parents[3]
-SAMPLE=ROOT / 'data' / 'sample' / 'demo_cases.csv'
-STATE=Path(os.environ.get('DEMO_DB_PATH', str(ROOT / 'services' / 'api' / '.state' / 'demo.sqlite3')))
-app=FastAPI(title=APP_NAME+' local starter API',version='0.1.0')
-app.add_middleware(CORSMiddleware,allow_origins=['http://localhost:3000','http://127.0.0.1:3000'],allow_credentials=False,allow_methods=['*'],allow_headers=['*'])
-VALID_STATUS={'ready','needs-review','blocked','approved','rejected'}
-HEADERS=['id','title','subtitle','metric_value','metric_label','status','evidence']
+from .db import Database, now
+from .settings import load_settings
+from .store import NotBuilt, ServingStore
 
-def connect():
-    STATE.parent.mkdir(parents=True,exist_ok=True)
-    db=sqlite3.connect(str(STATE),timeout=20)
-    db.row_factory=sqlite3.Row
-    db.execute('PRAGMA journal_mode = WAL')
-    db.execute("CREATE TABLE IF NOT EXISTS demo_records (id TEXT PRIMARY KEY, title TEXT NOT NULL, subtitle TEXT NOT NULL, metric_value TEXT NOT NULL, metric_label TEXT NOT NULL, status TEXT NOT NULL, evidence TEXT NOT NULL, source_type TEXT NOT NULL DEFAULT 'SYNTHETIC')")
-    db.execute('CREATE TABLE IF NOT EXISTS demo_reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, record_id TEXT NOT NULL, status TEXT NOT NULL, note TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)')
-    return db
+settings = load_settings()
+store = ServingStore(settings.serving_dir)
+database = Database(settings.state_db)
 
-def clean_row(row):
-    for h in HEADERS:
-        if row.get(h) is None or not str(row[h]).strip(): raise ValueError('Missing '+h)
-        if len(str(row[h]))>2000: raise ValueError('Field too long: '+h)
-    if row['status'] not in VALID_STATUS: raise ValueError('Unsupported status')
-    return {k:str(row[k]).strip() for k in HEADERS}
+app = FastAPI(title="RetentionLens API", version="0.3.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=list(settings.cors_origins),
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "Idempotency-Key"],
+)
 
-def initialize(db):
-    if db.execute('SELECT COUNT(*) FROM demo_records').fetchone()[0]: return
-    with SAMPLE.open(encoding='utf-8',newline='') as f:
-        for row in csv.DictReader(f):
-            v=clean_row(row)
-            db.execute('INSERT INTO demo_records (id,title,subtitle,metric_value,metric_label,status,evidence) VALUES (?,?,?,?,?,?,?)', tuple(v[x] for x in HEADERS))
-        db.commit()
+SORTABLE = {"value_at_risk_90", "p_lapse", "expected_value_90", "recency_days", "net_sales_total", "frequency"}
+
+
+def _get(name: str):
+    try:
+        return store.get(name)
+    except NotBuilt as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+
+
+def ollama_status() -> dict:
+    try:
+        response = httpx.get(f"{settings.ollama_url}/api/tags", timeout=1.5)
+        models = [m["name"] for m in response.json().get("models", [])]
+        return {"available": settings.ollama_model in models, "model": settings.ollama_model}
+    except (httpx.HTTPError, ValueError):
+        return {"available": False, "model": settings.ollama_model}
+
+
+@app.get("/api/health")
+def health():
+    summary = store.get("summary") if store.ready() else None
+    return {
+        "ok": True,
+        "serving_ready": summary is not None,
+        "generated_at": summary and summary["generated_at"],
+        "ollama": ollama_status(),
+    }
+
+
+@app.get("/api/summary")
+def summary():
+    return _get("summary")
+
+
+@app.get("/api/accounts")
+def accounts(
+    search: str = "",
+    band: Literal["all", "high", "watch", "healthy"] = "all",
+    sort: str = "value_at_risk_90",
+    order: Literal["asc", "desc"] = "desc",
+    limit: int = Query(50, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+):
+    if sort not in SORTABLE:
+        raise HTTPException(422, f"sort must be one of {sorted(SORTABLE)}")
+    items = _get("accounts")
+    term = search.strip().lower()
+    if term:
+        items = [a for a in items if term in a["customer_id"].lower() or term in (a["country"] or "").lower()]
+    if band != "all":
+        items = [a for a in items if a["risk_band"] == band]
+    items = sorted(items, key=lambda a: (a.get(sort) is None, a.get(sort) or 0), reverse=(order == "desc"))
+    return {"total": len(items), "items": items[offset : offset + limit]}
+
+
+@app.get("/api/accounts/{customer_id}")
+def account(customer_id: str):
+    record = store.account(customer_id) if store.ready() else None
+    if record is None:
+        raise HTTPException(404, "Unknown account")
+    return {
+        "account": record,
+        "timeline": _get("timeline").get(customer_id, []),
+        "reviews": database.rows("SELECT * FROM reviews WHERE customer_id=? ORDER BY id DESC", (customer_id,)),
+        "drafts": database.rows("SELECT id, status, source, subject, created_at FROM drafts WHERE customer_id=? ORDER BY id DESC", (customer_id,)),
+    }
+
 
 class Review(BaseModel):
-    record_id: str=Field(min_length=1,max_length=100)
-    status: str=Field(pattern='^(ready|needs-review|blocked|approved|rejected)$')
-    note: str=Field(min_length=3,max_length=2000)
+    decision: Literal["contact", "keep_watching", "no_action"]
+    note: str = Field(min_length=3, max_length=2000)
+    reviewer: str = Field(min_length=1, max_length=100)
 
-class CSVImport(BaseModel):
-    csv_text:str=Field(min_length=10,max_length=150000)
 
-@app.get('/api/health')
-def health():return {'ok':True,'project':APP_NAME,'mode':'LOCAL_SYNTHETIC_DEMO','version':'0.1.0'}
+@app.post("/api/accounts/{customer_id}/reviews")
+def add_review(customer_id: str, review: Review):
+    if store.account(customer_id) is None:
+        raise HTTPException(404, "Unknown account")
+    with database.connect() as db:
+        db.execute(
+            "INSERT INTO reviews (customer_id, decision, note, reviewer, created_at) VALUES (?,?,?,?,?)",
+            (customer_id, review.decision, review.note, review.reviewer, now()),
+        )
+        database.audit(db, review.reviewer, "review", customer_id, review.model_dump())
+    return {"ok": True}
 
-@app.get('/api/demo/records')
-def records():
-    with connect() as db:
-        initialize(db)
-        return [dict(x) for x in db.execute('SELECT * FROM demo_records ORDER BY id').fetchall()]
 
-@app.get('/api/demo/summary')
-def summary():
-    with connect() as db:
-        initialize(db)
-        rows=db.execute('SELECT status,COUNT(*) n FROM demo_records GROUP BY status').fetchall()
-        return {'counts':{r['status']:r['n'] for r in rows},'total':sum(r['n'] for r in rows),'source_type':'SYNTHETIC','note':'Counts of demo review cases, not business KPIs'}
+@app.get("/api/cohorts")
+def cohorts():
+    return _get("cohorts")
 
-@app.get('/api/demo/domain')
-def domain():return domain_example()
 
-@app.post('/api/demo/reviews')
-def review(x:Review):
-    with connect() as db:
-        initialize(db)
-        if db.execute('SELECT 1 FROM demo_records WHERE id=?',(x.record_id,)).fetchone() is None: raise HTTPException(404,'Unknown demo record')
-        with db:
-            db.execute('INSERT INTO demo_reviews (record_id,status,note) VALUES(?,?,?)',(x.record_id,x.status,x.note))
-            db.execute('UPDATE demo_records SET status=? WHERE id=?',(x.status,x.record_id))
-        return {'ok':True,'record_id':x.record_id,'status':x.status,'source':'SYNTHETIC'}
+@app.get("/api/model-eval")
+def model_eval():
+    return _get("model_eval")
 
-@app.get('/api/demo/reviews')
-def reviews():
-    with connect() as db:
-        return [dict(x) for x in db.execute('SELECT * FROM demo_reviews ORDER BY id DESC LIMIT 100').fetchall()]
 
-@app.post('/api/demo/import')
-def import_demo(x:CSVImport):
-    """Local-only sample CSV JSON import; rejects invalid rows atomically, never for PII."""
-    try:
-        reader=csv.DictReader(io.StringIO(x.csv_text))
-        if reader.fieldnames != HEADERS: raise ValueError('CSV headers must exactly match demo template')
-        rows=[clean_row(r) for r in reader]
-        if not rows: raise ValueError('No rows')
-        if len(rows)>250:raise ValueError('Demo limit: 250 rows')
-        ids=[r['id'] for r in rows]
-        if len(ids)!=len(set(ids)): raise ValueError('Duplicate IDs within upload')
-        if any(not i.startswith('D-') for i in ids):raise ValueError('Demo-only IDs must begin D-')
-    except (ValueError,csv.Error) as e:raise HTTPException(422,str(e))
-    with connect() as db:
-        initialize(db)
-        with db:
-            for r in rows:
-                db.execute('INSERT INTO demo_records (id,title,subtitle,metric_value,metric_label,status,evidence) VALUES (?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title,subtitle=excluded.subtitle,metric_value=excluded.metric_value,metric_label=excluded.metric_label,status=excluded.status,evidence=excluded.evidence',tuple(r[h] for h in HEADERS))
-    return {'ok':True,'upserted':len(rows),'source_type':'SYNTHETIC','note':'Demo-only. This is not a production data importer.'}
+@app.get("/api/data")
+def data():
+    return {"profile": _get("data_profile"), "sources": _get("sources")}
+
+
+@app.get("/api/audit")
+def audit(limit: int = Query(100, ge=1, le=500)):
+    return database.rows("SELECT * FROM audit_events ORDER BY id DESC LIMIT ?", (limit,))
+
+
+for _name, _path in {"segments": "/api/segments", "galaxy": "/api/galaxy", "lookalikes": "/api/lookalikes",
+                     "signals": "/api/signals", "product_lab": "/api/product-lab"}.items():
+    app.add_api_route(_path, (lambda n: lambda: _get(n))(_name), methods=["GET"], name=_name)

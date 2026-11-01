@@ -1,24 +1,35 @@
-def test_health(client):
-    r=client.get('/api/health'); assert r.status_code==200 and r.json()['mode']=='LOCAL_SYNTHETIC_DEMO'
+def test_health_reports_serving_and_model(client):
+    body = client.get("/api/health").json()
+    assert body["serving_ready"] is True and body["ollama"]["available"] is False
 
-def test_seed_summary(client):
-    records=client.get('/api/demo/records').json()
-    summary=client.get('/api/demo/summary').json()
-    assert len(records)==3 and summary['total']==3
-    assert all(x['source_type']=='SYNTHETIC' for x in records)
 
-def test_review_updates_status_and_history(client):
-    rows=client.get('/api/demo/records').json(); record_id=rows[0]['id']
-    r=client.post('/api/demo/reviews',json={'record_id':record_id,'status':'approved','note':'Demo-only review'})
-    assert r.status_code==200
-    assert next(x for x in client.get('/api/demo/records').json() if x['id']==record_id)['status']=='approved'
-    assert client.get('/api/demo/reviews').json()[0]['note']=='Demo-only review'
+def test_accounts_filter_sort_page(client):
+    body = client.get("/api/accounts", params={"band": "all", "sort": "p_lapse", "order": "desc", "limit": 2}).json()
+    assert body["total"] == 3 and [a["customer_id"] for a in body["items"]] == ["12345", "33333"]
+    uk = client.get("/api/accounts", params={"search": "united"}).json()
+    assert uk["total"] == 2
+    assert client.get("/api/accounts", params={"band": "watch"}).json()["items"][0]["customer_id"] == "33333"
 
-def test_import_bad_header_and_duplicate_are_rejected(client):
-    assert client.post('/api/demo/import',json={'csv_text':'a,b\n1,2'}).status_code==422
-    hdr='id,title,subtitle,metric_value,metric_label,status,evidence\n'
-    row='D-TEST,X,Y,12,items,ready,DEMO\n'
-    assert client.post('/api/demo/import',json={'csv_text':hdr+row+row}).status_code==422
 
-def test_domain_has_synthetic_provenance(client):
-    assert 'SYNTHETIC' in str(client.get('/api/demo/domain').json())
+def test_bad_sort_rejected(client):
+    assert client.get("/api/accounts", params={"sort": "drop table"}).status_code == 422
+
+
+def test_account_detail_and_review_audit(client):
+    assert client.get("/api/accounts/99999").status_code == 404
+    r = client.post("/api/accounts/12345/reviews", json={"decision": "contact", "note": "Call this week", "reviewer": "KM"})
+    assert r.status_code == 200
+    detail = client.get("/api/accounts/12345").json()
+    assert detail["timeline"] == [["2011-01", 100.0, 0.0]]
+    assert detail["reviews"][0]["decision"] == "contact"
+    assert client.get("/api/audit").json()[0]["action"] == "review"
+
+
+def test_review_validation(client):
+    bad = client.post("/api/accounts/12345/reviews", json={"decision": "delete", "note": "x", "reviewer": ""})
+    assert bad.status_code == 422
+
+
+def test_not_built_artefact_returns_503(client):
+    r = client.get("/api/galaxy")
+    assert r.status_code == 503 and "cli serve" in r.json()["detail"]
