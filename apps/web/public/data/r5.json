@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-01T14:08:21+00:00",
+  "generated_at": "2026-11-01T15:27:16+00:00",
   "seed": 42,
   "alpha": 0.2,
   "dev_cutoffs": [
@@ -84,6 +84,20 @@
           "coverage": 0.7945,
           "nominal": 0.8,
           "median_width": 858.32
+        },
+        "seasonal_same_window_last_year": {
+          "calibrated_on": "2010-09-01",
+          "coverage": 0.7945,
+          "nominal": 0.8,
+          "median_width": 858.32,
+          "fallback": true
+        },
+        "seasonal_pooled": {
+          "calibrated_on": "2010-09-01",
+          "coverage": 0.7945,
+          "nominal": 0.8,
+          "median_width": 858.32,
+          "fallback": true
         }
       },
       "ziln_training_loss": [
@@ -169,6 +183,20 @@
           "coverage": 0.8218,
           "nominal": 0.8,
           "median_width": 264.35
+        },
+        "seasonal_same_window_last_year": {
+          "calibrated_on": "2010-03-02",
+          "coverage": 0.8903,
+          "nominal": 0.8,
+          "median_width": 407.27,
+          "fallback": false
+        },
+        "seasonal_pooled": {
+          "calibrated_on": "2010-03-02",
+          "coverage": 0.8506,
+          "nominal": 0.8,
+          "median_width": 311.57,
+          "fallback": false
         }
       },
       "ziln_training_loss": [
@@ -254,6 +282,20 @@
           "coverage": 0.824,
           "nominal": 0.8,
           "median_width": 249.68
+        },
+        "seasonal_same_window_last_year": {
+          "calibrated_on": "2010-06-02",
+          "coverage": 0.8694,
+          "nominal": 0.8,
+          "median_width": 292.3,
+          "fallback": false
+        },
+        "seasonal_pooled": {
+          "calibrated_on": "2010-06-02",
+          "coverage": 0.8468,
+          "nominal": 0.8,
+          "median_width": 265.72,
+          "fallback": false
         }
       },
       "ziln_training_loss": [
@@ -339,6 +381,20 @@
           "coverage": 0.7418,
           "nominal": 0.8,
           "median_width": 323.39
+        },
+        "seasonal_same_window_last_year": {
+          "calibrated_on": "2010-09-02",
+          "coverage": 0.8463,
+          "nominal": 0.8,
+          "median_width": 621.15,
+          "fallback": false
+        },
+        "seasonal_pooled": {
+          "calibrated_on": "2010-09-02",
+          "coverage": 0.7998,
+          "nominal": 0.8,
+          "median_width": 455.54,
+          "fallback": false
         }
       },
       "ziln_training_loss": [
@@ -362,6 +418,32 @@
       0.824
     ],
     "interval_coverage_within_5pts": true,
+    "interval_calibration_variants": {
+      "bgnbd_gamma_gamma_seasonal": {
+        "dev_coverage": [
+          0.7945,
+          0.8218,
+          0.824
+        ],
+        "dev_mean_abs_error": 0.0171
+      },
+      "seasonal_same_window_last_year": {
+        "dev_coverage": [
+          0.7945,
+          0.8903,
+          0.8694
+        ],
+        "dev_mean_abs_error": 0.0551
+      },
+      "seasonal_pooled": {
+        "dev_coverage": [
+          0.7945,
+          0.8506,
+          0.8468
+        ],
+        "dev_mean_abs_error": 0.0343
+      }
+    },
     "ziln_vs_bgnbd": {
       "lapse_pr_auc": {
         "wins": 0,
@@ -396,6 +478,12 @@
         "of": 3
       }
     },
-    "post_hoc_peak_gap_closed": 0.788
+    "post_hoc_peak_gap_closed": 0.788,
+    "post_hoc_peak_coverage": {
+      "bgnbd_gamma_gamma": 0.7079,
+      "bgnbd_gamma_gamma_seasonal": 0.7418,
+      "seasonal_same_window_last_year": 0.8463,
+      "seasonal_pooled": 0.7998
+    }
   }
 }

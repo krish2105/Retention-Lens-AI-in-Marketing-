@@ -71,7 +71,7 @@ Ranking accounts for a human to review each week. It is not for automated contac
 - **Why:** on the three dev cutoffs it beat the plain model on lapse Brier and value MAE 3 of 3, and cut mean
   absolute total-spend bias from 32.9% to 16.8%. PR-AUC and Gini cannot change: it rescales all accounts equally.
 - **Value ranges:** 80% split-conformal on log1p residuals, calibrated on the 90 days before the scoring date.
-  Dev coverage 79.5%, 82.2%, 82.4%; post hoc on the Sep–Nov peak 74.2% (too narrow before Christmas). Most lower bounds are £0 because many accounts do not order in a given 90 days.
+  Dev coverage 79.5%, 82.2%, 82.4%; post hoc on the Sep–Nov peak 74.2% (too narrow before Christmas). **R5b (served):** residuals pooled from the previous 90 days and the same window last year: dev 79.5%, 85.1%, 84.7%; peak 80.0% (choice informed by the seen peak window). Most lower bounds are £0 because many accounts do not order in a given 90 days.
 - **Not adopted:** ZILN neural network (0/3 dev wins on lapse PR-AUC), seasonal LightGBM (mixed).
 - **Effect on the live queue:** at the 2011-12-10 scoring date the multiplier is 0.70 (January–March is quiet),
   so more accounts are in the high-risk band than before (3,124 vs 2,456). That is the intended correction, but

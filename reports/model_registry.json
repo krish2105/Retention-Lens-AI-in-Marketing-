@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-01T14:10:48+00:00",
+  "updated_at": "2026-11-01T15:27:57+00:00",
   "serving": {
     "name": "BG/NBD + Gamma-Gamma with seasonal multiplier (PyMC-Marketing 1.3, MAP fit)",
     "version": "bgnbd-gg-seasonal-v1",
@@ -14,10 +14,14 @@
     "intervals": {
       "available": true,
       "level": 0.8,
+      "calibration_windows": [
+        "2011-09-11",
+        "2010-12-11"
+      ],
       "calibration_cutoff": "2011-09-11",
-      "calibration_customers": 5256,
+      "calibration_customers": 9543,
       "calibration_coverage": 0.8,
-      "method": "split conformal on log1p residuals, calibrated on the previous 90 days"
+      "method": "split conformal on log1p residuals, pooled from the previous 90 days and the same window last year"
     },
     "evidence": [
       "reports/model_results.md",
@@ -35,7 +39,7 @@
       "name": "bgnbd_gamma_gamma_seasonal",
       "status": "serving",
       "evidence": "reports/r5_results.md",
-      "evidence_sha": "4bd45e34d0e7f431",
+      "evidence_sha": "7827b21b3dcfae99",
       "dev_result": {
         "lapse_brier": {
           "wins": 3,

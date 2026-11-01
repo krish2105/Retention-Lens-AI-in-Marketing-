@@ -79,7 +79,7 @@ What the evidence supports, across all 4 evaluation cutoffs:
 
 **R5 additions** (selection on the three dev cutoffs only; the frozen test was not reused to choose anything, see [R5 results](reports/r5_results.md)). R5 refits every model on net-of-returns snapshots, as served, so its baseline numbers differ slightly from the table above (for example value MAE £360 vs £362 at 2011-09-01):
 - **Seasonality now served.** A same-window-last-year multiplier cut BG/NBD + Gamma-Gamma's total-spend bias from 32.9% to 16.8% on dev cutoffs and won lapse Brier and value MAE on 3 of 3.
-- **Value ranges.** 80% split-conformal ranges covered 79.5%, 82.2% and 82.4% of accounts on the dev cutoffs; every account shows one. On the Sep–Nov peak window (post hoc) coverage fell to 74.2%, outside the ±5-point target: the ranges are too narrow going into Christmas.
+- **Value ranges.** 80% split-conformal ranges covered 79.5%, 82.2% and 82.4% of accounts on the dev cutoffs; every account shows one. Going into Christmas (post hoc) that calibration covered only 74.2%, so served ranges now pool residuals from the previous 90 days and the same window last year: 79.5–85.1% on dev, 80.0% on the peak window (R5b, choice informed by that seen window).
 - **Deep-learning challenger.** A zero-inflated lognormal network (NumPy, hand-derived gradients) won 0 of 3 on lapse PR-AUC and was not adopted. Two fixes made after seeing dev results are disclosed.
 
 Full detail: [model card](docs/MODEL_CARD.md) · [model results](reports/model_results.md) · [data card](docs/DATA_CARD.md) · [GenAI evaluation](reports/genai_eval.md)

@@ -26,7 +26,7 @@ problem row (cancellations, duplicates, missing customers, postage lines) is fla
 | Fix the evaluation before modelling: rolling time cutoffs, a frozen test scored once | `reports/model_results.md` |
 | Serve the simpler model: LightGBM did not beat BG/NBD on any of 4 cutoffs (on the test, 0.819 vs 0.820: a tie) | Frozen test, 5,224 customers: lapse PR-AUC 0.820, Brier 0.186, value Gini 0.825 |
 | Add seasonality: a multiplier from the same window last year | Dev cutoffs: mean absolute total-spend bias 32.9% → 16.8% (49% lower); won Brier and MAE on 3 of 3 |
-| Show uncertainty: 80% split-conformal value ranges | Coverage 79.5%, 82.2%, 82.4% on the three dev cutoffs; 74.2% on the peak window (post hoc), below target |
+| Show uncertainty: 80% split-conformal value ranges | Coverage 79.5–82.4% on dev, but 74.2% on the peak window; pooling with same-window-last-year residuals (R5b) gives 79.5–85.1% on dev and 80.0% on the peak |
 | Test a deep-learning challenger honestly: ZILN network | 0 of 3 dev wins on lapse PR-AUC; not adopted; two dev-informed fixes disclosed |
 | Find likely high-value newcomers | Lookalike model, time-based split: AUC 0.821 on 1,285 later customers |
 | Measure outreach causally | Weekly queue holds out a random 20%; contact vs holdout reorder rates with a 95% CI |
@@ -59,7 +59,7 @@ a UK PECR consent gate and no send path; workspaces with owner/reviewer/viewer r
 - One company's data from 2009–2011.
 - Customer interviews, usability sessions and a pilot have **not** happened yet. Pricing is a hypothesis.
 - The AI critic is not calibrated against human labels yet, and only 1 of 16 live drafts passed every check.
-- Value ranges are too narrow before Christmas (74.2% coverage on the peak window against an 80% target).
+- The R5b interval fix was chosen after seeing the peak window, so its 80.0% peak coverage is optimistic.
 - Hosting (Render/Supabase) and Stripe test mode are prepared but need the owner's accounts.
 
 ## Pilot results

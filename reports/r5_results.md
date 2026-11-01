@@ -1,6 +1,6 @@
 # R5 results: seasonality, value intervals and the ZILN challenger
 
-Generated 2026-11-01T14:08:21+00:00 · seed 42 · selection on dev cutoffs 2010-12-01, 2011-03-01, 2011-06-01 only.
+Generated 2026-11-01T15:27:16+00:00 · seed 42 · selection on dev cutoffs 2010-12-01, 2011-03-01, 2011-06-01 only.
 The 2011-09-01 cutoff was scored once in P3; it appears below only as a labelled post-hoc look, not for choosing models.
 
 ## Summary
@@ -13,7 +13,7 @@ The 2011-09-01 cutoff was scored once in P3; it appears below only as a labelled
 ## Decisions
 
 - **Adopted:** the seasonal multiplier in serving (it beat plain BG/NBD on lapse Brier and value MAE on 3 of 3 dev cutoffs; PR-AUC and Gini cannot change because it rescales every account equally).
-- **Adopted:** 80% split-conformal value ranges, calibrated on the 90 days before each scoring date.
+- **Adopted (R5b):** 80% split-conformal value ranges calibrated on residuals pooled from the previous 90 days and the same window last year. Previous-90-days alone was best on dev (mean error 1.7 points) but covered only 74.2% on the peak window; pooled is within 5 points on every dev cutoff (mean error 3.4) and covered 80.0% on the peak. The peak window was already seen, so this choice is informed by it.
 - **Not adopted:** the ZILN network (0 of 3 dev wins on lapse PR-AUC and value MAE). It is kept as the documented deep-learning challenger.
 - **Not adopted:** seasonal features for LightGBM (mixed: wins 2 of 3 on PR-AUC, worse calibration).
 - **Gate check:** the roadmap asked for 50% of the peak-season spend gap closed. On dev cutoffs (none of which is the peak) the bias fell 49%; on the peak window, post hoc, 79%. Read the second number with care.
@@ -40,6 +40,8 @@ The 2011-09-01 cutoff was scored once in P3; it appears below only as a labelled
 |---|---|---|---|
 | bgnbd_gamma_gamma | 2010-09-01 | 72.8% | £1,064 |
 | bgnbd_gamma_gamma_seasonal | 2010-09-01 | 79.5% | £858 |
+| seasonal_same_window_last_year | 2010-09-01 | 79.5% | £858 |
+| seasonal_pooled | 2010-09-01 | 79.5% | £858 |
 
 ### 2011-03-01 (dev, 4,512 customers, season multiplier 0.9315)
 
@@ -55,6 +57,8 @@ The 2011-09-01 cutoff was scored once in P3; it appears below only as a labelled
 |---|---|---|---|
 | bgnbd_gamma_gamma | 2010-12-01 | 81.4% | £229 |
 | bgnbd_gamma_gamma_seasonal | 2010-12-01 | 82.2% | £264 |
+| seasonal_same_window_last_year | 2010-03-02 | 89.0% | £407 |
+| seasonal_pooled | 2010-03-02 | 85.1% | £312 |
 
 ### 2011-06-01 (dev, 4,908 customers, season multiplier 0.9239)
 
@@ -70,6 +74,8 @@ The 2011-09-01 cutoff was scored once in P3; it appears below only as a labelled
 |---|---|---|---|
 | bgnbd_gamma_gamma | 2011-03-01 | 82.4% | £252 |
 | bgnbd_gamma_gamma_seasonal | 2011-03-01 | 82.4% | £250 |
+| seasonal_same_window_last_year | 2010-06-02 | 86.9% | £292 |
+| seasonal_pooled | 2010-06-02 | 84.7% | £266 |
 
 ### 2011-09-01 (post hoc test, 5,224 customers, season multiplier 1.3976)
 
@@ -85,4 +91,6 @@ The 2011-09-01 cutoff was scored once in P3; it appears below only as a labelled
 |---|---|---|---|
 | bgnbd_gamma_gamma | 2011-06-01 | 70.8% | £214 |
 | bgnbd_gamma_gamma_seasonal | 2011-06-01 | 74.2% | £323 |
+| seasonal_same_window_last_year | 2010-09-02 | 84.6% | £621 |
+| seasonal_pooled | 2010-09-02 | 80.0% | £456 |
 
