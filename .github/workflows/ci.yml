@@ -102,6 +102,8 @@ jobs:
       - name: Start Supabase (migrations apply on start)
         run: |
           [ -f supabase/config.toml ] || supabase init --force
+          # Container names come from project_id; the repo folder ends in '-', which is not a valid hostname.
+          sed -i 's/^project_id = .*/project_id = "retentionlens"/' supabase/config.toml
           EXCLUDE=studio,imgproxy,inbucket,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,storage-api,gotrue,kong,rest
           supabase start -x $EXCLUDE || (supabase stop --no-backup; sleep 30; supabase start --debug -x $EXCLUDE)
       - name: Row-level security isolation test
