@@ -1,0 +1,65 @@
+{
+  "at": "2026-11-01T19:30:35+00:00",
+  "base": "http://127.0.0.1:8102",
+  "users": 20,
+  "seconds": 30,
+  "requests": 12620,
+  "throughput_rps": 420.7,
+  "errors": 0,
+  "p50_ms": 42.0,
+  "p95_ms": 85.6,
+  "mean_ms": 47.6,
+  "slo_p95_ms": 500,
+  "meets_slo": true,
+  "routes": {
+    "account detail": {
+      "requests": 1826,
+      "errors": 0,
+      "p50_ms": 59.4,
+      "p95_ms": 95.4,
+      "p99_ms": 150.3
+    },
+    "account search": {
+      "requests": 1857,
+      "errors": 0,
+      "p50_ms": 39.3,
+      "p95_ms": 72.2,
+      "p99_ms": 139.3
+    },
+    "accounts page": {
+      "requests": 1839,
+      "errors": 0,
+      "p50_ms": 40.4,
+      "p95_ms": 70.3,
+      "p99_ms": 140.2
+    },
+    "cohorts": {
+      "requests": 1743,
+      "errors": 0,
+      "p50_ms": 36.4,
+      "p95_ms": 70.3,
+      "p99_ms": 128.8
+    },
+    "queue": {
+      "requests": 1800,
+      "errors": 0,
+      "p50_ms": 59.2,
+      "p95_ms": 96.1,
+      "p99_ms": 161.6
+    },
+    "segments": {
+      "requests": 1758,
+      "errors": 0,
+      "p50_ms": 36.3,
+      "p95_ms": 67.0,
+      "p99_ms": 140.2
+    },
+    "summary": {
+      "requests": 1797,
+      "errors": 0,
+      "p50_ms": 36.1,
+      "p95_ms": 69.6,
+      "p99_ms": 145.5
+    }
+  }
+}

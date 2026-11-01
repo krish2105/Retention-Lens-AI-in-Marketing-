@@ -17,7 +17,7 @@ REPO = Path(__file__).resolve().parents[1]
 
 
 def main(db: Path, orgs: int, reviews_per_org: int) -> None:
-    os.environ.update({"RL_STATE_DB": str(db), "RL_DATA_DIR": str(db.parent / "orgs"), "RL_AUTH_MODE": "local",
+    os.environ.update({"RL_STATE_DB": str(db), "RL_DB_SCHEMA": os.environ.get("RL_DB_SCHEMA", "seeded"), "RL_DATA_DIR": str(db.parent / "orgs"), "RL_AUTH_MODE": "local",
                        "RL_BACKUP_HOURS": "0", "RL_RATE_LIMIT_PER_MIN": "1000000", "OLLAMA_URL": "http://127.0.0.1:9"})
     sys.path.insert(0, str(REPO / "services" / "api"))
     from fastapi.testclient import TestClient
@@ -47,7 +47,8 @@ def main(db: Path, orgs: int, reviews_per_org: int) -> None:
     anon = TestClient(main.app)
     for w in range(40):
         anon.post("/api/waitlist", json={"email": f"lead{w}@synthetic.example", "company": "Synthetic Co", "role": "Owner", "accounts_band": "200_1000", "consent": True})
-    print(f"seeded {orgs} synthetic workspaces into {db}")
+    target = f"Postgres schema {os.environ['RL_DB_SCHEMA']}" if os.environ.get("RL_DATABASE_URL") else str(db)
+    print(f"seeded {orgs} synthetic workspaces into {target}")
 
 
 if __name__ == "__main__":
@@ -56,7 +57,7 @@ if __name__ == "__main__":
     parser.add_argument("--orgs", type=int, default=5)
     parser.add_argument("--reviews", type=int, default=200)
     args = parser.parse_args()
-    if args.db.exists():
+    if args.db.exists() and not os.environ.get("RL_DATABASE_URL"):
         sys.exit(f"{args.db} exists; use a new scratch path")
     args.db.parent.mkdir(parents=True, exist_ok=True)
     main(args.db, args.orgs, args.reviews)

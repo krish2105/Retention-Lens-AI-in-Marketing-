@@ -69,16 +69,18 @@ if __name__ == "__main__":
     parser.add_argument("--base", default="http://localhost:8001")
     parser.add_argument("--users", type=int, default=20)
     parser.add_argument("--seconds", type=int, default=30)
+    parser.add_argument("--stem", default="load_test", help="report file name, e.g. load_test_postgres")
+    parser.add_argument("--backend", default="SQLite")
     args = parser.parse_args()
     result = asyncio.run(main(args.base, args.users, args.seconds))
-    (REPO / "reports" / "load_test.json").write_text(json.dumps(result, indent=2) + "\n")
+    (REPO / "reports" / f"{args.stem}.json").write_text(json.dumps(result, indent=2) + "\n")
     lines = ["# Load test", "", f"{result['at']} · {result['users']} concurrent simulated reviewers for {result['seconds']} s against one local API process "
-             f"(uvicorn, 1 worker, SQLite, reference dataset of 5,852 accounts) on a MacBook, with the per-IP rate limit raised because every simulated user shares one address. `scripts/load_test.py`.", "",
+             f"(uvicorn, 1 worker, {args.backend}, reference dataset of 5,852 accounts) on a MacBook, with the per-IP rate limit raised because every simulated user shares one address. `scripts/load_test.py`.", "",
              f"- {result['requests']:,} requests, {result['throughput_rps']} per second, {result['errors']} errors",
              f"- All reads p50 {result['p50_ms']} ms, p95 {result['p95_ms']} ms",
              f"- SLO (no errors, every read route p95 under {SLO_P95_MS} ms): **{'met' if result['meets_slo'] else 'NOT met'}**", "",
              "| Route | Requests | Errors | p50 ms | p95 ms | p99 ms |", "|---|---|---|---|---|---|",
              *[f"| {n} | {r['requests']:,} | {r['errors']} | {r['p50_ms']} | {r['p95_ms']} | {r['p99_ms']} |" for n, r in result["routes"].items()], "",
              "Limits: one machine, warm caches, no network latency, no sign-in. A hosted test should be repeated after deployment.", ""]
-    (REPO / "reports" / "load_test.md").write_text("\n".join(lines))
+    (REPO / "reports" / f"{args.stem}.md").write_text("\n".join(lines))
     print(json.dumps({k: result[k] for k in ("requests", "throughput_rps", "errors", "p95_ms", "meets_slo")}))
