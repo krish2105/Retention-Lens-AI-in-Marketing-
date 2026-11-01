@@ -39,6 +39,11 @@ def clean_transactions(df: pd.DataFrame) -> CleanResult:
     issues = {"rows": len(out)}
     issues.update({flag: int(out[flag].sum()) for flag in FLAGS})
     issues["negative_qty_not_cancelled"] = int((out["is_negative_qty"] & ~out["is_cancellation"]).sum())
+    # The two source sheets overlap in time; separate repeated lines inside one sheet
+    # from rows that appear again in the other sheet.
+    within = int(out.duplicated(subset=[*CANONICAL, "source_sheet"], keep="first").sum())
+    issues["duplicate_within_sheet"] = within
+    issues["duplicate_across_sheets"] = issues["is_duplicate"] - within
     return CleanResult(lines=out, issues=issues)
 
 

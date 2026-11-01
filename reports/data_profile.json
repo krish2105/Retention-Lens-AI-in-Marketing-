@@ -1,0 +1,44 @@
+{
+  "rows": 1067371,
+  "date_min": "2009-12-01",
+  "date_max": "2011-12-09",
+  "invoices": 53628,
+  "customers": 5942,
+  "countries": 43,
+  "rows_by_sheet": {
+    "Year 2009-2010": 525461,
+    "Year 2010-2011": 541910
+  },
+  "issues": {
+    "rows": 1067371,
+    "is_cancellation": 19494,
+    "is_negative_qty": 22950,
+    "is_nonpositive_price": 6207,
+    "is_non_product": 6093,
+    "is_missing_customer": 243007,
+    "is_duplicate": 34335,
+    "negative_qty_not_cancelled": 3457,
+    "duplicate_within_sheet": 12133,
+    "duplicate_across_sheets": 22202
+  },
+  "top_non_product_codes": {
+    "POST": 2122,
+    "DOT": 1446,
+    "M": 1421,
+    "C2": 282,
+    "D": 177,
+    "S": 104,
+    "BANK CHARGES": 102,
+    "ADJUST": 67,
+    "AMAZONFEE": 43,
+    "DCGS0058": 31,
+    "gift_0001_20": 29,
+    "gift_0001_30": 29,
+    "DCGSSGIRL": 25,
+    "DCGSSBOY": 23,
+    "PADS": 19
+  },
+  "customer_model_rows": 794163,
+  "customer_model_customers": 5875,
+  "customer_model_net_value": 16358614.54
+}

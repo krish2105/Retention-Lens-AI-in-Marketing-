@@ -31,8 +31,19 @@ def test_flags_are_counted_not_dropped():
         "is_missing_customer": 2,
         "is_duplicate": 1,
         "negative_qty_not_cancelled": 1,
+        "duplicate_within_sheet": 1,
+        "duplicate_across_sheets": 0,
     }
     assert set(FLAGS) <= set(result.lines.columns)
+
+
+def test_cross_sheet_overlap_is_counted_separately():
+    df = lines()
+    overlap = df.iloc[[0]].assign(source_sheet="t")
+    result = clean_transactions(pd.concat([df, overlap], ignore_index=True))
+    assert result.issues["is_duplicate"] == 2
+    assert result.issues["duplicate_within_sheet"] == 1
+    assert result.issues["duplicate_across_sheets"] == 1
 
 
 def test_line_value_signed():

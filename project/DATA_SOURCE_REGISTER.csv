@@ -1,1 +1,2 @@
 name,url,version,access_date,license,sha256,allowed_use,notes
+online_retail_ii,https://archive.ics.uci.edu/static/public/502/online+retail+ii.zip,UCI id 502 (donated 2019-09-20),2026-11-01,CC BY 4.0,572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb,Coursework and public portfolio with attribution; raw file not redistributed in repo,"Chen, D. (2019). Online Retail II [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C5CG6D"
