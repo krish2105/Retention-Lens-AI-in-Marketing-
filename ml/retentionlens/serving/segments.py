@@ -153,7 +153,13 @@ def build_segments(prepared: pd.DataFrame, scored: pd.DataFrame, out: Path, cuto
     rfm = rfm_scores(scored)
     segment = pd.Series([name_segment(r, f, m) for r, f, m in rfm.itertuples(index=False)], index=scored.index, name="segment")
     cluster, cluster_meta = clusters(scored)
-    lookalike, lookalike_meta = lookalike_model(prepared, cutoff)
+    try:
+        lookalike, lookalike_meta = lookalike_model(prepared, cutoff)
+    except (ValueError, KeyError):
+        # Uploads with under ~18 months of history cannot train a first-year-value model.
+        lookalike = pd.Series(dtype=float, name="lookalike_score")
+        lookalike_meta = {"available": False, "reason": "Needs customers whose first order was at least a year before the scoring date, so first-year spend is known",
+                          "definition": "P(first-year spend in the top 20%) from first-order features", "test_auc": None, "newcomers": 0}
 
     frame = scored.join(rfm).assign(segment=segment, cluster=cluster)
     table = []

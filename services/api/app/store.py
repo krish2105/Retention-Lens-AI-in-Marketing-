@@ -18,6 +18,7 @@ ARTEFACTS = {
     "signals": "signals.json",
     "product_lab": "product_lab.json",
     "validation": "validation.json",
+    "upload_eval": "upload_eval.json",
 }
 
 

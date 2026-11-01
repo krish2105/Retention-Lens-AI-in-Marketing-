@@ -8,7 +8,8 @@ import { ErrorState, Loading, PageHeader } from "@/components/ui";
 type Lab = {
   rules: { if: string; then: string; support: number; confidence: number; lift: number; invoices: number }[];
   elasticities: { product: string; elasticity: number; ci_low: number; ci_high: number; weeks: number; r2: number }[];
-  portfolio: { product: string; sales_2011: number; sales_2010: number; growth: number | null; quadrant: string | null }[];
+  portfolio: { product: string; sales_recent: number; sales_prior: number; growth: number | null; quadrant: string | null }[];
+  portfolio_window?: { recent: string; prior: string; available: boolean; reason?: string };
   loyalty: { product: string; buyers: number; repeat_rate: number }[];
   caveats: string[];
 };
@@ -33,17 +34,21 @@ export default function ProductLab() {
                 <tbody>{lab.rules.map((r) => <tr key={r.if + r.then}><td>{r.if}</td><td>{r.then}</td><td className="num">{pct(r.confidence)}</td><td className="num">{r.lift.toFixed(1)}×</td><td className="num">{count(r.invoices)}</td></tr>)}</tbody>
               </table>
             </div>
-            <p className="provenance">Lift 28× means the pair appears together 28 times more often than chance. Use it for “customers also stock” suggestions in outreach.</p>
+            {lab.rules.length === 0 ? (
+              <p className="notice">No product pairs pass the thresholds (each pair in at least 1% of invoices, lift of 2 or more). Small catalogues or few multi-line invoices often give none.</p>
+            ) : (
+              <p className="provenance">Lift {lab.rules[0].lift.toFixed(0)}× means the top pair appears together {lab.rules[0].lift.toFixed(0)} times more often than chance. Use it for “customers also stock” suggestions in outreach.</p>
+            )}
           </section>
 
           <div className="row">
             <section className="glass panel" style={{ flex: "1 1 480px" }}>
-              <div className="panel-head"><h2>Portfolio: volume vs growth</h2><span className="hint">Jan–Nov 2011 vs Jan–Nov 2010, top 40 products</span></div>
+              <div className="panel-head"><h2>Portfolio: volume vs growth</h2><span className="hint">{lab.portfolio_window ? `${lab.portfolio_window.recent} vs ${lab.portfolio_window.prior}` : "last 12 months vs the 12 before"}, top 40 products</span></div>
               <div style={{ height: 320 }}>
                 <ResponsiveContainer>
                   <ScatterChart margin={{ top: 10, right: 16, bottom: 10, left: 0 }}>
                     <CartesianGrid stroke={tokens.edge} />
-                    <XAxis type="number" dataKey="sales_2011" name="2011 sales" tickFormatter={(v) => `£${Math.round(v / 1000)}k`} tick={{ fill: tokens.muted, fontSize: 11 }} />
+                    <XAxis type="number" dataKey="sales_recent" name="Last 12 months" tickFormatter={(v) => `£${Math.round(v / 1000)}k`} tick={{ fill: tokens.muted, fontSize: 11 }} />
                     <YAxis type="number" dataKey="growth" name="Growth" tickFormatter={(v) => `${Math.round(v * 100)}%`} tick={{ fill: tokens.muted, fontSize: 11 }} />
                     <ZAxis range={[60, 60]} />
                     <Tooltip contentStyle={{ background: tokens.bg, border: `1px solid ${tokens.edge}`, color: tokens.ink }} formatter={(v, n) => (n === "Growth" ? pct(Number(v)) : money(Number(v)))} labelFormatter={() => ""} />

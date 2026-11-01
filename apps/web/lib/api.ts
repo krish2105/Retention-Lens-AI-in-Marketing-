@@ -102,6 +102,7 @@ async function staticGet(path: string): Promise<unknown> {
   if (route === "/api/data") return { profile: await file("data_profile"), sources: await file("sources") };
   if (route === "/api/drafts" || route === "/api/audit" || route === "/api/datasets") return [];
   if (route === "/api/auth/me") return DEMO_ME;
+  if (route === "/api/research") return { r5: await file("r5"), registry: await file("registry") };
   if (route === "/api/plans") return file("plans");
   if (route === "/api/billing") return { plan: "pilot", limits: null, usage: { active_accounts: (await file<Summary>("summary")).accounts, share: null }, billing_configured: false, note: "Public demo: billing runs only on a hosted server in Stripe test mode", status: "Pricing hypothesis: not yet validated with customers" };
   if (route === "/api/status") return file("status");

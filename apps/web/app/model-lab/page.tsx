@@ -5,6 +5,7 @@ import { useApi } from "@/lib/api";
 import { fixed } from "@/lib/format";
 import { useTokens } from "@/lib/tokens";
 import { ErrorState, Loading, PageHeader } from "@/components/ui";
+import { Research, UploadBacktest } from "@/components/Research";
 
 type Metrics = Record<string, number>;
 type CutoffResult = {
@@ -15,7 +16,7 @@ type CutoffResult = {
   value: Record<string, Metrics>;
   reliability: Record<string, { mean_pred: number | null; observed: number | null; n: number }[]>;
 };
-type Eval = { run_id: string; data_sha256: string; seed: number; cutoffs: Record<string, CutoffResult>; comparison: Record<string, Record<string, { wins: number; of: number }>>; versions: Record<string, string> };
+type Eval = { upload_backtest?: Parameters<typeof UploadBacktest>[0]["b"]; run_id: string; data_sha256: string; seed: number; cutoffs: Record<string, CutoffResult>; comparison: Record<string, Record<string, { wins: number; of: number }>>; versions: Record<string, string> };
 
 const LAPSE = [["pr_auc", "PR-AUC", 3, true], ["roc_auc", "ROC-AUC", 3, true], ["brier", "Brier", 4, false], ["top_lift", "Top-10% lift", 2, true]] as const;
 const VALUE = [["normalized_gini", "Normalised Gini", 3, true], ["mae", "MAE (£)", 1, false]] as const;
@@ -54,9 +55,10 @@ function MetricTable({ data, kind, metric, digits, higher }: { data: Eval; kind:
 
 export default function ModelLab() {
   const result = useApi<Eval>("/api/model-eval");
+  const upload = result.data?.upload_backtest;
   const tokens = useTokens();
   const [metric, setMetric] = useState(0);
-  const data = result.data;
+  const data = result.data && !result.data.upload_backtest ? result.data : null;
   const test = data ? Object.entries(data.cutoffs).find(([, r]) => r.role === "test") : undefined;
   const reliability = test
     ? test[1].reliability.bgnbd.map((b, i) => ({
@@ -68,9 +70,10 @@ export default function ModelLab() {
 
   return (
     <>
-      <PageHeader eyebrow="Model lab" title="Which model to trust, and how far." lede="Five cutoffs, a 90-day horizon, settings fixed before any result was seen, and one frozen test at 2011-09-01 scored once. The best value in each column is highlighted." />
+      <PageHeader eyebrow="Model lab" title="Which model to trust, and how far." lede={upload ? "Your workspace uses its own upload, so the check below is a backtest on your data. The full rolling-cutoff study runs on the reference dataset." : "Five cutoffs, a 90-day horizon, settings fixed before any result was seen, and one frozen test at 2011-09-01 scored once. The best value in each column is highlighted."} />
       {result.error && <section className="glass panel"><ErrorState message={result.error} onRetry={result.reload} /></section>}
       {result.loading && <section className="glass panel"><Loading rows={8} /></section>}
+      {upload && <UploadBacktest b={upload} />}
       {data && (
         <>
           <section className="glass panel">
@@ -100,7 +103,7 @@ export default function ModelLab() {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              <p className="provenance">Points below the dashed line: the model predicts more lapse than happened. The test window is the Christmas peak, and none of the models capture seasonality.</p>
+              <p className="provenance">Points below the dashed line: the model predicts more lapse than happened. The test window is the Christmas peak; these P2 models had no seasonality. The served model now adds a seasonal multiplier (R5, below).</p>
             </section>
             <section className="glass panel" style={{ flex: "1 1 380px" }}>
               <h2>Value: expected 90-day spend</h2>
@@ -136,6 +139,7 @@ export default function ModelLab() {
               {Object.entries(data.versions).map(([k, v]) => <span key={k}>{k} {v}</span>)}
             </p>
           </section>
+          <Research />
         </>
       )}
     </>

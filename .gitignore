@@ -40,3 +40,4 @@ RetentionLens_AUR_Complete_Image_Collection.zip
 apps/web/test-results/
 apps/web/playwright-report/
 apps/web/.next-e2e/
+apps/web/.next-*/

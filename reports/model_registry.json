@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-01T15:27:57+00:00",
+  "updated_at": "2026-11-01T19:02:48+00:00",
   "serving": {
     "name": "BG/NBD + Gamma-Gamma with seasonal multiplier (PyMC-Marketing 1.3, MAP fit)",
     "version": "bgnbd-gg-seasonal-v1",

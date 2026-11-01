@@ -207,7 +207,9 @@ def score(path: Path, mapping: dict, out_dir: Path, date_order: str = "auto", pr
     """Upload -> validate -> clean -> snapshot -> BG/NBD + Gamma-Gamma -> serving files in out_dir."""
     from ..serving.build import MODEL_NAME, account_records, timeline
     from ..serving.scoring import cohort_matrix, score_accounts
-    from ..serving.segments import PLAYBOOK, name_segment, rfm_scores
+    from ..product.lab import build_product_lab
+    from ..serving.products import build_account_products
+    from ..serving.segments import build_segments
     from .intervals import add_value_intervals
 
     progress("reading", 5)
@@ -221,21 +223,32 @@ def score(path: Path, mapping: dict, out_dir: Path, date_order: str = "auto", pr
     cutoff = (prepared["day"].max() + pd.Timedelta(days=1)).date().isoformat()
     progress("fitting", 45)
     scored = score_accounts(prepared, cutoff)
-    progress("segmenting", 75)
-    rfm = rfm_scores(scored)
-    segments = pd.Series([name_segment(r, f, m) for r, f, m in rfm.itertuples(index=False)], index=scored.index, name="segment")
-    bounds, interval_meta = add_value_intervals(prepared, scored, cutoff)
-    extra = pd.concat([segments, bounds], axis=1)
-
-    progress("writing", 90)
+    progress("segmenting", 70)
     out_dir.mkdir(parents=True, exist_ok=True)
+    # Same builders as the reference dataset, so Segments, the 3D galaxy, lookalikes, Product lab and
+    # draft product mentions all work on uploads. Each failure is reported, never silently filled.
+    extras, skipped = [], {}
+    for name, builder in (("segments", lambda: build_segments(prepared, scored, out_dir, cutoff)),
+                          ("top_products", lambda: build_account_products(prepared, scored, out_dir)),
+                          ("product_lab", lambda: build_product_lab(prepared, scored, out_dir))):
+        try:
+            frame = builder()
+            if frame is not None:
+                extras.append(frame)
+        except Exception as error:  # a weak upload should still score
+            skipped[name] = str(error)[:200]
+    bounds, interval_meta = add_value_intervals(prepared, scored, cutoff)
+    progress("checking", 82)
+    backtest = upload_backtest(prepared, cutoff)
+    extra = pd.concat([*extras, bounds], axis=1)
+
+    progress("writing", 92)
     records = account_records(scored, extra)
     _write(out_dir / "accounts.json", records)
     _write(out_dir / "timeline.json", timeline(prepared))
     sale_days = prepared[prepared["is_sale"]][["customer_id", "day"]].drop_duplicates()
     _write(out_dir / "cohorts.json", cohort_matrix(sale_days))
-    counts = segments.value_counts()
-    _write(out_dir / "segments.json", {"segments": [{"segment": s, "accounts": int(counts.get(s, 0)), "play": p} for s, p in PLAYBOOK.items()]})
+    _write(out_dir / "upload_eval.json", {**backtest, "intervals": interval_meta, "skipped_views": skipped})
     bands = scored["risk_band"].value_counts().to_dict()
     summary = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -252,8 +265,49 @@ def score(path: Path, mapping: dict, out_dir: Path, date_order: str = "auto", pr
         "evaluation_run": None,
         "frozen_test": None,
         "intervals": interval_meta,
+        "backtest": {k: backtest.get(k) for k in ("available", "cutoff", "pr_auc", "brier", "customers")},
     }
     _write(out_dir / "summary.json", summary)
     _write(out_dir / "validation.json", report)
     progress("done", 100)
     return summary
+
+
+def upload_backtest(prepared: pd.DataFrame, cutoff: str) -> dict:
+    """How well would the served model have done on this customer's own last 90 days?
+
+    Fits seasonal BG/NBD + Gamma-Gamma on history before cutoff-90 days and scores the 90 days that followed,
+    against a recency rule fitted the same way. One backtest on one window: a sanity check, not a frozen test.
+    """
+    from ..eval.metrics import lapse_metrics, value_metrics
+    from ..features.seasonal import season_multiplier, seasonal_lapse
+    from ..features.snapshot import build_snapshot
+    from ..models.btyd import BtydModel
+    from ..serving.scoring import net_adjusted
+
+    check = (pd.Timestamp(cutoff) - pd.Timedelta(days=90)).date().isoformat()
+    try:
+        snap = net_adjusted(build_snapshot(prepared, check))
+        if snap["lapsed"].nunique() < 2 or len(snap) < 30:
+            raise ValueError("too few customers, or everyone behaved the same, in the check window")
+        model = BtydModel().fit(snap)
+        m = season_multiplier(prepared, check)["multiplier"]
+        p = seasonal_lapse(model.predict_lapse(snap), m)
+        value = model.predict_value(snap) * m
+        lapse = lapse_metrics(snap["lapsed"], p)
+        gap = snap["mean_gap_days"].fillna(snap["recency_days"].median())
+        rule = (snap["recency_days"] > 2 * gap).astype(float) * 0.5 + 0.25
+        baseline = lapse_metrics(snap["lapsed"], rule)
+        values = value_metrics(snap["future_value"], value)
+    except (ValueError, KeyError, RuntimeError) as error:
+        return {"available": False, "cutoff": check, "reason": str(error)[:200]}
+    return {
+        "available": True, "cutoff": check, "horizon_days": 90, "customers": int(len(snap)),
+        "base_rate": round(lapse["base_rate"], 4), "pr_auc": round(lapse["pr_auc"], 4), "roc_auc": round(lapse["roc_auc"], 4),
+        "brier": round(lapse["brier"], 4), "top_lift": round(lapse["top_lift"], 3),
+        "baseline_rule_pr_auc": round(baseline["pr_auc"], 4),
+        "value_gini": round(values["normalized_gini"], 4), "value_mae": round(values["mae"], 2),
+        "total_actual": round(values["total_actual"], 2), "total_pred": round(values["total_pred"], 2),
+        "method": "Seasonal BG/NBD + Gamma-Gamma fitted on history before the check date, scored on the following 90 days; "
+                  "baseline: 'no order for over twice the usual gap'.",
+    }

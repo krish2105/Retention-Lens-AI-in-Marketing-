@@ -89,7 +89,7 @@ def test_score_writes_serving_files(tmp_path):
     assert summary["accounts"] == 60 and summary["frozen_test"] is None
     accounts = json.loads((out / "accounts.json").read_text())
     assert {"p_lapse", "segment", "value_low_90", "value_high_90"} <= set(accounts[0])
-    for name in ("timeline", "cohorts", "segments", "summary", "validation"):
+    for name in ("timeline", "cohorts", "segments", "summary", "validation", "galaxy", "lookalikes", "product_lab", "upload_eval"):
         assert (out / f"{name}.json").exists()
 
 

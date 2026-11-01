@@ -23,13 +23,15 @@ const FLAG_LABELS: Record<string, string> = {
 };
 
 export default function DataPage() {
-  const result = useApi<{ profile: Profile; sources: Source[] }>("/api/data");
+  const result = useApi<{ profile?: Profile; sources?: Source[]; validation?: UploadValidation; summary?: { data_source: string; data_sha256: string; scoring_cutoff: string } }>("/api/data");
   const p = result.data?.profile;
+  const v = result.data?.validation;
   return (
     <>
-      <PageHeader eyebrow="Data" title="Where every number starts." lede="One licensed source, checked by checksum, with every problem row flagged and counted rather than silently dropped." />
+      <PageHeader eyebrow="Data" title="Where every number starts." lede={v ? "Your uploaded file, checked row by row: every problem row is flagged and counted rather than silently dropped." : "One licensed source, checked by checksum, with every problem row flagged and counted rather than silently dropped."} />
       {result.error && <section className="glass panel"><ErrorState message={result.error} onRetry={result.reload} /></section>}
       {result.loading && <section className="glass panel"><Loading rows={6} /></section>}
+      {v && result.data?.summary && <UploadData v={v} source={result.data.summary} />}
       {p && (
         <>
           <section className="stats">
@@ -68,7 +70,7 @@ export default function DataPage() {
               <table>
                 <thead><tr><th>Source</th><th>Licence</th><th>Accessed</th><th>SHA-256</th><th>Allowed use</th></tr></thead>
                 <tbody>
-                  {result.data!.sources.map((s) => (
+                  {(result.data!.sources ?? []).map((s) => (
                     <tr key={s.name}>
                       <td><a href={s.url}>{s.name}</a><div style={{ fontSize: 12, color: "var(--muted)" }}>{s.notes}</div></td>
                       <td>{s.license}</td>
@@ -83,6 +85,33 @@ export default function DataPage() {
           </section>
         </>
       )}
+    </>
+  );
+}
+
+type UploadValidation = {
+  rows: number; valid_rows: number; rejected_rows: number; customers: number; repeat_customers: number; usable_lines: number;
+  date_min: string | null; date_max: string | null; warnings: string[]; issues: Record<string, number>; errors: { row: number; column: string; value: string; problem: string }[];
+};
+
+/** The workspace's own upload: the same row-level check report as the upload wizard, kept as the data card. */
+function UploadData({ v, source }: { v: UploadValidation; source: { data_source: string; data_sha256: string; scoring_cutoff: string } }) {
+  return (
+    <>
+      <section className="stats">
+        <div className="glass stat"><span className="label">Rows in your file</span><span className="value">{count(v.rows)}</span><span className="sub">{v.date_min} to {v.date_max}</span></div>
+        <div className="glass stat"><span className="label">Rows rejected</span><span className="value">{count(v.rejected_rows)}</span><span className="sub">listed below, never guessed</span></div>
+        <div className="glass stat"><span className="label">Customers with a sale</span><span className="value">{count(v.customers)}</span><span className="sub">{count(v.repeat_customers)} ordered on 2+ days</span></div>
+        <div className="glass stat"><span className="label">Lines used by the models</span><span className="value">{count(v.usable_lines)}</span><span className="sub">{v.rows ? ((100 * v.usable_lines) / v.rows).toFixed(1) : "0"}% of the file</span></div>
+      </section>
+      <section className="glass panel">
+        <h2>Problem rows, flagged and counted</h2>
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Flag counts">
+          <table><tbody>{Object.entries(v.issues).filter(([k]) => k !== "rows").map(([k, n]) => <tr key={k}><td>{FLAG_LABELS[k] ?? k.replace("is_", "").replaceAll("_", " ")}</td><td className="num">{count(n)}</td></tr>)}</tbody></table>
+        </div>
+        {v.warnings.map((w) => <p key={w} className="notice">{w}</p>)}
+        <p className="provenance"><span>{source.data_source}</span><span>sha256 {source.data_sha256.slice(0, 12)}…</span><span>scored as of {source.scoring_cutoff}</span></p>
+      </section>
     </>
   );
 }

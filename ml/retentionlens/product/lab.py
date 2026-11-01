@@ -67,24 +67,28 @@ def price_elasticities(lines: pd.DataFrame, top_products: int = 30) -> list[dict
     return sorted(out, key=lambda r: r["elasticity"])
 
 
-def portfolio(lines: pd.DataFrame, top_products: int = 40) -> list[dict]:
-    """Volume vs growth (Jan–Nov 2011 vs Jan–Nov 2010), a BCG-style view of the range."""
-    sales = lines[lines["is_sale"]].assign(month=lambda d: d["day"].dt.month, year=lambda d: d["day"].dt.year)
-    window = sales[sales["month"] <= 11]
-    by_year = window.groupby(["stock_code", "year"])["sale_value"].sum().unstack(fill_value=0)
-    if 2010 not in by_year or 2011 not in by_year:
-        return []
-    top = by_year[2011].sort_values(ascending=False).head(top_products).index
+def portfolio(lines: pd.DataFrame, top_products: int = 40) -> tuple[list[dict], dict]:
+    """Volume vs growth: the 12 months to the last complete month against the 12 months before (BCG-style)."""
+    sales = lines[lines["is_sale"]]
+    last_day = sales["day"].max()
+    end = last_day.to_period("M").to_timestamp() if last_day.day < last_day.days_in_month else last_day + pd.Timedelta(days=1)
+    recent_start, prior_start = end - pd.DateOffset(years=1), end - pd.DateOffset(years=2)
+    window = {"recent": f"{recent_start.date()} to {(end - pd.Timedelta(days=1)).date()}", "prior": f"{prior_start.date()} to {(recent_start - pd.Timedelta(days=1)).date()}"}
+    recent = sales[(sales["day"] >= recent_start) & (sales["day"] < end)].groupby("stock_code")["sale_value"].sum()
+    prior = sales[(sales["day"] >= prior_start) & (sales["day"] < recent_start)].groupby("stock_code")["sale_value"].sum()
+    if recent.empty or prior.empty:
+        return [], {**window, "available": False, "reason": "Needs two years of history"}
+    top = recent.sort_values(ascending=False).head(top_products).index
     names = sales.drop_duplicates("stock_code").set_index("stock_code")["description"]
-    median_sales = float(by_year.loc[top, 2011].median())
+    median_sales = float(recent.loc[top].median())
     rows = []
     for code in top:
-        before, after = float(by_year.loc[code, 2010]), float(by_year.loc[code, 2011])
+        before, after = float(prior.get(code, 0.0)), float(recent.loc[code])
         growth = (after - before) / before if before > 0 else None
-        rows.append({"product": " ".join(str(names[code]).split()).title(), "sales_2011": round(after, 2), "sales_2010": round(before, 2),
+        rows.append({"product": " ".join(str(names[code]).split()).title(), "sales_recent": round(after, 2), "sales_prior": round(before, 2),
                      "growth": None if growth is None else round(growth, 3),
                      "quadrant": None if growth is None else ("Star" if after >= median_sales and growth > 0 else "Cash cow" if after >= median_sales else "Question mark" if growth > 0 else "Dog")})
-    return rows
+    return rows, {**window, "available": True}
 
 
 def product_loyalty(lines: pd.DataFrame, top_products: int = 40, min_buyers: int = 50) -> list[dict]:
@@ -104,7 +108,8 @@ def build_product_lab(prepared: pd.DataFrame, scored: pd.DataFrame, out: Path):
     payload = {
         "rules": basket_rules(prepared),
         "elasticities": price_elasticities(prepared),
-        "portfolio": portfolio(prepared),
+        "portfolio": (folio := portfolio(prepared))[0],
+        "portfolio_window": folio[1],
         "loyalty": product_loyalty(prepared),
         "caveats": [
             "Association, not causation: no prices or promotions were randomised.",

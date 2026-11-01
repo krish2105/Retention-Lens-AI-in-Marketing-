@@ -177,7 +177,23 @@ def cohorts(context: Ctx = Depends(ctx)):
 
 @app.get("/api/model-eval")
 def model_eval(context: Ctx = Depends(ctx)):
-    return _get(data_for(context), "model_eval")
+    source = data_for(context)
+    if source is store:
+        return _get(source, "model_eval")
+    # Uploads have no rolling-cutoff study; they get a backtest on their own last 90 days.
+    return {"upload_backtest": _get(source, "upload_eval")}
+
+
+@app.get("/api/research")
+def research(context: Ctx = Depends(ctx)):
+    """R5 experiment and model registry for the reference dataset (from reports/, written by `cli r5`)."""
+    from .settings import REPO
+
+    out = {}
+    for key, name in (("r5", "r5_results.json"), ("registry", "model_registry.json")):
+        path = REPO / "reports" / name
+        out[key] = json.loads(path.read_text()) if path.exists() else None
+    return out
 
 
 @app.get("/api/data")

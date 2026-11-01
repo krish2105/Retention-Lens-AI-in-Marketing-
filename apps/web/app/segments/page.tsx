@@ -12,7 +12,7 @@ const Galaxy = dynamic(() => import("@/components/Galaxy"), { ssr: false, loadin
 
 type Segment = { segment: string; accounts: number; share: number; median_recency_days: number; median_purchase_days: number; median_net_spend: number; expected_value_90: number; mean_p_lapse: number; high_risk_share: number; play: string };
 type Segments = { segments: Segment[]; clusters: { k: number; silhouette: Record<string, number>; profiles: { cluster: number; accounts: number; median_recency_days: number; median_purchase_days: number; median_net_spend: number }[] } };
-type Lookalikes = { definition: string; test_auc: number; train_customers: number; test_customers: number; split: string; newcomers: number; top: { customer_id: string; score: number }[] };
+type Lookalikes = { available?: boolean; reason?: string; definition: string; test_auc: number | null; train_customers: number; test_customers: number; split: string; newcomers: number; top: { customer_id: string; score: number }[] };
 
 export default function SegmentsPage() {
   const galaxy = useApi<GalaxyPoint[]>("/api/galaxy");
@@ -86,7 +86,7 @@ export default function SegmentsPage() {
           {lookalikes.error && <ErrorState message={lookalikes.error} onRetry={lookalikes.reload} />}
           {lookalikes.data && (
             <>
-              <p>{lookalikes.data.definition}. Test AUC <strong className="mono">{lookalikes.data.test_auc.toFixed(3)}</strong> on {count(lookalikes.data.test_customers)} later customers ({lookalikes.data.split}).</p>
+              {lookalikes.data.test_auc == null ? <p className="notice">{lookalikes.data.reason ?? "Not enough history for the lookalike model."}</p> : <p>{lookalikes.data.definition}. Test AUC <strong className="mono">{lookalikes.data.test_auc.toFixed(3)}</strong> on {count(lookalikes.data.test_customers)} later customers ({lookalikes.data.split}).</p>}
               <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table" style={{ maxHeight: 320 }}>
                 <table>
                   <thead><tr><th>New account</th><th className="num">Lookalike score</th></tr></thead>
