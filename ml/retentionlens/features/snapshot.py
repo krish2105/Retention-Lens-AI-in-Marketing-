@@ -39,6 +39,8 @@ def prepare(lines: pd.DataFrame) -> pd.DataFrame:
             "description": usable["description"],
             "day": usable["invoice_date"].dt.normalize(),
             "stock_code": usable["stock_code"],
+            "quantity": usable["quantity"],
+            "price": usable["price"],
             "country": usable["country"],
             "is_sale": is_sale,
             "sale_value": usable["line_value"].where(is_sale, 0.0),
