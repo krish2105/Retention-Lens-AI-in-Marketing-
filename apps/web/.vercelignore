@@ -1,0 +1,5 @@
+.env*
+.next
+.next-static
+out
+node_modules
