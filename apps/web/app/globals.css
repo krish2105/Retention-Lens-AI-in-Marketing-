@@ -254,3 +254,4 @@ details.twin summary { cursor: pointer; color: var(--muted); font-size: 12.5px; 
 
 td a, .reasons a, .provenance a { display: inline-block; min-height: 24px; padding: 3px 0; }
 a.mono { overflow-wrap: anywhere; word-break: break-all; max-width: 100%; }
+.demo-banner a, .toast a { display: inline-block; min-height: 24px; padding: 3px 0; }
