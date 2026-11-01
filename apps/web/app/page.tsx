@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { type Account, type Cohort, type Summary, useApi } from "@/lib/api";
+import { type Account, asset, type Cohort, type Summary, useApi } from "@/lib/api";
 import { count, fixed, money, moneyShort } from "@/lib/format";
 import { useTokens } from "@/lib/tokens";
 import { ErrorState, Loading, PageHeader, Provenance, RiskPill } from "@/components/ui";
@@ -34,8 +34,8 @@ export default function Overview() {
             <Link className="btn" href="/model-lab">How accurate is this?</Link>
           </div>
         </div>
-        <img className="only-dark" src="/img/aur-01-hero.webp" alt="" />
-        <img className="only-light" src="/img/aur-01-hero-light.webp" alt="" />
+        <img className="only-dark" src={asset("/img/aur-01-hero.webp")} alt="" />
+        <img className="only-light" src={asset("/img/aur-01-hero-light.webp")} alt="" />
       </section>
 
       <section className="stats" aria-label="Key figures">

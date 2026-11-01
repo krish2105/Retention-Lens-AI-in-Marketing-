@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { asset, STATIC } from "@/lib/api";
 import { Icon, ThemeToggle } from "./ui";
 
 const NAV = [
@@ -32,7 +33,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <div className="shell">
         <aside className="sidebar glass">
           <Link href="/" className="brand">
-            <img src="/img/aur-08-mark.webp" alt="" />
+            <img src={asset("/img/aur-08-mark.webp")} alt="" />
             <span>
               <strong>RetentionLens</strong>
               <small>MAIB AI 208</small>
@@ -53,7 +54,12 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
         </aside>
         <div className="main" id="main">
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ display: "flex", justifyContent: STATIC ? "space-between" : "flex-end", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            {STATIC && (
+              <p className="badge" style={{ textTransform: "none", letterSpacing: 0, fontSize: 12 }}>
+                Public demo · read-only snapshot scored 2011-12-10 · <a href="https://github.com/krish2105/Retention-Lens-AI-in-Marketing-">run it locally</a> for AI drafting and decisions
+              </p>
+            )}
             <ThemeToggle />
           </div>
           {children}

@@ -2,6 +2,12 @@
 import { useCallback, useEffect, useState } from "react";
 
 export const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+/** Public demo build: reads exported JSON instead of the API and is read-only. */
+export const STATIC = process.env.NEXT_PUBLIC_STATIC === "1";
+export const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+export const asset = (path: string) => `${BASE}${path}`;
+export const READ_ONLY_MESSAGE =
+  "This public demo is read-only. Run RetentionLens on your own machine to record decisions and draft emails with the local AI model.";
 
 export type Band = "high" | "watch" | "healthy";
 
@@ -50,7 +56,58 @@ export type Summary = {
 
 export type Cohort = { cohort: string; size: number; retention: number[] };
 
+const cache = new Map<string, Promise<unknown>>();
+function file<T>(name: string): Promise<T> {
+  if (!cache.has(name)) {
+    cache.set(name, fetch(asset(`/data/${name}.json`)).then((r) => {
+      if (!r.ok) throw new Error(`Demo data ${name}.json is missing`);
+      return r.json();
+    }));
+  }
+  return cache.get(name) as Promise<T>;
+}
+
+const SORTABLE = new Set(["value_at_risk_90", "p_lapse", "expected_value_90", "recency_days", "net_sales_total", "frequency"]);
+
+async function staticGet(path: string): Promise<unknown> {
+  const url = new URL(path, "http://demo");
+  const route = url.pathname;
+  const simple: Record<string, string> = {
+    "/api/summary": "summary", "/api/cohorts": "cohorts", "/api/model-eval": "model_eval", "/api/segments": "segments",
+    "/api/galaxy": "galaxy", "/api/lookalikes": "lookalikes", "/api/signals": "signals", "/api/product-lab": "product_lab",
+  };
+  if (simple[route]) return file(simple[route]);
+  if (route === "/api/health") {
+    const summary = await file<Summary>("summary");
+    return { ok: true, serving_ready: true, generated_at: summary.generated_at, ollama: { available: false, model: "qwen2.5:7b" }, static: true };
+  }
+  if (route === "/api/data") return { profile: await file("data_profile"), sources: await file("sources") };
+  if (route === "/api/drafts" || route === "/api/audit") return [];
+  if (route === "/api/accounts") {
+    const q = url.searchParams;
+    const term = (q.get("search") ?? "").trim().toLowerCase();
+    const band = q.get("band") ?? "all";
+    const sort = SORTABLE.has(q.get("sort") ?? "") ? (q.get("sort") as keyof Account) : "value_at_risk_90";
+    const desc = (q.get("order") ?? "desc") === "desc";
+    const limit = Number(q.get("limit") ?? 50), offset = Number(q.get("offset") ?? 0);
+    let items = await file<Account[]>("accounts");
+    if (term) items = items.filter((a) => a.customer_id.toLowerCase().includes(term) || (a.country ?? "").toLowerCase().includes(term));
+    if (band !== "all") items = items.filter((a) => a.risk_band === band);
+    items = [...items].sort((a, b) => ((Number(a[sort]) || 0) - (Number(b[sort]) || 0)) * (desc ? -1 : 1));
+    return { total: items.length, items: items.slice(offset, offset + limit) };
+  }
+  const account = route.match(/^\/api\/accounts\/([^/]+)$/);
+  if (account) {
+    const found = (await file<Account[]>("accounts")).find((a) => a.customer_id === account[1]);
+    if (!found) throw new Error("Unknown account");
+    const timeline = await file<Record<string, unknown[]>>("timeline");
+    return { account: found, timeline: timeline[account[1]] ?? [], reviews: [], drafts: [] };
+  }
+  throw new Error(READ_ONLY_MESSAGE);
+}
+
 export async function apiGet<T>(path: string): Promise<T> {
+  if (STATIC) return staticGet(path) as Promise<T>;
   const response = await fetch(API + path, { cache: "no-store" });
   if (!response.ok) {
     let detail = `${response.status}`;
@@ -63,6 +120,7 @@ export async function apiGet<T>(path: string): Promise<T> {
 }
 
 export async function apiPost<T>(path: string, body: unknown, idempotencyKey?: string): Promise<T> {
+  if (STATIC) throw new Error(READ_ONLY_MESSAGE);
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
   const response = await fetch(API + path, { method: "POST", headers, body: JSON.stringify(body) });

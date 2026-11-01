@@ -1,7 +1,7 @@
 "use client";
 import { useTheme } from "next-themes";
 import { useEffect, useState, type ReactNode } from "react";
-import type { Band, Summary } from "@/lib/api";
+import { asset, type Band, type Summary } from "@/lib/api";
 import { bandLabel, shortHash } from "@/lib/format";
 
 const ICONS: Record<string, ReactNode> = {
@@ -81,7 +81,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
   const notBuilt = message.includes("cli serve");
   return (
     <div className="state" role="alert">
-      <img src="/img/aur-07-offline.webp" alt="" />
+      <img src={asset("/img/aur-07-offline.webp")} alt="" />
       <strong>{notBuilt ? "These results haven't been built yet" : "Couldn't reach the RetentionLens API"}</strong>
       <span>{notBuilt ? message : `Start it with: cd services/api && .venv/bin/uvicorn app.main:app --port 8000 (${message})`}</span>
       {onRetry && (
@@ -96,7 +96,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
 export function EmptyState({ image, title, body, action }: { image: string; title: string; body: string; action?: ReactNode }) {
   return (
     <div className="state">
-      <img src={image} alt="" />
+      <img src={asset(image)} alt="" />
       <strong>{title}</strong>
       <span>{body}</span>
       {action}

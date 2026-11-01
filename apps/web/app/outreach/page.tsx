@@ -1,7 +1,7 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { type Account, API, apiPost, useApi } from "@/lib/api";
+import { type Account, API, apiPost, READ_ONLY_MESSAGE, STATIC, useApi } from "@/lib/api";
 import { money } from "@/lib/format";
 import { EmptyState, ErrorState, Loading, PageHeader, RiskPill } from "@/components/ui";
 
@@ -155,6 +155,11 @@ function OutreachInner() {
     <>
       <PageHeader eyebrow="Outreach studio · outcome D" title="AI drafts the words. You approve every one." lede="A local language model writes a short check-in email using only facts from the scoring model. Automatic checks block invented numbers, offers, pressure and personal data. Nothing is ever sent from here: approved drafts are exported for you to send.">
       </PageHeader>
+      {STATIC && (
+        <section className="glass panel">
+          <p className="toast">{READ_ONLY_MESSAGE} Example drafts and the live evaluation are in <a href="https://github.com/krish2105/Retention-Lens-AI-in-Marketing-/blob/main/reports/genai_eval.md">reports/genai_eval.md</a>.</p>
+        </section>
+      )}
       <div className="row">
         <section className="glass panel" style={{ flex: "1 1 340px" }}>
           <div className="panel-head">
@@ -187,7 +192,7 @@ function OutreachInner() {
       <section className="glass panel">
         <div className="panel-head">
           <h2>All drafts</h2>
-          <a className="btn" href={`${API}/api/drafts/export.csv`}>Export approved (CSV)</a>
+          {!STATIC && <a className="btn" href={`${API}/api/drafts/export.csv`}>Export approved (CSV)</a>}
         </div>
         {drafts.error && <ErrorState message={drafts.error} onRetry={drafts.reload} />}
         {drafts.data && drafts.data.length === 0 && <p style={{ color: "var(--muted)" }}>No drafts yet.</p>}

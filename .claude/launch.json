@@ -30,6 +30,18 @@
         "dev"
       ],
       "port": 3000
+    },
+    {
+      "name": "static-demo",
+      "runtimeExecutable": "/opt/homebrew/bin/python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8090",
+        "--directory",
+        "/private/tmp/claude-501/-Users-krishnamathurm4pro--claude-spares-spare-bUuS0p/9fdd6f46-0eec-486e-b194-dbe5084f3127/scratchpad/site"
+      ],
+      "port": 8090
     }
   ]
 }
