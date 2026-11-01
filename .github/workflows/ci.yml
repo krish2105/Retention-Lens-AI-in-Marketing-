@@ -90,3 +90,18 @@ jobs:
           node-version: "22"
       - run: npm audit --omit=dev --audit-level=high
         working-directory: apps/web
+
+  rls:
+    # Applies supabase/migrations to a real local Supabase stack and runs the two-tenant leak test.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start Supabase (migrations apply on start)
+        run: |
+          [ -f supabase/config.toml ] || supabase init --force
+          supabase start -x studio,imgproxy,inbucket,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta
+      - name: Row-level security isolation test
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/tests/rls_isolation.sql
