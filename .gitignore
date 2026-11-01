@@ -3,11 +3,11 @@
 .env.*
 !.env.example
 !.gitkeep
-.venv/
+.venv
 __pycache__/
 .pytest_cache/
 *.pyc
-node_modules/
+node_modules
 .next/
 services/api/.state/
 data/raw/*
