@@ -27,3 +27,7 @@ uv run python -m retentionlens.cli models --include-test
 4. **Reporting**: charts with source footers, limitations, and what a marketer should do differently.
 
 _Write your analysis here._
+
+## Evidence pack
+
+Numbers for this lab, regenerated from the run files: [`EVIDENCE.md`](EVIDENCE.md) (`python3 scripts/build_lab_evidence.py`).
