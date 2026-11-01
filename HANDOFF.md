@@ -10,8 +10,9 @@ Kept current at every push so any session (local or cloud) can continue. Last up
 | P3 API + Aurora UI shell | **Done**: `cli serve`, FastAPI (`services/api`), Next.js Overview / Accounts / Model lab / Data / Settings, 3D cohort terrain, light/dark/system theme |
 | P4 segments + 3D galaxy + lookalikes | **Done**: RFM segments + playbook, k-means (k by silhouette), 3D galaxy (5.8k instanced points), lookalike model (test AUC 0.821) |
 | P5 signals | **Done**: Wikipedia seasonality vs sales (Christmas r 0.34 same month, 0.90 with 1-month lead), co-purchase network (3 communities), 600 SYNTHETIC posts with lexicon sentiment + injection flags, polite toscrape.com scraper |
-| P6 outreach studio | Next |
-| P5 signals, P6 outreach studio, P7 product lab, P8 README/evidence/CI | Pending (see `REMAINING.md`) |
+| P6 outreach studio | **Done**: local qwen2.5:7b drafts from structured facts only, numeric/pressure/offer/PII checker, critic pass, PECR consent gate, idempotent approval, CSV export, audit log, red-team tests; live eval script `services/api/evals/run_eval.py` |
+| P7 product lab | **Done**: basket rules (lift), portfolio matrix, product loyalty, elasticity shown as a confounding lesson |
+| P8 README, evidence page, CI | Next |
 
 ## Rebuild everything from a clean clone
 
