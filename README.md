@@ -11,7 +11,7 @@
 ![Next.js 15](https://img.shields.io/badge/Next.js-15-000000)
 ![Data CC BY 4.0](https://img.shields.io/badge/data-CC%20BY%204.0-0E7490)
 
-**Live demo (read-only snapshot): https://krish2105.github.io/Retention-Lens-AI-in-Marketing-/** · AI drafting and decisions need the local install below.
+**Live demo (read-only snapshot):** https://krish2105.github.io/Retention-Lens-AI-in-Marketing-/ · Vercel mirror: https://retentionlens-demo.vercel.app · AI drafting and decisions need the local install below.
 
 Built for **AI in Marketing (MAIB AI 208)** as a solo project and portfolio piece. It runs on one real, licensed dataset: [UCI Online Retail II](https://archive.ics.uci.edu/dataset/502/online+retail+ii), 1,067,371 invoice lines from a UK giftware wholesaler, 2009–2011.
 
@@ -30,7 +30,26 @@ Built for **AI in Marketing (MAIB AI 208)** as a solo project and portfolio piec
 | **Model lab** | Every model on every cutoff, a calibration chart, and a "does it really win?" table |
 | **Course evidence** | Each learning outcome and weekly topic mapped to the screen or file that shows it |
 
-Light, dark and system themes switch with a circular reveal. The UI respects reduced motion and reduced transparency, and every 3D view has a table or 2D fallback. An axe-core 4.10 scan (WCAG 2.2 AA) reports 0 violations on 9 pages across both themes, and the layout works at 375 px.
+Light, dark and system themes switch with a feathered reveal that grows from the toggle, and a sliding indicator marks the active theme. The UI respects reduced motion and reduced transparency, and every 3D view has a table or 2D fallback. An axe-core 4.10 scan (WCAG 2.2 AA) reports 0 violations on 9 pages across both themes. A Playwright audit of 11 pages × 6 widths (320–768 px) × 2 themes shows no horizontal overflow, 16 px form text (no iOS zoom), 24 px+ tap targets and safe-area padding for notched phones.
+
+## Screenshots
+
+| Overview (dark) | Customer galaxy (dark) |
+|---|---|
+| ![Overview](submissions/screenshots/01-overview-dark.jpg) | ![Galaxy](submissions/screenshots/04-segments-galaxy-dark.jpg) |
+| **Outreach studio: local-model draft and checks** | **Signals (light)** |
+| ![Outreach](submissions/screenshots/08-outreach-draft-dark.jpg) | ![Signals](submissions/screenshots/06-signals-light.jpg) |
+
+<p align="center"><img src="submissions/screenshots/13-phone-overview-dark.jpg" width="24%" alt="Phone overview"> <img src="submissions/screenshots/14-phone-accounts-light.jpg" width="24%" alt="Phone account drawer"> <img src="submissions/screenshots/15-phone-segments-dark.jpg" width="24%" alt="Phone segments"></p>
+
+## Submission pack
+
+| File | What it is |
+|---|---|
+| [`submissions/RetentionLens_Presentation.pptx`](submissions/RetentionLens_Presentation.pptx) | 14-slide deck with speaker notes (16:9), built by `design/deck/build.js` from the result files |
+| [`submissions/RetentionLens_Project_Report.pdf`](submissions/RetentionLens_Project_Report.pdf) | 11-page A4 report, built by `design/report/build_report.py` and printed by `design/report/print.js` |
+| [`submissions/screenshots/`](submissions/screenshots/) | 15 screenshots of the running app, desktop and phone, both themes |
+| [`docs/SCORECARD.md`](docs/SCORECARD.md) | Honest scoring from CEO, CMO, COO, CTO, AI-engineer and academic views |
 
 ## Results (all numbers come from saved run files)
 

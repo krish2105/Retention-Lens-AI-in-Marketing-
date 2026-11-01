@@ -1,0 +1,145 @@
+<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><title>RetentionLens project report</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+@page { size: A4; margin: 16mm 16mm 18mm; }
+:root { --ink:#11132a; --muted:#4e5470; --cyan:#0e7490; --magenta:#be185d; --violet:#6d28d9; --amber:#8a5d07; --edge:#e2e4ee; --paper:#f3f4fb; }
+* { box-sizing: border-box; }
+body { font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.55; margin: 0; }
+h1 { font-size: 30pt; letter-spacing: -1px; margin: 0 0 6px; line-height: 1.05; }
+h2 { font-size: 17pt; letter-spacing: -.4px; margin: 0 0 8px; padding-top: 4px; border-top: 3px solid var(--cyan); display: inline-block; }
+h3 { font-size: 12pt; margin: 14px 0 4px; }
+p { margin: 0 0 8px; }
+section { break-before: page; }
+.eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 8.5pt; letter-spacing: 1.6px; text-transform: uppercase; color: var(--cyan); margin-bottom: 6px; }
+.cover { height: 255mm; display: flex; flex-direction: column; justify-content: flex-end; background: #070912 url("../deck/img/aur-01-hero.jpg") center/cover; color: #eef0ff; padding: 18mm; border-radius: 6px; }
+.cover p { color: #c9cde6; font-size: 12pt; max-width: 120mm; }
+.cover .meta { font-family: "IBM Plex Mono", monospace; font-size: 9pt; color: #a7adc8; margin-top: 10mm; }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0 14px; }
+.kpi { border: 1px solid var(--edge); border-radius: 10px; padding: 10px 12px; background: var(--paper); }
+.kpi b { display: block; font-size: 17pt; letter-spacing: -.5px; }
+.kpi span { font-size: 8.5pt; color: var(--muted); }
+table { width: 100%; border-collapse: collapse; margin: 6px 0 12px; font-size: 9pt; font-variant-numeric: tabular-nums; break-inside: avoid; }
+th { text-align: left; font-family: "IBM Plex Mono", monospace; font-size: 7.5pt; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); border-bottom: 1.5px solid var(--ink); padding: 5px 6px; }
+td { border-bottom: 1px solid var(--edge); padding: 5px 6px; vertical-align: top; }
+figure { margin: 8px 0 12px; break-inside: avoid; }
+figure img { width: 100%; border-radius: 8px; border: 1px solid var(--edge); }
+figcaption { font-size: 8.5pt; color: var(--muted); margin-top: 4px; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.note { border-left: 3px solid var(--amber); padding: 6px 10px; background: #fbf6ea; font-size: 9.5pt; margin: 8px 0; }
+.mono { font-family: "IBM Plex Mono", monospace; font-size: 8.5pt; }
+ul { margin: 0 0 8px 16px; padding: 0; }
+li { margin-bottom: 3px; }
+.phones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+</style></head><body>
+
+<div class="cover">
+  <div class="eyebrow" style="color:#67e8f9">MAIB AI 208 · AI in Marketing · Project report</div>
+  <h1>RetentionLens</h1>
+  <p>Ninety-day lapse risk and customer value for every wholesale account, the evidence behind each call, and outreach a person approves before anything leaves.</p>
+  <div class="meta">Krishna Mathur · 01 November 2026<br>Live demo: krish2105.github.io/Retention-Lens-AI-in-Marketing-<br>Code: github.com/krish2105/Retention-Lens-AI-in-Marketing-</div>
+</div>
+
+<section>
+<div class="eyebrow">1 · Executive summary</div><h2>What was built and what it shows</h2>
+<p>RetentionLens scores 5,852 trade accounts from a real UK giftware wholesaler (UCI Online Retail II, 1,067,371 invoice lines, CC BY 4.0) for the chance they place no order in the next 90 days and for their expected spend. It explains each call, groups accounts into segments, adds web and network signals, and drafts a check-in email with a local language model that a person must approve.</p>
+<div class="kpis">
+ <div class="kpi"><b>2,456</b><span>accounts at high lapse risk (≥ 75%)</span></div>
+ <div class="kpi"><b>£324k</b><span>usual 90-day spend at stake in them</span></div>
+ <div class="kpi"><b>0.820</b><span>PR-AUC of BG/NBD on the frozen test</span></div>
+ <div class="kpi"><b>0.821</b><span>AUC of the new-customer lookalike model</span></div>
+</div>
+<h3>Main findings</h3>
+<ul>
+<li><b>Simple probabilistic models win.</b> Across four rolling cutoffs, LightGBM beat BG/NBD on 0 and logistic RFM on 1. A neural model is not justified by this evidence.</li>
+<li><b>Wholesale buying leads consumer interest by about a month.</b> For Christmas lines the correlation with Wikipedia interest rises from 0.34 (same month) to 0.90 (one month later). Twelve monthly points: exploratory.</li>
+<li><b>New customers can be spotted from their first order</b> (test AUC 0.821 on later customers).</li>
+<li><b>A small local LLM needs a person in the loop.</b> 15/16 drafts kept to the model's numbers; its own second-pass review passed only 1/16.</li>
+</ul>
+<figure><img src="../../submissions/screenshots/01-overview-dark.jpg" alt="Figure 1. Overview screen (dark theme): key figures and the cohort retention terrain."><figcaption>Figure 1. Overview screen (dark theme): key figures and the cohort retention terrain.</figcaption></figure>
+</section>
+
+<section>
+<div class="eyebrow">2 · Problem and user</div><h2>Who it is for and why it matters</h2>
+<p>The target user is the owner or account manager of a small wholesaler with hundreds of trade accounts and no data team. Between 65% and 67% of known accounts placed no order in the following 90 days at the development cutoffs, and lapses are usually noticed only after revenue has gone.</p>
+<p>Desk research found a gap between self-serve direct-to-consumer tools (which need e-commerce events and hundreds of buyers) and distributor platforms (quote-only, ERP-integrated). No tool combined CSV-first input, small-sample uncertainty, approval-gated AI drafts and published pricing. Buyer, workflow and price are <b>hypotheses</b>: no interviews or pilot have been run yet.</p>
+<div class="eyebrow" style="margin-top:14px">3 · Data</div><h2>One licensed source, every problem counted</h2>
+<table class=""><thead><tr><th>Measure</th><th>Value</th></tr></thead><tbody><tr><td>Invoice lines</td><td>1,067,371</td></tr><tr><td>Date range</td><td>2009-12-01 to 2011-12-09</td></tr><tr><td>Invoices · customers · countries</td><td>53,628 · 5,942 · 43</td></tr><tr><td>No customer ID</td><td>243,007 (22.8%)</td></tr><tr><td>Cancellations · negative quantities</td><td>19,494 · 22,950</td></tr><tr><td>Duplicates (across sheets / within a sheet)</td><td>22,202 / 12,133</td></tr><tr><td>Rows usable for customer models</td><td>794,163 (74.4%), 5,875 customers</td></tr></tbody></table>
+<p>The two workbook sheets overlap on 1–9 December 2010, so the published row count includes a duplicated week. Rows are flagged, never silently dropped. The archive is SHA-256 checked (<span class="mono">572e36277c2390fb…</span>).</p>
+</section>
+
+<section>
+<div class="eyebrow">4 · Method</div><h2>A protocol fixed before any result</h2>
+<ul>
+<li>Snapshots at 2010-09-01, 2010-12-01, 2011-03-01, 2011-06-01, 2011-09-01; development cutoffs 2010-12-01, 2011-03-01, 2011-06-01; <b>frozen test 2011-09-01, scored once</b>.</li>
+<li>Features use only data before the cutoff and labels the next 90 days (a unit test proves no leakage). Lapse = no purchase day in the window; value = net spend, floored at £0.</li>
+<li>Models: recency rule, logistic RFM, BG/NBD + Gamma-Gamma (PyMC-Marketing 1.3, MAP), LightGBM 4.7. Fixed settings, no tuning.</li>
+<li>A model "wins" only if better on at least 3 of 4 cutoffs.</li>
+</ul>
+<div class="eyebrow" style="margin-top:12px">5 · Results</div><h2>Lapse prediction (PR-AUC)</h2>
+<table class=""><thead><tr><th>Model</th><th>2010-12-01</th><th>2011-03-01</th><th>2011-06-01</th><th>2011-09-01 (test)</th></tr></thead><tbody><tr><td>Recency rule</td><td>0.804</td><td>0.797</td><td>0.847</td><td>0.762</td></tr><tr><td>Logistic RFM</td><td>0.867</td><td>0.848</td><td>0.886</td><td>0.814</td></tr><tr><td>BG/NBD</td><td>0.865</td><td>0.848</td><td>0.889</td><td>0.820</td></tr><tr><td>LightGBM</td><td>0.836</td><td>0.826</td><td>0.882</td><td>0.819</td></tr></tbody></table>
+<h3>Calibration (Brier score, lower is better)</h3>
+<table class=""><thead><tr><th>Model</th><th>2010-12-01</th><th>2011-03-01</th><th>2011-06-01</th><th>2011-09-01</th></tr></thead><tbody><tr><td>Recency rule</td><td>0.2777</td><td>0.1992</td><td>0.1777</td><td>0.2131</td></tr><tr><td>Logistic RFM</td><td>0.2522</td><td>0.1822</td><td>0.1642</td><td>0.1875</td></tr><tr><td>BG/NBD</td><td>0.1848</td><td>0.1721</td><td>0.1535</td><td>0.1864</td></tr><tr><td>LightGBM</td><td>0.2693</td><td>0.1826</td><td>0.1555</td><td>0.1938</td></tr></tbody></table>
+<h3>90-day spend ranking (normalised Gini)</h3>
+<table class=""><thead><tr><th>Model</th><th>2010-12-01</th><th>2011-03-01</th><th>2011-06-01</th><th>2011-09-01</th></tr></thead><tbody><tr><td>Last 90 days</td><td>0.768</td><td>0.682</td><td>0.758</td><td>0.717</td></tr><tr><td>BG/NBD + Gamma-Gamma</td><td>0.802</td><td>0.811</td><td>0.851</td><td>0.825</td></tr><tr><td>LightGBM</td><td>0.807</td><td>0.775</td><td>0.845</td><td>0.807</td></tr></tbody></table>
+<div class="note">The test window is the Christmas peak. All models over-predict lapse there and under-predict spend: seasonality is not modelled, and this is the main modelling limitation.</div>
+</section>
+
+<section>
+<div class="eyebrow">6 · Segments and new customers</div><h2>Who to call, who to nurture</h2>
+<table class=""><thead><tr><th>Segment</th><th>Accounts</th><th>Median net spend</th><th>Expected 90-day spend</th><th>High risk</th><th>Suggested play</th></tr></thead><tbody><tr><td>Champions</td><td>1,240</td><td>£3,897</td><td>£1,430,281</td><td>0%</td><td>Thank them, offer early access to new ranges, ask for referrals.</td></tr><tr><td>Loyal</td><td>744</td><td>£1,358</td><td>£225,549</td><td>0%</td><td>Keep cadence; suggest complementary lines from basket rules.</td></tr><tr><td>Needs attention</td><td>627</td><td>£901</td><td>£157,724</td><td>13%</td><td>Review the evidence before deciding.</td></tr><tr><td>Promising</td><td>666</td><td>£508</td><td>£138,812</td><td>48%</td><td>Second-order nudge with lines they have not tried.</td></tr><tr><td>Hibernating</td><td>1,441</td><td>£283</td><td>£76,172</td><td>99%</td><td>Low-cost reminder only; do not spend sales time.</td></tr><tr><td>New</td><td>234</td><td>£245</td><td>£57,365</td><td>0%</td><td>Onboarding follow-up after the first delivery.</td></tr><tr><td>At risk</td><td>692</td><td>£583</td><td>£46,613</td><td>78%</td><td>Check-in with a reason to reorder (new season, stock held).</td></tr><tr><td>Can't lose</td><td>208</td><td>£2,104</td><td>£31,559</td><td>44%</td><td>Personal call from the account manager this week.</td></tr></tbody></table>
+<p>k-means on log recency, frequency and spend chose k = 4 by silhouette score. The lookalike model scores customers whose first order was in the last 90 days for the chance of becoming a top-20% first-year spender: test AUC 0.821 on 1,285 later customers (time-based: earliest 70% of first-order dates train, latest 30% test).</p>
+<figure><img src="../../submissions/screenshots/04-segments-galaxy-dark.jpg" alt="Figure 2. The 3D customer galaxy: every account positioned by recency, purchase days and spend, coloured by lapse risk."><figcaption>Figure 2. The 3D customer galaxy: every account positioned by recency, purchase days and spend, coloured by lapse risk.</figcaption></figure>
+</section>
+
+<section>
+<div class="eyebrow">7 · Traditional, web and social data (outcome B)</div><h2>Signals around the invoices</h2>
+<table class=""><thead><tr><th>Theme</th><th>Same-month r</th><th>r with interest 1 month later</th><th>Sales peak</th><th>Interest peak</th></tr></thead><tbody><tr><td>Christmas</td><td>0.34</td><td>0.90</td><td>11</td><td>12</td></tr><tr><td>Candles and lights</td><td>0.63</td><td>0.78</td><td>11</td><td>12</td></tr><tr><td>Bags</td><td>0.28</td><td>0.23</td><td>11</td><td>8</td></tr><tr><td>Mugs and cups</td><td>0.48</td><td>0.43</td><td>11</td><td>11</td></tr></tbody></table>
+<p>Wikipedia pageviews (CC0) cover 2016–2025 while invoices cover 2009–2011, so only the seasonal shape is compared. The co-purchase network links the top 120 products into 3 communities (modularity 0.183); it shows products bought together, not social influence.</p>
+<p><b>Social data is synthetic.</b> Licensed review and social sources (Yelp, Reddit, Amazon reviews) cannot be published in a public repository, so 600 posts were generated from real product names and labelled SYNTHETIC everywhere; 5 of 5 prompt-injection posts were flagged. A polite scraper (robots.txt, identifying user agent, delays, caching) collected 60 listings from the toscrape.com practice site.</p>
+<figure><img src="../../submissions/screenshots/06-signals-light.jpg" alt="Figure 3. Signals page (light theme): wholesale sales against Wikipedia interest by theme."><figcaption>Figure 3. Signals page (light theme): wholesale sales against Wikipedia interest by theme.</figcaption></figure>
+</section>
+
+<section>
+<div class="eyebrow">8 · Generative AI for decisions (outcome D)</div><h2>Grounded drafts, human approval</h2>
+<p>The analytics core supplies every fact; the local model (qwen2.5:7b via Ollama) only writes the words. No free text from customers or posts enters the prompt. Each draft passes a deterministic checker and a second-pass review, then needs a person to approve it with a UK PECR consent basis. Approvals are idempotent, every action is audit-logged, and there is no send tool: approved drafts are exported as CSV.</p>
+<table class=""><thead><tr><th>Check (live run, 16 drafts)</th><th>Passed</th></tr></thead><tbody><tr><td>Numbers match the model&#x27;s facts</td><td>15/16</td></tr><tr><td>No pressure or false urgency</td><td>16/16</td></tr><tr><td>No discounts or offers</td><td>16/16</td></tr><tr><td>No personal contact data</td><td>16/16</td></tr><tr><td>Uses name placeholders</td><td>16/16</td></tr><tr><td>Length 40–180 words</td><td>16/16</td></tr><tr><td>Second-pass review (tone, manipulation)</td><td>1/16</td></tr></tbody></table>
+<p>The second-pass reviewer is strict. Whether its flags are right is unknown until a person labels the drafts; the labelling sheet and scoring script (Cohen's kappa) are in the repository.</p>
+<figure><img src="../../submissions/screenshots/08-outreach-draft-dark.jpg" alt="Figure 4. Outreach studio: a local-model draft with its automatic checks and the approval form."><figcaption>Figure 4. Outreach studio: a local-model draft with its automatic checks and the approval form.</figcaption></figure>
+</section>
+
+<section>
+<div class="eyebrow">9 · Responsible AI and accessibility (CLO4)</div><h2>Built so it cannot email a customer by itself</h2>
+<ul>
+<li><b>Prompt injection (OWASP LLM01):</b> no free text in prompts; injection posts detected and tested.</li>
+<li><b>Excessive agency:</b> no send tool; export only after approval.</li>
+<li><b>Consent:</b> companies under legitimate interest; sole traders need consent or the soft opt-in, otherwise approval is blocked.</li>
+<li><b>Honesty:</b> synthetic data labelled; every chart has a source line; limitations stated in the app.</li>
+<li><b>Accessibility:</b> axe-core WCAG 2.2 AA scan reports 0 violations on 9 pages in both themes; layout verified at 320–768 px.</li>
+</ul>
+<div class="eyebrow" style="margin-top:12px">10 · Product lab (weeks 7–8)</div><h2>What sells together</h2>
+<table class=""><thead><tr><th>If they buy</th><th>They also buy</th><th>Confidence</th><th>Lift</th></tr></thead><tbody><tr><td>Green Regency Teacup And Saucer</td><td>Pink Regency Teacup And Saucer</td><td>67%</td><td>28.4×</td></tr><tr><td>Pink Regency Teacup And Saucer</td><td>Green Regency Teacup And Saucer</td><td>84%</td><td>28.4×</td></tr><tr><td>Bathroom Metal Sign</td><td>Toilet Metal Sign</td><td>60%</td><td>26.2×</td></tr><tr><td>Toilet Metal Sign</td><td>Bathroom Metal Sign</td><td>76%</td><td>26.2×</td></tr><tr><td>Pink Regency Teacup And Saucer</td><td>Roses Regency Teacup And Saucer</td><td>80%</td><td>23.9×</td></tr><tr><td>Roses Regency Teacup And Saucer</td><td>Pink Regency Teacup And Saucer</td><td>56%</td><td>23.9×</td></tr></tbody></table>
+<p>Price elasticities from weekly log-log regressions come out implausibly large (around −15 to −20) because wholesale price breaks give big orders lower unit prices. They are presented as a lesson in confounding, not as pricing guidance.</p>
+</section>
+
+<section>
+<div class="eyebrow">11 · Course outcome mapping</div><h2>Where each outcome is shown</h2>
+<table class=""><thead><tr><th>Outcome</th><th>Evidence in RetentionLens</th></tr></thead><tbody><tr><td>A · Marketing research and predictive analytics</td><td>Data profile and card; rolling-cutoff lapse models; cohort terrain</td></tr><tr><td>B · Traditional, web and social data</td><td>Wikipedia seasonality; co-purchase network; synthetic social posts; scraper</td></tr><tr><td>C · CLV, churn, retention, new customers</td><td>BG/NBD + Gamma-Gamma; RFM segments; k-means; lookalike scoring</td></tr><tr><td>D · Generative AI for marketing decisions</td><td>Outreach studio with checker, critic, consent gate and live evaluation</td></tr><tr><td>Weeks 1–11</td><td>Mapped topic by topic on the Course evidence page</td></tr><tr><td>Labs (weeks 2, 4, 6, 8, 10)</td><td>Scaffolds with commands and evidence in labs/</td></tr></tbody></table>
+<div class="eyebrow" style="margin-top:12px">12 · Limitations and next steps</div><h2>What this does not show yet</h2>
+<ul>
+<li>No interviews, usability sessions or pilot: buyer, workflow and price remain hypotheses.</li>
+<li>One UK giftware wholesaler, 2009–2011; seasonality not modelled; no campaign data, so no causal effect of outreach.</li>
+<li>The AI reviewer is uncalibrated; social data is synthetic.</li>
+<li>Not a SaaS: no sign-in, tenants, billing or hosted API. Next: CSV upload, interviews, seasonal features, auth and a pilot.</li>
+</ul>
+<h3>References</h3>
+<p class="mono">Chen, D. (2019). Online Retail II. UCI Machine Learning Repository. doi:10.24432/C5CG6D · Fader, Hardie &amp; Lee (2005). Counting your customers the easy way. Marketing Science 24(2) · Wang, Liu &amp; Miao (2019). A deep probabilistic model for CLV prediction. arXiv:1912.07753 · Hwang (2019). Hands-on Data Science for Marketing. Packt · Winston (2014). Marketing Analytics. Wiley · Grigsby (2018). Marketing Analytics. Kogan Page · OWASP Top 10 for LLM Applications (2025).</p>
+</section>
+
+<section>
+<div class="eyebrow">Appendix · Mobile</div><h2>The same product on a phone</h2>
+<div class="phones">
+<figure><img src="../../submissions/screenshots/13-phone-overview-dark.jpg" alt="Overview, 390 px, dark"><figcaption>Overview, 390 px, dark</figcaption></figure><figure><img src="../../submissions/screenshots/14-phone-accounts-light.jpg" alt="Account evidence, 390 px, light"><figcaption>Account evidence, 390 px, light</figcaption></figure><figure><img src="../../submissions/screenshots/15-phone-segments-dark.jpg" alt="Segments, 390 px, dark"><figcaption>Segments, 390 px, dark</figcaption></figure>
+</div>
+<p class="mono">Illustrations generated by the author with ChatGPT Images (gpt-image-2). Screenshots captured from the running application on 2026-11-01.</p>
+</section>
+</body></html>
