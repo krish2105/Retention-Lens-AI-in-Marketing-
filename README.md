@@ -32,12 +32,12 @@ Built for **AI in Marketing (MAIB AI 208)** as a solo project and portfolio piec
 | **Signals** | Wikipedia interest against sales seasonality, a co-purchase network, social sentiment (synthetic and labelled) and a polite scraping demo |
 | **Outreach studio** | A local LLM drafts from model facts only. Automatic checks and a second-pass review run on each draft, and approval needs a UK PECR consent basis. Approvals are idempotent, and the only output is a CSV export with no send path |
 | **Product lab** | Basket rules, a portfolio growth matrix, product loyalty, and a price-elasticity lesson in confounding |
-| **Model lab** | Every model on every cutoff, a calibration chart, and a "does it really win?" table |
+| **Model lab** | Every model on every cutoff, a calibration chart, a "does it really win?" table, the R5 seasonality and value-range results, the model registry, and for uploads a backtest on your own last 90 days |
 | **Course evidence** | Each learning outcome and weekly topic mapped to the screen or file that shows it |
 | **Team, privacy, billing** | Workspaces with owner, reviewer and viewer roles, invite links, export and delete-my-workspace, Stripe Checkout in test mode |
 | **Status** | Live component checks and the service level objectives they are measured against |
 
-Light, dark and system themes switch with a feathered reveal that grows from the toggle, and a sliding indicator marks the active theme. The UI respects reduced motion and reduced transparency, and every 3D view has a table or 2D fallback. Playwright tests in CI check every route, WCAG 2.2 AA with axe in both themes, 375 px layouts and a right-to-left layout check for Arabic users (the text itself is not translated yet); number and date formats switch between en-GB and en-AE. A short, skippable onboarding tour introduces the weekly loop.
+Light, dark and system themes switch with a feathered reveal that grows from the toggle, and a sliding indicator marks the active theme. The UI respects reduced motion and reduced transparency, and every 3D view has a table or 2D fallback. Playwright tests in CI check every route, WCAG 2.2 AA with axe on every page in both themes, every page at 375 px, and the Arabic right-to-left layout (navigation, tour, weekly queue and upload are translated; AI-drafted, pending native review); number and date formats switch between en-GB and en-AE. A short, skippable onboarding tour introduces the weekly loop.
 
 ## Screenshots
 
@@ -130,9 +130,9 @@ cd services/api && uv venv --python 3.12 .venv && uv pip install --python .venv/
 cd apps/web && npm install && echo "NEXT_PUBLIC_API_URL=http://localhost:8001" > .env.local && npm run dev
 ```
 
-Open http://localhost:3000 (the app is at `/overview`). Turn on sign-in with `RL_AUTH_MODE=local`; all settings are in [`.env.example`](.env.example). Hosted option: the `Dockerfile` and [`render.yaml`](render.yaml), with Postgres row-level security in [`supabase/`](supabase/).
+Open http://localhost:3000 (the app is at `/overview`). Turn on sign-in with `RL_AUTH_MODE=local` (or `supabase` with the web's Supabase keys); use Postgres with `RL_DATABASE_URL`; all settings are in [`.env.example`](.env.example). Hosted option: the `Dockerfile` and [`render.yaml`](render.yaml), with Postgres row-level security in [`supabase/`](supabase/).
 
-Tests: `cd ml && uv run pytest` (61) · `PYTHONPATH=services/api pytest services/api/tests` (66, including two-tenant isolation and 23 OWASP LLM red-team cases) · Postgres row-level security isolation test against a local Supabase stack in CI · `cd apps/web && npx playwright test` (52 browser tests) · `npm run test:e2e:live` (upload-to-approval flow against a running API).
+Tests: `cd ml && uv run pytest` (62) · `PYTHONPATH=services/api pytest services/api/tests` (66, including two-tenant isolation and 23 OWASP LLM red-team cases; CI runs them on SQLite and again on Postgres 17) · Postgres row-level security isolation test against a local Supabase stack in CI · `cd apps/web && npx playwright test` (98 browser tests) · `npm run test:e2e:live` (upload-to-approval flow against a running API).
 
 The public demo is a static export of the same UI, with the serving JSON copied by `scripts/export_static_data.py` and deployed by `.github/workflows/pages.yml`.
 
@@ -145,7 +145,9 @@ The public demo is a static export of the same UI, with the serving JSON copied 
 | [Restore drill](reports/restore_drill.md) | Passed on a seeded synthetic database (5 workspaces, 1,000 reviews, 1,095 audit events): checksum, `integrity_check`, row counts. Backups run inside the API every 24 h |
 | Demo video | [`submissions/demo/RetentionLens_demo_silent.mp4`](submissions/demo/RetentionLens_demo_silent.mp4): 63 s, captioned, recorded by `e2e/demo.spec.ts` |
 | [ASVS L1 checklist](docs/security/ASVS_L1_CHECKLIST.md) · [LLM red team](docs/security/LLM_RED_TEAM.md) | Self-assessed; open items listed |
-| CI | ML, API, browser e2e, Docker build and health check, `pip-audit`, `npm audit`, CodeQL |
+| [Load test on Postgres](reports/load_test_postgres.md) | 12,620 requests, 0 errors, p95 85.6 ms (Postgres 17, pooled) |
+| [Postgres restore drill](reports/restore_drill_postgres.md) | `pg_dump`/`pg_restore` of a seeded schema: passed, row counts match |
+| CI | ML, API on SQLite and on Postgres, Supabase RLS, browser e2e, Docker build and health check, `pip-audit`, `npm audit`, CodeQL; uptime check every 6 h |
 
 Runbook: [`docs/OPERATIONS.md`](docs/OPERATIONS.md). Pilot and research kits: [`docs/pilot/`](docs/pilot/), [`docs/research/`](docs/research/).
 

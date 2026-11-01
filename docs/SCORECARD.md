@@ -1,5 +1,30 @@
 # Project scorecard
 
+## Re-score after the third build pass — 2026-11-01 (self-assessed, no agents)
+
+Scored by the builder, so read it as less independent than the reviewer's 73 below. Each change cites new evidence.
+
+| Lens | Reviewer (earlier today) | Now | New evidence | What still caps it |
+|---|---|---|---|---|
+| CEO | 67 | 67 | Waitlist admin view | No interviews, sign-ups or pilot |
+| CMO | 74 | 75 | Reorder logging and week history complete the holdout loop | No campaign has run |
+| COO | 75 | 80 | Postgres backend; Postgres load test (p95 85.6 ms) and `pg_dump` restore drill; scheduled backups; uptime check; upload-to-decision funnel | Not hosted; no on-call; no real ops history |
+| CTO | 81 | 87 | API suite green on SQLite and Postgres in CI; Supabase RLS verified in CI; Supabase sign-in in the web; axe on all 23 pages | Not deployed; no external security review or pen test |
+| AI engineer | 85 | 87 | Peak-season ranges fixed (74.2% → 80.0%, disclosed); per-upload backtest; human labelling UI with live kappa | Critic still has 0 human labels; local model missing; 1/16 live drafts pass |
+| Professor | 82 | 84 | R5 results in the app; lab evidence packs; 63 s demo video; refreshed 18-slide deck and 17-page report | Lab reports, reflection and primary research not written |
+| Course coverage | 84 | 86 | Exercises log template; evidence page maps every outcome to the new work | Labs and exercises (60% of marks) are the student's to write |
+| Real MVP | 73 | 79 | Every screen works on uploaded data; Excel sheet choice; date-reading preview | No usability sessions; no hosted instance |
+| Real SaaS | 38 | 46 | Postgres, RLS and Supabase Auth paths tested; waitlist admin | Nothing deployed, no keys, no customers, no support |
+| **Mean** | **73** | **77** | | |
+
+**Can code alone reach 95?** No. Every lens below 95 is now capped by evidence only the owner can create:
+interviews and a "would pilot" count (CEO, CMO), usability sessions (MVP), a hosted deployment on the owner's
+accounts (CTO, COO, SaaS), human labels for the critic plus the local model (AI engineer), the written labs,
+exercises log and reflection (Professor, Course), and a pilot with a measured uplift and a paying or LOI
+customer (CEO, CMO, SaaS). Each item has a kit or tool in the repository; `project/NEXT_ACTIONS.md` lists them in order.
+
+---
+
 ## Re-score after the R1–R8 build — 2026-11-01 (independent reviewer)
 
 Scored by a separate reviewer agent that read the repository cold, ran the ML and API test suites, checked CI

@@ -26,6 +26,15 @@
 - Supabase migration applied to a local stack in CI and the RLS leak test passes (commit 5b81f51, all 7 CI jobs green).
 - Ollama currently has no models installed (`qwen2.5:7b` missing): drafts use the labelled template until it is pulled again.
 
+## Third build pass (2026-11-01 evening, worktree branch ui-complete)
+- Uploads run the full serving builders (segments, galaxy, lookalikes with a stated fallback, top products, product lab) plus a 90-day backtest; Data, Segments, Product lab and Model lab verified in the browser on an uploaded file.
+- Model lab shows R5/R5b results and the model registry; course evidence page updated.
+- Queue week picker and manual reorder logging; waitlist admin page; Excel sheet choice; date-reading preview; Supabase sign-in (web, gated by env).
+- Arabic for navigation, tour, queue and upload (AI-drafted, pending native review); theme toggle no longer slides in on load.
+- axe + 375 px checks on all 23 pages, both themes: 98 browser tests (one or two timing flakes pass on retry); fixed a prohibited aria-label on the loading placeholder.
+- Postgres backend (`RL_DATABASE_URL`): API suite 66/66 on Postgres 17 locally; CI job added. Postgres load test and pg_dump/pg_restore drill passed.
+- Scheduled run (10:57 PM) refreshed 25 screenshots, the 18-slide deck and 17-page report (commit 57d49f9).
+
 ## Not verified / not done
 - Hosted API (Render/Azure), Supabase migration, Stripe test checkout: need the owner's accounts.
 - Vercel Analytics: code gated by `NEXT_PUBLIC_VERCEL_ANALYTICS=1`; must be enabled in the Vercel project.
