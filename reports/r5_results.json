@@ -1,0 +1,401 @@
+{
+  "generated_at": "2026-11-01T14:08:21+00:00",
+  "seed": 42,
+  "alpha": 0.2,
+  "dev_cutoffs": [
+    "2010-12-01",
+    "2011-03-01",
+    "2011-06-01"
+  ],
+  "post_hoc_cutoff": "2011-09-01",
+  "cutoffs": {
+    "2010-12-01": {
+      "role": "dev",
+      "customers": 4239,
+      "season": {
+        "multiplier": 0.8059,
+        "available": true,
+        "window_purchase_days": 3219,
+        "average_window": 3994.5
+      },
+      "lapse": {
+        "bgnbd": {
+          "pr_auc": 0.8649,
+          "roc_auc": 0.7884,
+          "brier": 0.1848
+        },
+        "bgnbd_seasonal": {
+          "pr_auc": 0.8649,
+          "roc_auc": 0.7884,
+          "brier": 0.1736
+        },
+        "lightgbm": {
+          "pr_auc": 0.8361,
+          "roc_auc": 0.7585,
+          "brier": 0.2693
+        },
+        "lightgbm_seasonal": {
+          "pr_auc": 0.8361,
+          "roc_auc": 0.7585,
+          "brier": 0.2693
+        },
+        "ziln_nn": {
+          "pr_auc": 0.8622,
+          "roc_auc": 0.7867,
+          "brier": 0.248
+        }
+      },
+      "value": {
+        "bgnbd_gamma_gamma": {
+          "mae": 366.0476,
+          "normalized_gini": 0.7997,
+          "total_bias": 0.6176
+        },
+        "bgnbd_gamma_gamma_seasonal": {
+          "mae": 323.3995,
+          "normalized_gini": 0.7997,
+          "total_bias": 0.3036
+        },
+        "lightgbm": {
+          "mae": 480.9014,
+          "normalized_gini": 0.8071,
+          "total_bias": 1.0644
+        },
+        "lightgbm_seasonal": {
+          "mae": 480.9014,
+          "normalized_gini": 0.8071,
+          "total_bias": 1.0644
+        },
+        "ziln_nn": {
+          "mae": 557.9628,
+          "normalized_gini": 0.8171,
+          "total_bias": 1.537
+        }
+      },
+      "intervals": {
+        "bgnbd_gamma_gamma": {
+          "calibrated_on": "2010-09-01",
+          "coverage": 0.7282,
+          "nominal": 0.8,
+          "median_width": 1064.33
+        },
+        "bgnbd_gamma_gamma_seasonal": {
+          "calibrated_on": "2010-09-01",
+          "coverage": 0.7945,
+          "nominal": 0.8,
+          "median_width": 858.32
+        }
+      },
+      "ziln_training_loss": [
+        8.0229,
+        4.5247,
+        4.4286,
+        4.4058,
+        4.3936
+      ]
+    },
+    "2011-03-01": {
+      "role": "dev",
+      "customers": 4512,
+      "season": {
+        "multiplier": 0.9315,
+        "available": true,
+        "window_purchase_days": 3690,
+        "average_window": 3961.2
+      },
+      "lapse": {
+        "bgnbd": {
+          "pr_auc": 0.8481,
+          "roc_auc": 0.7896,
+          "brier": 0.1721
+        },
+        "bgnbd_seasonal": {
+          "pr_auc": 0.8481,
+          "roc_auc": 0.7896,
+          "brier": 0.1701
+        },
+        "lightgbm": {
+          "pr_auc": 0.8257,
+          "roc_auc": 0.7597,
+          "brier": 0.1826
+        },
+        "lightgbm_seasonal": {
+          "pr_auc": 0.8345,
+          "roc_auc": 0.772,
+          "brier": 0.2389
+        },
+        "ziln_nn": {
+          "pr_auc": 0.8124,
+          "roc_auc": 0.75,
+          "brier": 0.1873
+        }
+      },
+      "value": {
+        "bgnbd_gamma_gamma": {
+          "mae": 289.779,
+          "normalized_gini": 0.81,
+          "total_bias": 0.2852
+        },
+        "bgnbd_gamma_gamma_seasonal": {
+          "mae": 279.8479,
+          "normalized_gini": 0.81,
+          "total_bias": 0.1971
+        },
+        "lightgbm": {
+          "mae": 268.2769,
+          "normalized_gini": 0.7751,
+          "total_bias": -0.0477
+        },
+        "lightgbm_seasonal": {
+          "mae": 390.872,
+          "normalized_gini": 0.8008,
+          "total_bias": 0.7604
+        },
+        "ziln_nn": {
+          "mae": 329.1175,
+          "normalized_gini": 0.7679,
+          "total_bias": 0.3729
+        }
+      },
+      "intervals": {
+        "bgnbd_gamma_gamma": {
+          "calibrated_on": "2010-12-01",
+          "coverage": 0.8143,
+          "nominal": 0.8,
+          "median_width": 228.53
+        },
+        "bgnbd_gamma_gamma_seasonal": {
+          "calibrated_on": "2010-12-01",
+          "coverage": 0.8218,
+          "nominal": 0.8,
+          "median_width": 264.35
+        }
+      },
+      "ziln_training_loss": [
+        4.683,
+        3.4608,
+        3.4168,
+        3.4087,
+        3.4061
+      ]
+    },
+    "2011-06-01": {
+      "role": "dev",
+      "customers": 4908,
+      "season": {
+        "multiplier": 0.9239,
+        "available": true,
+        "window_purchase_days": 3635,
+        "average_window": 3934.4
+      },
+      "lapse": {
+        "bgnbd": {
+          "pr_auc": 0.8888,
+          "roc_auc": 0.8239,
+          "brier": 0.1535
+        },
+        "bgnbd_seasonal": {
+          "pr_auc": 0.8888,
+          "roc_auc": 0.8239,
+          "brier": 0.1526
+        },
+        "lightgbm": {
+          "pr_auc": 0.8821,
+          "roc_auc": 0.8107,
+          "brier": 0.1555
+        },
+        "lightgbm_seasonal": {
+          "pr_auc": 0.8823,
+          "roc_auc": 0.8134,
+          "brier": 0.1762
+        },
+        "ziln_nn": {
+          "pr_auc": 0.8845,
+          "roc_auc": 0.8161,
+          "brier": 0.1554
+        }
+      },
+      "value": {
+        "bgnbd_gamma_gamma": {
+          "mae": 270.4586,
+          "normalized_gini": 0.8519,
+          "total_bias": 0.085
+        },
+        "bgnbd_gamma_gamma_seasonal": {
+          "mae": 265.3694,
+          "normalized_gini": 0.8519,
+          "total_bias": 0.0024
+        },
+        "lightgbm": {
+          "mae": 260.4596,
+          "normalized_gini": 0.8445,
+          "total_bias": -0.2793
+        },
+        "lightgbm_seasonal": {
+          "mae": 294.7669,
+          "normalized_gini": 0.8496,
+          "total_bias": 0.0415
+        },
+        "ziln_nn": {
+          "mae": 295.3574,
+          "normalized_gini": 0.8447,
+          "total_bias": 0.2208
+        }
+      },
+      "intervals": {
+        "bgnbd_gamma_gamma": {
+          "calibrated_on": "2011-03-01",
+          "coverage": 0.8236,
+          "nominal": 0.8,
+          "median_width": 251.65
+        },
+        "bgnbd_gamma_gamma_seasonal": {
+          "calibrated_on": "2011-03-01",
+          "coverage": 0.824,
+          "nominal": 0.8,
+          "median_width": 249.68
+        }
+      },
+      "ziln_training_loss": [
+        3.9947,
+        3.2139,
+        3.1813,
+        3.1725,
+        3.1672
+      ]
+    },
+    "2011-09-01": {
+      "role": "post_hoc_test",
+      "customers": 5224,
+      "season": {
+        "multiplier": 1.3976,
+        "available": true,
+        "window_purchase_days": 5479,
+        "average_window": 3920.3
+      },
+      "lapse": {
+        "bgnbd": {
+          "pr_auc": 0.82,
+          "roc_auc": 0.7987,
+          "brier": 0.1864
+        },
+        "bgnbd_seasonal": {
+          "pr_auc": 0.82,
+          "roc_auc": 0.7987,
+          "brier": 0.1785
+        },
+        "lightgbm": {
+          "pr_auc": 0.8189,
+          "roc_auc": 0.7927,
+          "brier": 0.1938
+        },
+        "lightgbm_seasonal": {
+          "pr_auc": 0.8182,
+          "roc_auc": 0.7923,
+          "brier": 0.183
+        },
+        "ziln_nn": {
+          "pr_auc": 0.8207,
+          "roc_auc": 0.7988,
+          "brier": 0.1862
+        }
+      },
+      "value": {
+        "bgnbd_gamma_gamma": {
+          "mae": 359.6889,
+          "normalized_gini": 0.8247,
+          "total_bias": -0.3353
+        },
+        "bgnbd_gamma_gamma_seasonal": {
+          "mae": 359.9952,
+          "normalized_gini": 0.8247,
+          "total_bias": -0.0711
+        },
+        "lightgbm": {
+          "mae": 369.1648,
+          "normalized_gini": 0.8072,
+          "total_bias": -0.4978
+        },
+        "lightgbm_seasonal": {
+          "mae": 378.6425,
+          "normalized_gini": 0.8041,
+          "total_bias": -0.2073
+        },
+        "ziln_nn": {
+          "mae": 372.8053,
+          "normalized_gini": 0.7992,
+          "total_bias": -0.2866
+        }
+      },
+      "intervals": {
+        "bgnbd_gamma_gamma": {
+          "calibrated_on": "2011-06-01",
+          "coverage": 0.7079,
+          "nominal": 0.8,
+          "median_width": 214.17
+        },
+        "bgnbd_gamma_gamma_seasonal": {
+          "calibrated_on": "2011-06-01",
+          "coverage": 0.7418,
+          "nominal": 0.8,
+          "median_width": 323.39
+        }
+      },
+      "ziln_training_loss": [
+        3.5003,
+        3.0293,
+        3.0026,
+        2.9959,
+        2.9904
+      ]
+    }
+  },
+  "summary": {
+    "seasonal_bias_reduction_dev": 0.4907,
+    "mean_abs_total_bias_dev": {
+      "bgnbd_gamma_gamma": 0.3293,
+      "bgnbd_gamma_gamma_seasonal": 0.1677
+    },
+    "interval_coverage_dev": [
+      0.7945,
+      0.8218,
+      0.824
+    ],
+    "interval_coverage_within_5pts": true,
+    "ziln_vs_bgnbd": {
+      "lapse_pr_auc": {
+        "wins": 0,
+        "of": 3
+      },
+      "value_gini": {
+        "wins": 1,
+        "of": 3
+      },
+      "value_mae": {
+        "wins": 0,
+        "of": 3
+      }
+    },
+    "seasonal_bgnbd_vs_bgnbd": {
+      "lapse_brier": {
+        "wins": 3,
+        "of": 3
+      },
+      "value_mae": {
+        "wins": 3,
+        "of": 3
+      }
+    },
+    "seasonal_gbm_vs_gbm": {
+      "lapse_pr_auc": {
+        "wins": 2,
+        "of": 3
+      },
+      "value_gini": {
+        "wins": 2,
+        "of": 3
+      }
+    },
+    "post_hoc_peak_gap_closed": 0.788
+  }
+}

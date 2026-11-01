@@ -6,6 +6,7 @@ import math
 import numpy as np
 import pandas as pd
 
+from ..features.seasonal import season_multiplier, seasonal_lapse
 from ..features.snapshot import build_snapshot
 from ..models.btyd import BtydModel
 
@@ -65,14 +66,17 @@ def net_adjusted(snap: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def score_accounts(prepared: pd.DataFrame, cutoff: str, seed: int = 42) -> pd.DataFrame:
+def score_accounts(prepared: pd.DataFrame, cutoff: str, seed: int = 42, seasonal: bool = True) -> pd.DataFrame:
+    """BG/NBD + Gamma-Gamma, with the R5 seasonal multiplier (it beat the plain model on lapse
+    Brier and value MAE on all three dev cutoffs; ranking metrics are unchanged by design)."""
     snap = net_adjusted(build_snapshot(prepared, cutoff))
     model = BtydModel().fit(snap, seed=seed)
+    multiplier = season_multiplier(prepared, cutoff)["multiplier"] if seasonal else 1.0
     scored = snap.copy()
-    scored["p_lapse"] = model.predict_lapse(snap)
+    scored["p_lapse"] = seasonal_lapse(model.predict_lapse(snap), multiplier)
     scored["p_alive"] = model.predict_alive(snap)
-    scored["expected_purchases_90"] = model.predict_purchases(snap)
-    scored["expected_value_90"] = model.predict_value(snap)
+    scored["expected_purchases_90"] = model.predict_purchases(snap) * multiplier
+    scored["expected_value_90"] = model.predict_value(snap) * multiplier
     run_rate = scored["net_sales_total"] / np.maximum(scored["tenure_days"], 90) * 90
     scored["value_at_risk_90"] = scored["p_lapse"] * run_rate
     scored["risk_band"] = scored["p_lapse"].map(risk_band)

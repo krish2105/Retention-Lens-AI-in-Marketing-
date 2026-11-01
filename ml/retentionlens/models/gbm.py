@@ -20,24 +20,27 @@ PARAMS = dict(
 )
 
 
-def _matrix(snap: pd.DataFrame) -> pd.DataFrame:
-    return snap[FEATURES].astype(float)
-
-
 class GbmModel:
     name = "lightgbm"
 
+    def __init__(self, features: list[str] | None = None, name: str | None = None):
+        self.features = features or FEATURES
+        self.name = name or self.name
+
+    def _matrix(self, snap: pd.DataFrame) -> pd.DataFrame:
+        return snap[self.features].astype(float)
+
     def fit(self, train: pd.DataFrame, seed: int = 0) -> "GbmModel":
         self.classifier = LGBMClassifier(random_state=seed, deterministic=True, **PARAMS)
-        self.classifier.fit(_matrix(train), train["lapsed"])
+        self.classifier.fit(self._matrix(train), train["lapsed"])
         buyers = train[train["future_value"] > 0]
         self.regressor = LGBMRegressor(random_state=seed, deterministic=True, **PARAMS)
-        self.regressor.fit(_matrix(buyers), np.log1p(buyers["future_value"]))
+        self.regressor.fit(self._matrix(buyers), np.log1p(buyers["future_value"]))
         return self
 
     def predict_lapse(self, snap: pd.DataFrame) -> np.ndarray:
-        return self.classifier.predict_proba(_matrix(snap))[:, 1]
+        return self.classifier.predict_proba(self._matrix(snap))[:, 1]
 
     def predict_value(self, snap: pd.DataFrame, horizon_days: int = 90) -> np.ndarray:
-        spend_if_buying = np.expm1(self.regressor.predict(_matrix(snap)))
+        spend_if_buying = np.expm1(self.regressor.predict(self._matrix(snap)))
         return np.clip((1 - self.predict_lapse(snap)) * spend_if_buying, 0, None)

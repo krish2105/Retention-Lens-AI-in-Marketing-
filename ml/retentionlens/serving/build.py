@@ -12,7 +12,7 @@ from ..features.snapshot import TEST_CUTOFF, prepare
 from .scoring import cohort_matrix, score_accounts
 
 LIVE_CUTOFF = "2011-12-10"  # the day after the last invoice in the dataset
-MODEL_NAME = "BG/NBD + Gamma-Gamma (PyMC-Marketing 1.3, MAP fit)"
+MODEL_NAME = "BG/NBD + Gamma-Gamma with seasonal multiplier (PyMC-Marketing 1.3, MAP fit)"
 ACCOUNT_FIELDS = [
     "country", "risk_band", "p_lapse", "p_alive", "expected_purchases_90", "expected_value_90",
     "value_at_risk_90", "recency_days", "tenure_days", "frequency", "sales_total", "sales_last_90",
@@ -54,7 +54,11 @@ def build_serving(repo: Path, extra_builders=()) -> dict:
     prepared = prepare(pd.read_parquet(repo / "data" / "interim" / "transactions_flagged.parquet"))
     scored = score_accounts(prepared, LIVE_CUTOFF)
 
-    extras = [builder(prepared, scored, out) for builder in extra_builders]
+    from ..features.seasonal import season_multiplier
+    from ..ingest.intervals import add_value_intervals
+
+    bounds, interval_meta = add_value_intervals(prepared, scored, LIVE_CUTOFF)
+    extras = [bounds] + [builder(prepared, scored, out) for builder in extra_builders]
     extra = pd.concat([e for e in extras if e is not None], axis=1) if any(e is not None for e in extras) else None
     _write(out / "accounts.json", account_records(scored, extra))
     _write(out / "timeline.json", timeline(prepared))
@@ -78,6 +82,8 @@ def build_serving(repo: Path, extra_builders=()) -> dict:
         "value_at_risk_high": round(float(scored.loc[scored["risk_band"] == "high", "value_at_risk_90"].sum()), 2),
         "expected_value_total": round(float(scored["expected_value_90"].sum()), 2),
         "evaluation_run": evaluation["run_id"],
+        "season": season_multiplier(prepared, LIVE_CUTOFF),
+        "intervals": interval_meta,
         "frozen_test": {
             "cutoff": TEST_CUTOFF,
             "customers": test["n_customers"],

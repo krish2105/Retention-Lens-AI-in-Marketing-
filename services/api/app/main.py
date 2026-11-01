@@ -304,6 +304,9 @@ def _draft_row(context: Ctx, draft_id: int) -> dict:
 
 @app.post("/api/drafts")
 def create_draft(request: DraftRequest, context: Ctx = Depends(require("reviewer"))):
+    # Each draft is two model calls; cap them per workspace (OWASP LLM10, unbounded consumption).
+    if not env.limiter.allow(f"drafts:{context.org_id}", 30, 60):
+        raise HTTPException(429, "Draft limit reached: 30 per minute per workspace")
     source = data_for(context)
     account_row = source.account(request.customer_id) if source.ready() else None
     if account_row is None:

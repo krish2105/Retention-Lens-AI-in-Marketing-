@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import pandas as pd
 
+from ..features.seasonal import season_multiplier
 from ..features.snapshot import build_snapshot
 from ..models.btyd import BtydModel
 from ..models.conformal import coverage, interval, residual_quantiles
@@ -18,7 +19,8 @@ def add_value_intervals(prepared: pd.DataFrame, scored: pd.DataFrame, cutoff: st
     try:
         snap = net_adjusted(build_snapshot(prepared, calibration_cutoff))
         model = BtydModel().fit(snap)
-        predicted = model.predict_value(snap)
+        # Same seasonal adjustment as the served scores, so residuals match what is shown.
+        predicted = model.predict_value(snap) * season_multiplier(prepared, calibration_cutoff)["multiplier"]
         quantiles = residual_quantiles(snap["future_value"], predicted, ALPHA)
     except (ValueError, KeyError, RuntimeError) as error:
         return empty, {"available": False, "reason": f"Not enough history before {calibration_cutoff} to calibrate ({error})"}

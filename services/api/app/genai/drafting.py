@@ -45,6 +45,19 @@ PRESSURE = re.compile(r"\b(act now|last chance|only today|hurry|limited time|exp
 OFFER = re.compile(r"\b(\d+\s*%\s*off|discount|free (gift|delivery|shipping|item)|voucher|coupon|promo code)\b", re.I)
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
 PHONE = re.compile(r"(?:\+?\d[\d\s-]{8,}\d)")
+LINK_OR_MARKUP = re.compile(r"https?://|www\.|<\s*/?\s*[a-z][^>]*>|\]\(", re.I)
+LEAK = re.compile(r"rules you must follow|return json|system prompt|as an ai\b|language model|my instructions", re.I)
+# Product names come from customers' own files, so they are untrusted text that reaches the prompt.
+INSTRUCTION_LIKE = re.compile(r"ignore|instruction|system|prompt|assistant|you must|disregard|discount|offer|http|www\.|@", re.I)
+SAFE_PRODUCT = re.compile(r"[^A-Za-z0-9 &'/.,()-]")
+
+
+def clean_product(name: str) -> str | None:
+    """Keep a product name only if it looks like a product name: short, plain characters, no instructions."""
+    text = SAFE_PRODUCT.sub("", str(name)).strip()[:60]
+    if not text or INSTRUCTION_LIKE.search(text):
+        return None
+    return text
 
 
 @dataclass
@@ -68,7 +81,7 @@ class Facts:
             last_order_days=int(account["recency_days"]),
             usual_gap_days=int(round(gap)) if gap else None,
             purchase_days=int(account["frequency"]) + 1,
-            top_products=list(account.get("top_products") or [])[:3],
+            top_products=[p for p in (clean_product(n) for n in (account.get("top_products") or [])) if p][:3],
             play=play,
         )
 
@@ -113,6 +126,8 @@ def check_draft(subject: str, body: str, facts: Facts) -> CheckResult:
         {"name": "No personal contact data", "passed": not (EMAIL.search(text) or PHONE.search(text)), "detail": "none found" if not (EMAIL.search(text) or PHONE.search(text)) else "email or phone number present"},
         {"name": "Uses name placeholders", "passed": "[First name]" in body, "detail": "greets with [First name]" if "[First name]" in body else "missing [First name]"},
         {"name": "Length 40–180 words", "passed": 40 <= words <= 180, "detail": f"{words} words"},
+        {"name": "No links or markup", "passed": not LINK_OR_MARKUP.search(text), "detail": "none found" if not LINK_OR_MARKUP.search(text) else "link or markup present"},
+        {"name": "Does not reveal instructions", "passed": not LEAK.search(text), "detail": "none found" if not LEAK.search(text) else "instruction text present"},
     ]
     return CheckResult(passed=all(c["passed"] for c in checks), checks=checks)
 

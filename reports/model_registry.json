@@ -1,0 +1,90 @@
+{
+  "updated_at": "2026-11-01T14:10:48+00:00",
+  "serving": {
+    "name": "BG/NBD + Gamma-Gamma with seasonal multiplier (PyMC-Marketing 1.3, MAP fit)",
+    "version": "bgnbd-gg-seasonal-v1",
+    "scoring_cutoff": "2011-12-10",
+    "data_sha256": "572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb",
+    "season": {
+      "multiplier": 0.7001,
+      "available": true,
+      "window_purchase_days": 2766,
+      "average_window": 3951.1
+    },
+    "intervals": {
+      "available": true,
+      "level": 0.8,
+      "calibration_cutoff": "2011-09-11",
+      "calibration_customers": 5256,
+      "calibration_coverage": 0.8,
+      "method": "split conformal on log1p residuals, calibrated on the previous 90 days"
+    },
+    "evidence": [
+      "reports/model_results.md",
+      "reports/r5_results.md"
+    ]
+  },
+  "models": [
+    {
+      "name": "bgnbd_gamma_gamma",
+      "status": "superseded by the seasonal version",
+      "evidence": "reports/model_results.md",
+      "evidence_sha": "c41337e585292f19"
+    },
+    {
+      "name": "bgnbd_gamma_gamma_seasonal",
+      "status": "serving",
+      "evidence": "reports/r5_results.md",
+      "evidence_sha": "4bd45e34d0e7f431",
+      "dev_result": {
+        "lapse_brier": {
+          "wins": 3,
+          "of": 3
+        },
+        "value_mae": {
+          "wins": 3,
+          "of": 3
+        }
+      }
+    },
+    {
+      "name": "lightgbm",
+      "status": "challenger, rejected (lost to BG/NBD on the frozen test)",
+      "evidence": "reports/model_results.md"
+    },
+    {
+      "name": "lightgbm_seasonal",
+      "status": "challenger, not adopted (mixed dev results)",
+      "evidence": "reports/r5_results.md",
+      "dev_result": {
+        "lapse_pr_auc": {
+          "wins": 2,
+          "of": 3
+        },
+        "value_gini": {
+          "wins": 2,
+          "of": 3
+        }
+      }
+    },
+    {
+      "name": "ziln_nn",
+      "status": "deep-learning challenger, not adopted (0 of 3 dev wins on lapse PR-AUC)",
+      "evidence": "reports/r5_results.md",
+      "dev_result": {
+        "lapse_pr_auc": {
+          "wins": 0,
+          "of": 3
+        },
+        "value_gini": {
+          "wins": 1,
+          "of": 3
+        },
+        "value_mae": {
+          "wins": 0,
+          "of": 3
+        }
+      }
+    }
+  ]
+}
