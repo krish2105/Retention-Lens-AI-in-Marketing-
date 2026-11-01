@@ -12,7 +12,8 @@ Kept current at every push so any session (local or cloud) can continue. Last up
 | P5 signals | **Done**: Wikipedia seasonality vs sales (Christmas r 0.34 same month, 0.90 with 1-month lead), co-purchase network (3 communities), 600 SYNTHETIC posts with lexicon sentiment + injection flags, polite toscrape.com scraper |
 | P6 outreach studio | **Done**: local qwen2.5:7b drafts from structured facts only, numeric/pressure/offer/PII checker, critic pass, PECR consent gate, idempotent approval, CSV export, audit log, red-team tests; live eval script `services/api/evals/run_eval.py` |
 | P7 product lab | **Done**: basket rules (lift), portfolio matrix, product loyalty, elasticity shown as a confounding lesson |
-| P8 README, evidence page, CI | Next |
+| P8 README, evidence page, CI | **Done**: professional README with real metrics, `/evidence` outcome map, GitHub Actions (ml, api, web) |
+| Remaining | See `REMAINING.md` (critic calibration, demo video, labs, presentation, report) |
 
 ## Rebuild everything from a clean clone
 

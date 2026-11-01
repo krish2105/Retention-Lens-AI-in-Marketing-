@@ -12,3 +12,6 @@
 | 2026-11-01 | No Claude co-author/credit in commits, PRs or README | Owner instruction | Never |
 | 2026-11-01 | Keep Next.js 15, pin React 19.2.x; Python 3.12 for ML | R3F 9 confirmed for React 19.0–19.2; PyMC-Marketing 1.3 needs ≥3.12 | When R3F confirms 19.3 |
 | 2026-11-01 | Ship BG/NBD + Gamma-Gamma as the default scoring model; keep LightGBM as comparison; ZILN not pursued for now | Frozen-test + 3 dev cutoffs: LightGBM beats BG/NBD on 0 of 4 (lapse); see `docs/MODEL_CARD.md` | If seasonality features change the ranking |
+| 2026-11-01 | Plain CSS tokens instead of Tailwind/shadcn for the Aurora UI | Faster to build and theme glass/aurora precisely; no component library needed | If the UI grows many form components |
+| 2026-11-01 | Serving values use spend net of returns | A cancelled £168k bulk order (customer 16446) inflated gross-spend CLV | Never |
+| 2026-11-01 | No free text ever reaches the LLM prompt; tone is an enum | Prompt-injection defence (OWASP LLM01) | If a reviewed free-text field is needed |

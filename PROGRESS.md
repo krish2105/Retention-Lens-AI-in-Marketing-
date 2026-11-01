@@ -13,12 +13,17 @@ Last updated: 2026-11-01. Everything listed here was checked by running it. What
 | Images generated from those prompts | Done locally, not yet in the repo | 11 final PNGs in `RetentionLens_AUR_Complete_Image_Collection/` (untracked, 36 MB) |
 | **P1** Data pipeline | Done, merged | `ml/retentionlens/data/`, `reports/data_profile.md`, `docs/DATA_CARD.md` |
 | **P2** Models on rolling cutoffs + frozen test | Done, merged | `ml/retentionlens/{features,models,eval}/`, `reports/model_results.md`, `docs/MODEL_CARD.md` |
-| P3 to P8 | Not started | see [REMAINING.md](REMAINING.md) |
+| **P3** API + Aurora UI shell | Done, merged | `ml/retentionlens/serving/`, `services/api/`, `apps/web/` (theme toggle, 3D cohort terrain, accounts, model lab, data) |
+| **P4** Segments | Done, merged | RFM segments + plays, k-means (k=4 by silhouette), 3D galaxy of 5,852 accounts, lookalike model test AUC 0.821 |
+| **P5** Signals (outcome B) | Done, merged | Wikipedia CC0 seasonality (Christmas r 0.34 → 0.90 with 1-month lead), co-purchase network, 600 SYNTHETIC posts, toscrape.com scraper |
+| **P6** Outreach studio (outcome D) | Done, merged | Local qwen2.5:7b drafts, checker, critic, PECR consent gate, idempotent approval, CSV export, audit log; live eval `reports/genai_eval.md` |
+| **P7** Product lab | Done, merged | Basket rules, portfolio matrix, loyalty, elasticity confounding lesson |
+| **P8** README, evidence page, CI | Done | `README.md`, `/evidence` page, `.github/workflows/ci.yml` |
 
 ## Tests (run 2026-11-01)
 
-- `cd ml && uv run pytest -q` → **33 passed** (Python 3.12, pandas 2.3.3, LightGBM 4.7.0, PyMC-Marketing 1.3.0)
-- `PYTHONPATH=services/api pytest -q services/api/tests` → **6 passed** (the original demo API, synthetic data)
+- `cd ml && uv run pytest -q` → **48 passed** (after P8) (Python 3.12, pandas 2.3.3, LightGBM 4.7.0, PyMC-Marketing 1.3.0)
+- `PYTHONPATH=services/api pytest -q services/api/tests` → **14 passed** (new API incl. outreach red-team cases)
 - `cd apps/web && npx next build` → compiles (the original starter dashboard, not yet the Aurora UI)
 
 ## P1 — data pipeline (merged in `98ff1d1`)
@@ -48,18 +53,18 @@ Last updated: 2026-11-01. Everything listed here was checked by running it. What
 | Outcome | Status | Evidence |
 |---|---|---|
 | A · Marketing research + predictive analytics | **Partly evidenced** | Data profile, data card, lapse models and metrics |
-| B · Traditional + web + social data | **Not started** | Planned for P5 |
-| C · CLV, churn, retention, new customers | **Partly evidenced** | Churn (lapse) and CLV models done; segmentation and finding new customers not done |
-| D · Generative AI for marketing decisions | **Not started** | Planned for P6 |
-| CLO4 · Ethics | **Not started** | Planned for P6 (consent, approval gate, red team) |
+| B · Traditional + web + social data | **Evidenced** | Signals page: real web (CC0) + traditional invoices + synthetic social (labelled) |
+| C · CLV, churn, retention, new customers | **Evidenced** | Lapse + CLV models, segments, lookalike new-customer scoring |
+| D · Generative AI for marketing decisions | **Evidenced** | Outreach studio + live evaluation (15/16 numbers grounded; critic flags 15/16) |
+| CLO4 · Ethics | **Evidenced** | Consent gate, human approval, no send path, injection tests, synthetic labelling |
 
 | Lab week | Topic | Usable material so far |
 |---|---|---|
-| 2 | Market data and plots | Data profile tables only, no charts yet |
+| 2 | Market data and plots | Data profile, cohort terrain, monthly charts |
 | 4 | Customer lifetime value | BG/NBD + Gamma-Gamma results (P2) |
 | 6 | Churn | Lapse model comparison (P2) |
-| 8 | Brand and pricing | None |
-| 10 | Competitive intelligence and web scraping | None |
+| 8 | Brand and pricing | Product loyalty, elasticity lesson (P7) |
+| 10 | Competitive intelligence and web scraping | Polite scraper demo (P5) |
 
 ## Design assets ready
 

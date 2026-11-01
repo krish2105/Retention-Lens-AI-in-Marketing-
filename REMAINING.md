@@ -1,47 +1,35 @@
 # What is remaining — end to end
 
-Last updated: 2026-11-01. Completed work is in [PROGRESS.md](PROGRESS.md). Hour figures are **estimates** for planning, not measurements.
+Last updated: 2026-11-01 (after P3–P8). Completed work is in [PROGRESS.md](PROGRESS.md). Hour figures are **estimates**.
 
-## 1. Blockers to clear first (no code)
+## 1. Blockers (no code)
 
-- [ ] Send the coordinator email (draft exists) and get answers on:
+- [ ] Send the coordinator email and get answers on:
   - Is solo submission allowed for the week-6 presentation and the final group project?
-  - Must the work be built or submitted in Cloud Lab?
+  - Is Cloud Lab expected?
   - Do the rubrics mean "deep learning" literally?
-  - How deep must outcomes B and D go?
-- [ ] Get the real due dates for the week-6 presentation and the exam-week final project.
+- [ ] Get the real due dates for week 6 and exam week.
 
-## 2. Product build (spec phases P3–P8)
+## 2. Product: still to do
 
-| Phase | What is left | Outline link | Est. hours |
-|---|---|---|---|
-| **P3** API + Aurora UI shell | FastAPI endpoints over P2 run files; Next.js Aurora shell with light/dark/system theme; Overview and Accounts screens showing real run values with data-source footers; empty, loading and error states; images compressed into `assets/generated/` | A, C | 12 |
-| **P4** Segments | RFM clusters; 3D customer galaxy (React Three Fiber) with a table version and a 2D fallback; lookalike scoring to find new customers like the best ones | C (new customers), week 5 | 8 |
-| **P5** Signals | Wikipedia pageviews, GDELT and a Google Trends CSV; co-purchase network; synthetic social posts labelled SYNTHETIC; scraping demo on toscrape.com; a licence row for each source | **B**, weeks 9–10 | 8 |
-| **P6** Outreach studio | Ollama `qwen2.5:7b` drafts through read-only tools; a checker that blocks unsupported numbers; a critic pass; a human approval gate; no send tool; consent field; audit log; tests and red-team suite run in CI | **D**, CLO4, week 11 | 12 |
-| **P7** Product and pricing lab | Market-basket rules; price elasticity, labelled as association rather than cause; positioning notes | Weeks 7–8 | 5 |
-| **P8** Finish | Professional README with banner, real metrics table and image disclosure; Course evidence page; demo recording; clean-machine run check | All | 6 |
-
-Optional (only if time allows): seasonality features (P2b), conformal uncertainty intervals (check the MAPIE v1 API first), a ZILN neural model (not supported by current evidence).
+| Item | Why | Est. hours |
+|---|---|---|
+| Human-label ~30 drafts and calibrate the critic | Live eval: the 7B critic flagged 15 of 16 drafts; whether those flags are right is unknown | 3 |
+| Demo recording (2–3 min) and README screenshots | Final-project evidence; screenshot capture was skipped while the browser was in use | 2 |
+| Confirm the first GitHub Actions run is green | CI added in P8 but not yet observed on GitHub | 0.5 |
+| Accessibility and mobile checks: axe scan, keyboard-only pass, 375 px layout | WCAG 2.2 AA is a spec goal; partly checked by hand | 3 |
+| Seasonality-aware features (optional) | All models under-predict peak-season spend | 4 |
+| Conformal uncertainty intervals (optional) | Check the MAPIE v1 API first | 3 |
+| Remove leftover starter docs and prompts (`prompts/`, old `docs/PRD.md` text) | They describe the original starter, not the built app | 1 |
 
 ## 3. Course deliverables
 
 | Deliverable | Weight | What is left | Est. hours |
 |---|---|---|---|
-| Labs, weeks 2/4/6/8/10 | 30% | One notebook and a 2-page report each (implementation, experimentation, problem-solving, reporting). Weeks 4 and 6 can reuse P2 results; weeks 8 and 10 need P7 and P5. | 15 |
-| Problems and exercises, every session | 30% | Set by the instructor; not tracked in the repo yet. Add an `exercises/` log. | ongoing |
-| Week-6 group presentation | 10% | Slides from the P2 churn and CLV results, with charts | 4 |
-| Final group project, exam week | 30% | Report covering outcomes B, C and D, live demo, reproducible run | 10 |
-| Reading | — | Add Hwang (2019), Winston (2014) and Grigsby (2018) to `docs/SOURCES.md` and map chapters to weeks | 1 |
+| Labs, weeks 2/4/6/8/10 | 30% | One notebook and a 2-page report each, built from: data profile (wk 2), CLV (wk 4), churn (wk 6), product lab (wk 8), scraper (wk 10) | 10 |
+| Problems and exercises | 30% | Set in class; add an `exercises/` log | ongoing |
+| Week-6 presentation | 10% | Slides from Model lab and Segments | 3 |
+| Final project report | 30% | Covers B, C and D with the evidence page as its map, plus a live demo | 8 |
+| Reading list | — | Add Hwang (2019), Winston (2014) and Grigsby (2018) to `docs/SOURCES.md` | 1 |
 
-## 4. Engineering and housekeeping
-
-- [ ] Replace the starter demo API and dashboard with P3 (the old `services/api` demo code remains).
-- [ ] Add GitHub Actions running the ML tests, API tests, web build and accessibility (axe) checks.
-- [ ] Compress the 11 final images to WebP under 400 KB and add them to `assets/generated/`. Keep the 36 MB collection and its zip out of git.
-- [ ] Clean template leftovers in `prompts/00_MASTER_WORK_PROMPT.md` and `docs/ASSESSMENT.md`.
-- [ ] Charts for week 2 (market data plots): none exist yet.
-
-## 5. Time check
-
-The remaining build (P3–P8) is about 51 hours, and course deliverables add roughly 30 more, for **about 80 hours** in total. At the planned 4 hours a week, that is about **20 weeks**, while the term is 12. Options: raise this project's weekly share, cut P7 and the optional items, or reuse build work directly as lab reports.
+**Total: about 38 hours**, roughly 10 weeks at 4 hours a week, which fits the 12-week term.

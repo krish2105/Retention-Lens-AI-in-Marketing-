@@ -1,0 +1,771 @@
+{
+  "generated_at": "2026-11-01T09:14:50+00:00",
+  "model": "qwen2.5:7b",
+  "drafts": 16,
+  "model_drafts": 16,
+  "all_checks_passed": 1,
+  "per_check_pass": {
+    "Numbers match the model's facts": "15/16",
+    "No pressure or false urgency": "16/16",
+    "No discounts or offers": "16/16",
+    "No personal contact data": "16/16",
+    "Uses name placeholders": "16/16",
+    "Length 40\u2013180 words": "16/16",
+    "Second-pass review (tone, manipulation)": "1/16"
+  },
+  "median_seconds": 15.25,
+  "rows": [
+    {
+      "customer_id": "15098",
+      "segment": "Promising",
+      "tone": "warm",
+      "source": "model",
+      "passed": false,
+      "seconds": 16.1,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "70 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "Invents an offer or deadline; Sounds manipulative by suggesting the reader might be interested in new products; Lacks a clear call to action or benefit for the recipient"
+        }
+      ],
+      "subject": "Hi [First name],",
+      "body": "Hi [First name],\n\nI hope you're well. It's been a while since we last worked together, and I wanted to check in and see if there are any new picnic basket items you might be interested in trying. Our customers really love the Picnic Basket Wicker 60 Pieces and the Picnic Basket Wicker Small. Let me know if you need any samples or have any questions.\n\nBest regards,\n[Your name]"
+    },
+    {
+      "customer_id": "12752",
+      "segment": "Promising",
+      "tone": "brief",
+      "source": "model",
+      "passed": false,
+      "seconds": 14.2,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "66 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "The email pressures the reader by mentioning the number of days since the last order.; It invents an offer (suggested items) without the customer's input or request.; The tone sounds manipulative by implying the customer should order again."
+        }
+      ],
+      "subject": "Nudge to Revive Your Order with Us",
+      "body": "Hi [First name],\n\nI hope this message finds you well. It's been 82 days since your last order, and I wanted to touch base. You've ordered from us once, and I noticed you've really enjoyed the Childrens Cutlery Polkadot range. To keep things fresh, I've put together some items you might like to try next time. Looking forward to seeing you soon!\n\nBest regards,\n[Your name]"
+    },
+    {
+      "customer_id": "16754",
+      "segment": "Can't lose",
+      "tone": "seasonal",
+      "source": "model",
+      "passed": false,
+      "seconds": 13.0,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "80 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "Invents an offer (scheduling a call to discuss the new range); Implies a negative connotation by mentioning the gap in orders"
+        }
+      ],
+      "subject": "Seasonal Stock and Your Order",
+      "body": "Hi [First name],\n\nI hope this email finds you well. It's been 373 days since your last order, which is longer than your usual 15-day gap. I wanted to touch base and discuss our upcoming season's stock, particularly the Red Harmonica In Box, Bag 250G Swirly Marbles, and Large Red Spot Windmill. These are always popular!\n\nWould you like to schedule a call this week so we can go over the new range in more detail?\n\nBest regards,\n[Your name]"
+    },
+    {
+      "customer_id": "13093",
+      "segment": "Can't lose",
+      "tone": "warm",
+      "source": "model",
+      "passed": false,
+      "seconds": 22.5,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "92 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "Pressures the reader by mentioning the gap in orders.; Invents past purchases without confirmation.; Suggests a follow-up without a specific action or offer."
+        }
+      ],
+      "subject": "Let's catch up and discuss your needs",
+      "body": "Hi [First name],\n\nI hope this message finds you well. It's been 276 days since our last order, which is longer than our usual gap of 11 days. I wanted to reach out and see how you're doing and if there are any new products you're interested in. We've noticed you love the Regency Cakestand 3 Tier, Set 7 Babushka Nesting Boxes, and Paper Chain Kit 50'S Christmas. Would you like to chat about adding some more to your collection?\n\nI'll be in touch soon to discuss further.\n\nBest regards,\n[Your name]"
+    },
+    {
+      "customer_id": "16000",
+      "segment": "New",
+      "tone": "brief",
+      "source": "model",
+      "passed": false,
+      "seconds": 16.4,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "74 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "The email implies that a purchase has already been made, which may not be the case.; The subject line suggests an order has been placed, which could be misleading."
+        }
+      ],
+      "subject": "Onboarding Follow-Up for [First name] - Your First Order with Us",
+      "body": "Hello [First name],\n\nI hope this email finds you well. It's been a while since your last order, and I wanted to follow up on your recent purchase. We're excited to have you on board and hope you're enjoying your Sweetheart Bird House, Antique Heart Shelf Unit, and Alarm Clock Bakelike Red.\n\nIf you have any feedback or need assistance, please let me know. Looking forward to continuing our partnership.\n\nBest regards,\n[Your name]"
+    },
+    {
+      "customer_id": "15195",
+      "segment": "New",
+      "tone": "seasonal",
+      "source": "model",
+      "passed": false,
+      "seconds": 15.6,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "85 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "The email invents an offer (Metal Sign Take It Or Leave It range) that wasn't mentioned in the original draft.; The phrase 'Let's discuss how we can work together to make the most of this season' sounds manipulative and pressures the reader."
+        }
+      ],
+      "subject": "Seasonal Stock and Your Next Order, [First name]",
+      "body": "Hi [First name],\n\nI hope you're well. I noticed you've placed just one order with us recently, and I wanted to share some exciting new stock coming in for the upcoming season. Our Metal Sign Take It Or Leave It range is a real hit, and I think you'll find the new designs particularly appealing.\n\nLet's discuss how we can work together to make the most of this season. Drop me a line when you're ready to place your next order.\n\nBest regards,\n[Your name]"
+    },
+    {
+      "customer_id": "15749",
+      "segment": "Hibernating",
+      "tone": "warm",
+      "source": "model",
+      "passed": false,
+      "seconds": 13.7,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "81 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "Uses informal language ('fairy cake flannel', 'fly off the shelves') which is not appropriate for a professional B2B email.; Invents an offer or product by mentioning specific items that were not previously discussed.; The subject line is too casual and does not reflect the professional tone of the email body."
+        }
+      ],
+      "subject": "A Little Reminder for You, [First name]",
+      "body": "Hi [First name],\n\nI hope this message finds you well. I noticed it\u2019s been a while since we last spoke. I wanted to gently remind you of the lovely fairy cake flannel and hanging heart t-light holders that you\u2019ve ordered in the past. These items always seem to fly off the shelves!\n\nJust a quick check-in to see if you\u2019re planning anything special soon. Let me know if you need any more stock or have any questions.\n\nBest regards,\n[Your name]"
+    },
+    {
+      "customer_id": "12590",
+      "segment": "Hibernating",
+      "tone": "brief",
+      "source": "model",
+      "passed": false,
+      "seconds": 11.3,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "65 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "Uses past tense for an ongoing action (last order); Implies urgency without clear reason; Lacks a clear offer or benefit to the recipient"
+        }
+      ],
+      "subject": "Low-cost reminder for your giftware needs",
+      "body": "Hi [First name],\n\nI hope this email finds you well. Just a quick reminder that we have a range of popular items like the Assorted Colours Silk Fan and Edwardian Parasols that you've ordered in the past. It's been 212 days since your last order, so perhaps it's time to refresh your stock?\n\nLet me know if you need any assistance.\n\nBest regards,\n[Your name]"
+    },
+    {
+      "customer_id": "17509",
+      "segment": "Needs attention",
+      "tone": "seasonal",
+      "source": "model",
+      "passed": false,
+      "seconds": 15.2,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "84 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "Uses a manipulative tactic by referencing the 'usual gap of 3 days' which may not be accurate or appropriate.; Invents a deadline by mentioning 'upcoming stock highlights' without providing a specific timeframe.; The subject line is too casual and may not grab the recipient's attention in a professional context."
+        }
+      ],
+      "subject": "Seasonal Stock Review for [First name] - Coming Soon!",
+      "body": "Hi [First name],\n\nI hope this email finds you well. It's been 58 days since your last order, which is longer than your usual gap of 3 days. We've noticed you've ordered from us on 3 separate days and your favorites include the Ice Cream Sundae Lip Gloss and Doughnut Lip Gloss. As we gear up for the new season, I wanted to share our upcoming stock highlights, which I think you'll find interesting.\n\nLooking forward to seeing you soon!\n\nBest regards,\n[Your name]"
+    },
+    {
+      "customer_id": "12798",
+      "segment": "Needs attention",
+      "tone": "warm",
+      "source": "model",
+      "passed": true,
+      "seconds": 12.4,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "92 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": true,
+          "detail": "no issues raised"
+        }
+      ],
+      "subject": "Let's catch up and review our partnership",
+      "body": "Hi [First name],\n\nI hope this email finds you well. It's been 11 days since your last order, and I noticed that your usual gap between orders is around 137 days. I wanted to touch base and see if there's anything we can do to support you better. You've ordered from us on 4 separate days, and your favorite products are the Rabbit Night Light, Pack Of 12 Coloured Pencils, and Set 12 Kids Colour Chalk Sticks. Let's review the evidence and see how we can enhance our partnership.\n\nThanks, [Your name]"
+    },
+    {
+      "customer_id": "12415",
+      "segment": "Champions",
+      "tone": "brief",
+      "source": "model",
+      "passed": false,
+      "seconds": 19.7,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "98 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "The email invents a deadline (25 days since last order) and an average order gap (28 days), which may not be accurate.; The subject line is overly promotional and not appropriate for a professional B2B communication.; The email pressures the reader by mentioning the gap between orders and suggesting early access to new ranges.; The request for referrals sounds manipulative and is not directly related to the primary purpose of the email."
+        }
+      ],
+      "subject": "Early Access to New Ranges and More!",
+      "body": "Hi [First name],\n\nI hope this message finds you well. It's been 25 days since your last order, and I wanted to thank you for your continued support. You've placed orders on 19 separate days, and your usual gap between orders is 28 days. We've noticed you love our Regency Cakestand 3 Tier, Rabbit Night Light, and Dolly Girl Lunch Box.\n\nWould you be interested in early access to our new ranges? Also, could I ask if you know any other businesses that might be interested in our products? Your referrals are always welcome.\n\nBest regards,\n[Your name]"
+    },
+    {
+      "customer_id": "12753",
+      "segment": "Champions",
+      "tone": "seasonal",
+      "source": "model",
+      "passed": false,
+      "seconds": 17.3,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "104 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "The email implies a negative connotation by mentioning the gap between orders.; It pressures the reader by suggesting they should be one of the first to see the new ranges.; The email invents an offer (referrals) without prior agreement.; The deadline (implied by 'early access') is not clearly stated."
+        }
+      ],
+      "subject": "Exciting New Season Stock and Early Access for Our Champions",
+      "body": "Hi [First name],\n\nI hope you're well. It's been 23 days since your last order, and I wanted to reach out to thank you for your continued support. Your regular orders, especially on [Your name]\u2019s best-selling items like the Red Spotty Biscuit Tin and Red Retrospot Mini Cases, are greatly appreciated.\n\nI\u2019m excited to share that we have some new ranges coming up for the upcoming season. Would you like to be one of the first to see them? Plus, I\u2019d love to hear your thoughts and any referrals you might have for us.\n\nLooking forward to our continued partnership.\n\nBest regards,\n[Your name]"
+    },
+    {
+      "customer_id": "12409",
+      "segment": "Loyal",
+      "tone": "warm",
+      "source": "model",
+      "passed": false,
+      "seconds": 13.5,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "82 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "Invents an offer (Party Bunting and Round Snack Boxes Set Of4 Woodland); Includes a deadline (79 days since your last order); Sounding slightly manipulative by referencing the order frequency"
+        }
+      ],
+      "subject": "Hi [First name], how are you doing?",
+      "body": "Hi [First name],\n\nI hope you're well. It's been 79 days since your last order, and I noticed you usually place orders every 81 days. I wanted to touch base and see if there's anything new you're planning or if there are any complementary items you might be interested in, like our Party Bunting or Round Snack Boxes Set Of4 Woodland. We've got a great selection that could complement your usual orders.\n\nLooking forward to hearing from you.\n\nBest regards, [Your name]"
+    },
+    {
+      "customer_id": "18251",
+      "segment": "Loyal",
+      "tone": "brief",
+      "source": "model",
+      "passed": false,
+      "seconds": 16.8,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": false,
+          "detail": "unsupported: 2"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "91 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "Uses a manipulative tactic by referencing the gap between orders.; Implies an expectation of continued business without clear value proposition."
+        }
+      ],
+      "subject": "Keep the Party Going - Suggested Complementary Lines",
+      "body": "Hi [First name],\n\nHope this message finds you well. It's been 88 days since your last order, just 2 shy of your usual 90-day gap. We noticed you've ordered on 8 separate days and your favorite items are the Pack Of 72 Skull Cake Cases, Set Of 20 Vintage Christmas Napkins, and Skull And Crossbones Garland. Based on your buying pattern, I suggest we keep the cadence and add some complementary lines from our basket rules to enhance your next order.\n\nLooking forward to your continued business.\n\nBest regards,\n[Your name]"
+    },
+    {
+      "customer_id": "13935",
+      "segment": "At risk",
+      "tone": "seasonal",
+      "source": "model",
+      "passed": false,
+      "seconds": 15.3,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "85 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "Invents an offer by mentioning specific products.; Suggests a gap between orders that may not be accurate or relevant.; Uses a deadline-like statement 'Looking forward to hearing from you', which could be seen as pressuring."
+        }
+      ],
+      "subject": "Seasonal Stock Check-In",
+      "body": "Hi [First name],\n\nI hope you're well. With the new season approaching, I wanted to check in on your stock levels and see if there's anything we can help with. You've ordered from us on 3 separate days, and your usual gap between orders is 28 days. Could we discuss your needs for the upcoming season? We have some exciting new stock coming in, particularly Red Spotty Round Cake Tins and Painted Metal Pears Assorted.\n\nLooking forward to hearing from you.\n\nBest regards,\n[Your name]"
+    },
+    {
+      "customer_id": "15332",
+      "segment": "At risk",
+      "tone": "warm",
+      "source": "model",
+      "passed": false,
+      "seconds": 13.0,
+      "checks": [
+        {
+          "name": "Numbers match the model's facts",
+          "passed": true,
+          "detail": "every number appears in the facts"
+        },
+        {
+          "name": "No pressure or false urgency",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No discounts or offers",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "No personal contact data",
+          "passed": true,
+          "detail": "none found"
+        },
+        {
+          "name": "Uses name placeholders",
+          "passed": true,
+          "detail": "greets with [First name]"
+        },
+        {
+          "name": "Length 40\u2013180 words",
+          "passed": true,
+          "detail": "81 words"
+        },
+        {
+          "name": "Second-pass review (tone, manipulation)",
+          "passed": false,
+          "detail": "Invents an offer (suggesting specific products to reorder); Invents a deadline (new season approaching); Sounds manipulative (implies not responding will miss out on new items)"
+        }
+      ],
+      "subject": "Let's Catch Up and Reorder Soon",
+      "body": "Hi [First name],\n\nI hope this message finds you well. It's been a while since we last spoke, and I wanted to check in on you. With the new season approaching, I think it might be a great time to reorder some of your favorites, like the Feltcraft Princess Lola and Olivia Dolls, and the Grey Floral Shoulder Bag. We have some new items coming in that might interest you too!\n\nLooking forward to hearing from you.\n\nBest regards,\n[Your name]"
+    }
+  ]
+}

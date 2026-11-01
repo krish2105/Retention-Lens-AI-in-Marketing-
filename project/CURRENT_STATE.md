@@ -22,6 +22,12 @@ Last edited: 2026-11-01 (audit + research + design spec; no application code cha
 - LightGBM beats BG/NBD on 0 of 4 cutoffs (lapse), logistic on 1 of 4; beats only the recency rule and naive value (4 of 4).
 - Limitation found: seasonality not modelled; all models under-predict peak-season spend (actual £2.62M vs BG/NBD+GG £1.80M). See `docs/MODEL_CARD.md`.
 
+## P3–P8 — VERIFIED 2026-11-01
+- ML tests 48 passed; API tests 14 passed; `npx tsc --noEmit` clean; UI checked in the Claude browser (overview terrain, segments galaxy, signals, outreach end-to-end with real qwen2.5:7b draft).
+- `cli serve` builds every screen's JSON from real data (5,852 accounts scored at 2011-12-10).
+- Live GenAI eval (16 drafts): 15/16 numbers grounded, 16/16 on pressure/offers/PII/placeholders/length, critic passes 1/16.
+- Not verified: CI on GitHub, axe/mobile audit, demo video.
+
 ## NOT verified / still absent
 - Browser rendering, theme toggle, mobile layout, keyboard flow, screenshots: **not run**.
 - No ML code, no dataset (DATA_SOURCE_REGISTER.csv header-only), no metrics, no lab/exercise artifacts, no GenAI component, no web/social source, no auth, not a git repo.

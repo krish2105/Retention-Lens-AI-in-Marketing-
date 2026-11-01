@@ -17,3 +17,6 @@ Plan `docs/superpowers/plans/2026-11-01-p2-models.md` executed test-first on bra
 
 ### 2026-11-01 — Progress and remaining-work summary
 Re-ran tests (ML 33 passed, demo API 6 passed). Wrote `PROGRESS.md` and `REMAINING.md` at the repo root. Remaining estimate ~80 h (P3–P8 ~51 h + course deliverables ~30 h). Owner's 11 final AUR images are generated but untracked (36 MB); compress before committing.
+
+### 2026-11-01 — P3–P8 built without stopping (owner request)
+Serving builder, FastAPI, Aurora UI (theme toggle, 3D terrain + galaxy), segments + lookalikes, signals (web CC0, network, synthetic social, scraper), outreach studio with local qwen2.5:7b + checks + consent gate + idempotent approval, product lab, evidence page, CI, README. Each phase merged to main and pushed. Findings: Christmas sales lead web interest by one month (r 0.90 lagged); critic flags 15/16 drafts (needs human calibration); elasticities confounded by price breaks.
