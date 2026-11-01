@@ -16,6 +16,7 @@ test.beforeEach(async ({ page }) => {
 
 test("upload, map, check, score, review, draft, approve", async ({ page, request }) => {
   await page.goto("/upload");
+  await page.locator("#file:not([disabled])").waitFor({ state: "attached" });
   await page.setInputFiles("#file", SAMPLE);
   await expect(page.getByRole("heading", { name: "Match your columns" })).toBeVisible();
   await page.getByRole("button", { name: "Check the file" }).click();
