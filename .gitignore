@@ -1,0 +1,27 @@
+# Client datasets / secrets / generated artifacts
+.env
+.env.*
+!.env.example
+!.gitkeep
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+node_modules/
+.next/
+services/api/.state/
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+research/experiments/*
+!research/experiments/.gitkeep
+**/*.joblib
+**/*.pt
+**/*.pth
+.DS_Store
+
+# Private course material: university outline is not for a public repo
+course/outline.docx

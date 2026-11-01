@@ -1,0 +1,4 @@
+id,title,subtitle,metric_value,metric_label,status,evidence
+D-RET-001,Wholesale account A,Last order 37 days ago,$420,demo expected 90d value,needs-review,SYNTHETIC customer activity and value
+D-RET-002,Wholesale account B,Customer cohort: growing,$960,demo expected 90d value,ready,SYNTHETIC 90-day spending scenario
+D-RET-003,Unmapped customer,Missing stable account ID,8,invoice lines,blocked,SYNTHETIC import quality exception
