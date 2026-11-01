@@ -2,8 +2,9 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 const ROUTES = ["/", "/pricing", "/status", "/signin/", "/legal/privacy/", "/legal/terms/", "/case-study/", "/overview/", "/queue/", "/accounts/", "/segments/",
-  "/signals/", "/outreach/", "/product-lab/", "/model-lab/", "/data/", "/upload/", "/evidence/", "/team/", "/privacy/", "/billing/", "/settings/"];
-const KEY = ["/", "/pricing/", "/overview/", "/queue/", "/accounts/", "/upload/", "/status/", "/privacy/"];
+  "/signals/", "/outreach/", "/product-lab/", "/model-lab/", "/data/", "/upload/", "/evidence/", "/team/", "/privacy/", "/billing/", "/settings/", "/admin/waitlist/"];
+// Every page gets the accessibility and phone-width checks, in both themes.
+const KEY = ROUTES;
 
 async function settle(page: Page) {
   await page.addInitScript(() => window.localStorage.setItem("rl-tour-done", "1"));
@@ -35,7 +36,7 @@ for (const scheme of ["light", "dark"] as const) {
         await settle(page);
         await page.goto(route);
         await page.waitForLoadState("networkidle");
-        await page.waitForTimeout(600);
+        await page.waitForTimeout(1500); // let charts and the theme finish drawing before axe reads colours
         const results = await new AxeBuilder({ page: page as never }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).disableRules(["region"]).analyze();
         expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
       });

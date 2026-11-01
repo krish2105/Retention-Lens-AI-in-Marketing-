@@ -94,7 +94,7 @@ export function RiskPill({ band, p }: { band: Band; p?: number }) {
 
 export function Loading({ rows = 3 }: { rows?: number }) {
   return (
-    <div className="grid" aria-busy="true" aria-label="Loading">
+    <div className="grid" role="status" aria-busy="true" aria-label="Loading">
       {Array.from({ length: rows }).map((_, i) => (
         <div key={i} className="skeleton" style={{ height: 22 }} />
       ))}
