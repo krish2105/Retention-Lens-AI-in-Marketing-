@@ -1,4 +1,11 @@
-# Current state — 2026-11-01 (after roadmap R1–R8 build)
+# Current state — 2026-11-01 (after roadmap R1–R8 build and the submission refresh)
+
+## Submission refresh (scheduled run, branch `submission-refresh`, fast-forwarded to main)
+- Screenshots: 25 in `submissions/screenshots/` (01–15 recaptured under the same names, overview now at /overview; new 16–25: landing, upload mapping and check report on the SYNTHETIC sample, queue, queue uplift panel, status, case study, phone landing and queue). Captured with Playwright + installed Chrome at 1440×900 and 390×844, @2x. The synthetic upload was deleted afterwards (`/api/datasets` returns `[]`). Capturing 08 created one template-mode draft in the local database.
+- Deck: `submissions/RetentionLens_Presentation.pptx`, 18 slides with notes (new: upload, holdout queue, R5/R5b + ZILN, SaaS foundations, "what is still missing"); rendered through LibreOffice and checked visually.
+- Report: `submissions/RetentionLens_Project_Report.pdf`, 17 A4 pages (new sections 3b loop, 5b R5/R5b, 10b SaaS foundations, 12 what is still missing). `print.js` now uses the Chrome channel by default.
+- Test counts in `design/test_counts.json` (collection only, not runs): ML 61, API 66 (23 red team), static e2e 52, live 1.
+- Owner placeholders: deck slides 16–17 and report sections 11–12 mark lab reports and reflection as `[OWNER: ...]`.
 
 ## Verified by execution this session
 - ML tests: 61 passed (`cd ml && uv run pytest`). API tests: 60 passed (`PYTHONPATH=services/api pytest services/api/tests`).

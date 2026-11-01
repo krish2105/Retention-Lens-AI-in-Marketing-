@@ -41,16 +41,17 @@ li { margin-bottom: 3px; }
 
 <section>
 <div class="eyebrow">1 · Executive summary</div><h2>What was built and what it shows</h2>
-<p>RetentionLens scores 5,852 trade accounts from a real UK giftware wholesaler (UCI Online Retail II, 1,067,371 invoice lines, CC BY 4.0) for the chance they place no order in the next 90 days and for their expected spend. It explains each call, groups accounts into segments, adds web and network signals, and drafts a check-in email with a local language model that a person must approve.</p>
+<p>RetentionLens scores 5,852 trade accounts from a real UK giftware wholesaler (UCI Online Retail II, 1,067,371 invoice lines, CC BY 4.0) for the chance they place no order in the next 90 days and for their expected spend. It explains each call, groups accounts into segments, adds web and network signals, and drafts a check-in email with a local language model that a person must approve. Since the first version it also accepts a company's own invoice export, builds a weekly review queue with a random holdout to measure whether outreach works, and has the foundations of a multi-tenant service (workspaces, roles, row-level security, load and restore tests). None of this has yet been used by a real customer.</p>
 <div class="kpis">
- <div class="kpi"><b>2,456</b><span>accounts at high lapse risk (≥ 75%)</span></div>
- <div class="kpi"><b>£324k</b><span>usual 90-day spend at stake in them</span></div>
+ <div class="kpi"><b>3,124</b><span>accounts at high lapse risk (≥ 75%)</span></div>
+ <div class="kpi"><b>£467k</b><span>usual 90-day spend at stake in them</span></div>
  <div class="kpi"><b>0.820</b><span>PR-AUC of BG/NBD on the frozen test</span></div>
  <div class="kpi"><b>0.821</b><span>AUC of the new-customer lookalike model</span></div>
 </div>
 <h3>Main findings</h3>
 <ul>
 <li><b>Simple probabilistic models win.</b> Across four rolling cutoffs, LightGBM beat BG/NBD on 0 and logistic RFM on 1. A neural model is not justified by this evidence.</li>
+<li><b>A seasonal correction halves the spend bias.</b> Mean total-spend bias on the development cutoffs fell from 32.9% to 16.8%; a ZILN neural challenger won 0 of 3 cutoffs on lapse PR-AUC and was not adopted.</li>
 <li><b>Wholesale buying leads consumer interest by about a month.</b> For Christmas lines the correlation with Wikipedia interest rises from 0.34 (same month) to 0.90 (one month later). Twelve monthly points: exploratory.</li>
 <li><b>New customers can be spotted from their first order</b> (test AUC 0.821 on later customers).</li>
 <li><b>A small local LLM needs a person in the loop.</b> 15/16 drafts kept to the model's numbers; its own second-pass review passed only 1/16.</li>
@@ -68,6 +69,15 @@ li { margin-bottom: 3px; }
 </section>
 
 <section>
+<div class="eyebrow">3b · The weekly loop (R3, R4)</div><h2>Upload your own invoices, review a short queue, measure the effect</h2>
+<p>A wholesaler uploads a CSV or Excel export with one row per invoice line. The wizard guesses the column mapping (editable), then a check report counts rows read and rejected, cancellations, duplicates and date-format assumptions before anything is scored. Missing customer fields are never filled with defaults. Scoring runs in a background worker with the same seasonal model and value ranges as the reference data.</p>
+<div class="two"><figure><img src="../../submissions/screenshots/18-upload-mapping-dark.jpg" alt="Figure 5. Upload step 2: match columns (dark). SYNTHETIC sample file."><figcaption>Figure 5. Upload step 2: match columns (dark). SYNTHETIC sample file.</figcaption></figure><figure><img src="../../submissions/screenshots/19-upload-check-light.jpg" alt="Figure 6. Upload step 3: the check report before scoring (light). SYNTHETIC sample file."><figcaption>Figure 6. Upload step 3: the check report before scoring (light). SYNTHETIC sample file.</figcaption></figure></div>
+<p>Each week the queue lists the accounts with the most spend at risk. A random share of eligible accounts (setting <span class="mono">RL_HOLDOUT_SHARE</span>, default 20%) is held out by a stable hash of workspace, account and week and is not shown. After the observation period the reorder rates of contacted and held-out accounts are compared with a 95% interval. <b>No uplift result exists yet</b>: it needs several weekly queues and later uploads from a real customer.</p>
+<figure><img src="../../submissions/screenshots/20-queue-dark.jpg" alt="Figure 7. This week&#x27;s review queue on the reference data (dark)."><figcaption>Figure 7. This week&#x27;s review queue on the reference data (dark).</figcaption></figure>
+<p class="mono">The screenshots use apps/web/public/samples/synthetic_wholesale_invoices.csv, which is SYNTHETIC. The upload was deleted after capture.</p>
+</section>
+
+<section>
 <div class="eyebrow">4 · Method</div><h2>A protocol fixed before any result</h2>
 <ul>
 <li>Snapshots at 2010-09-01, 2010-12-01, 2011-03-01, 2011-06-01, 2011-09-01; development cutoffs 2010-12-01, 2011-03-01, 2011-06-01; <b>frozen test 2011-09-01, scored once</b>.</li>
@@ -81,12 +91,30 @@ li { margin-bottom: 3px; }
 <table class=""><thead><tr><th>Model</th><th>2010-12-01</th><th>2011-03-01</th><th>2011-06-01</th><th>2011-09-01</th></tr></thead><tbody><tr><td>Recency rule</td><td>0.2777</td><td>0.1992</td><td>0.1777</td><td>0.2131</td></tr><tr><td>Logistic RFM</td><td>0.2522</td><td>0.1822</td><td>0.1642</td><td>0.1875</td></tr><tr><td>BG/NBD</td><td>0.1848</td><td>0.1721</td><td>0.1535</td><td>0.1864</td></tr><tr><td>LightGBM</td><td>0.2693</td><td>0.1826</td><td>0.1555</td><td>0.1938</td></tr></tbody></table>
 <h3>90-day spend ranking (normalised Gini)</h3>
 <table class=""><thead><tr><th>Model</th><th>2010-12-01</th><th>2011-03-01</th><th>2011-06-01</th><th>2011-09-01</th></tr></thead><tbody><tr><td>Last 90 days</td><td>0.768</td><td>0.682</td><td>0.758</td><td>0.717</td></tr><tr><td>BG/NBD + Gamma-Gamma</td><td>0.802</td><td>0.811</td><td>0.851</td><td>0.825</td></tr><tr><td>LightGBM</td><td>0.807</td><td>0.775</td><td>0.845</td><td>0.807</td></tr></tbody></table>
-<div class="note">The test window is the Christmas peak. All models over-predict lapse there and under-predict spend: seasonality is not modelled, and this is the main modelling limitation.</div>
+<div class="note">The test window is the Christmas peak. All P2 models over-predict lapse there and under-predict spend. Section 5b reports the seasonal correction added afterwards (R5), selected on development cutoffs only.</div>
+</section>
+
+<section>
+<div class="eyebrow">5b · Seasonality, value ranges and a deep-learning challenger (R5, R5b)</div><h2>Fixing the peak-season gap, honestly</h2>
+<p>Experiment run 2026-11-01, seed 42. Models were chosen on the development cutoffs 2010-12-01, 2011-03-01, 2011-06-01 only; the 2011-09-01 window had already been scored once in P2 and appears here only as a labelled post-hoc look.</p>
+<div class="kpis">
+ <div class="kpi"><b>32.9% → 16.8%</b><span>mean total-spend bias, dev cutoffs</span></div>
+ <div class="kpi"><b>74.2% → 80.0%</b><span>80% range coverage on the peak window (post hoc)</span></div>
+ <div class="kpi"><b>0 / 3</b><span>dev wins for ZILN on lapse PR-AUC</span></div>
+ <div class="kpi"><b>79%</b><span>peak spend gap closed, post hoc (optimistic)</span></div>
+</div>
+<table class=""><thead><tr><th>Cutoff</th><th>Model</th><th>PR-AUC</th><th>Brier</th><th>Value MAE (£)</th><th>Total-spend bias</th></tr></thead><tbody><tr><td>2010-12-01</td><td>BG/NBD</td><td>0.865</td><td>0.1848</td><td>366.0</td><td>+61.8%</td></tr><tr><td>2010-12-01</td><td>BG/NBD + seasonal</td><td>0.865</td><td>0.1736</td><td>323.4</td><td>+30.4%</td></tr><tr><td>2010-12-01</td><td>ZILN network</td><td>0.862</td><td>0.2480</td><td>558.0</td><td>+153.7%</td></tr><tr><td>2011-03-01</td><td>BG/NBD</td><td>0.848</td><td>0.1721</td><td>289.8</td><td>+28.5%</td></tr><tr><td>2011-03-01</td><td>BG/NBD + seasonal</td><td>0.848</td><td>0.1701</td><td>279.8</td><td>+19.7%</td></tr><tr><td>2011-03-01</td><td>ZILN network</td><td>0.812</td><td>0.1873</td><td>329.1</td><td>+37.3%</td></tr><tr><td>2011-06-01</td><td>BG/NBD</td><td>0.889</td><td>0.1535</td><td>270.5</td><td>+8.5%</td></tr><tr><td>2011-06-01</td><td>BG/NBD + seasonal</td><td>0.889</td><td>0.1526</td><td>265.4</td><td>+0.2%</td></tr><tr><td>2011-06-01</td><td>ZILN network</td><td>0.884</td><td>0.1554</td><td>295.4</td><td>+22.1%</td></tr><tr><td>2011-09-01 (post hoc)</td><td>BG/NBD</td><td>0.820</td><td>0.1864</td><td>359.7</td><td>-33.5%</td></tr><tr><td>2011-09-01 (post hoc)</td><td>BG/NBD + seasonal</td><td>0.820</td><td>0.1785</td><td>360.0</td><td>-7.1%</td></tr><tr><td>2011-09-01 (post hoc)</td><td>ZILN network</td><td>0.821</td><td>0.1862</td><td>372.8</td><td>-28.7%</td></tr></tbody></table>
+<ul>
+<li><b>Adopted:</b> a seasonal multiplier on BG/NBD + Gamma-Gamma (better Brier and value MAE on 3 of 3 dev cutoffs; ranking metrics cannot change because every account is rescaled equally).</li>
+<li><b>Adopted (R5b):</b> 80% split-conformal value ranges calibrated on residuals pooled from the previous 90 days and the same window last year. Dev coverage 79.5%, 85.1%, 84.7%.</li>
+<li><b>Not adopted:</b> the ZILN network (value MAE wins 0 of 3); kept as the documented deep-learning challenger. Seasonal features for LightGBM were mixed and also not adopted.</li>
+</ul>
+<div class="note"><b>Disclosure.</b> Calibrating on the previous 90 days alone was best on the development cutoffs but covered only 74.2% of accounts on the peak window; the pooled version covered 80.0%. The peak window had already been seen, so choosing the pooled version was informed by it. The ZILN network went through three versions after dev results were seen; all three are listed in reports/r5_results.md.</div>
 </section>
 
 <section>
 <div class="eyebrow">6 · Segments and new customers</div><h2>Who to call, who to nurture</h2>
-<table class=""><thead><tr><th>Segment</th><th>Accounts</th><th>Median net spend</th><th>Expected 90-day spend</th><th>High risk</th><th>Suggested play</th></tr></thead><tbody><tr><td>Champions</td><td>1,240</td><td>£3,897</td><td>£1,430,281</td><td>0%</td><td>Thank them, offer early access to new ranges, ask for referrals.</td></tr><tr><td>Loyal</td><td>744</td><td>£1,358</td><td>£225,549</td><td>0%</td><td>Keep cadence; suggest complementary lines from basket rules.</td></tr><tr><td>Needs attention</td><td>627</td><td>£901</td><td>£157,724</td><td>13%</td><td>Review the evidence before deciding.</td></tr><tr><td>Promising</td><td>666</td><td>£508</td><td>£138,812</td><td>48%</td><td>Second-order nudge with lines they have not tried.</td></tr><tr><td>Hibernating</td><td>1,441</td><td>£283</td><td>£76,172</td><td>99%</td><td>Low-cost reminder only; do not spend sales time.</td></tr><tr><td>New</td><td>234</td><td>£245</td><td>£57,365</td><td>0%</td><td>Onboarding follow-up after the first delivery.</td></tr><tr><td>At risk</td><td>692</td><td>£583</td><td>£46,613</td><td>78%</td><td>Check-in with a reason to reorder (new season, stock held).</td></tr><tr><td>Can't lose</td><td>208</td><td>£2,104</td><td>£31,559</td><td>44%</td><td>Personal call from the account manager this week.</td></tr></tbody></table>
+<table class=""><thead><tr><th>Segment</th><th>Accounts</th><th>Median net spend</th><th>Expected 90-day spend</th><th>High risk</th><th>Suggested play</th></tr></thead><tbody><tr><td>Champions</td><td>1,239</td><td>£3,892</td><td>£1,000,902</td><td>0%</td><td>Thank them, offer early access to new ranges, ask for referrals.</td></tr><tr><td>Loyal</td><td>735</td><td>£1,378</td><td>£155,832</td><td>6%</td><td>Keep cadence; suggest complementary lines from basket rules.</td></tr><tr><td>Needs attention</td><td>631</td><td>£897</td><td>£112,284</td><td>40%</td><td>Review the evidence before deciding.</td></tr><tr><td>Promising</td><td>670</td><td>£504</td><td>£97,510</td><td>67%</td><td>Second-order nudge with lines they have not tried.</td></tr><tr><td>Hibernating</td><td>1,435</td><td>£281</td><td>£53,126</td><td>100%</td><td>Low-cost reminder only; do not spend sales time.</td></tr><tr><td>New</td><td>236</td><td>£244</td><td>£40,484</td><td>61%</td><td>Onboarding follow-up after the first delivery.</td></tr><tr><td>At risk</td><td>689</td><td>£573</td><td>£32,282</td><td>95%</td><td>Check-in with a reason to reorder (new season, stock held).</td></tr><tr><td>Can't lose</td><td>217</td><td>£2,041</td><td>£22,648</td><td>64%</td><td>Personal call from the account manager this week.</td></tr></tbody></table>
 <p>k-means on log recency, frequency and spend chose k = 4 by silhouette score. The lookalike model scores customers whose first order was in the last 90 days for the chance of becoming a top-20% first-year spender: test AUC 0.821 on 1,285 later customers (time-based: earliest 70% of first-order dates train, latest 30% test).</p>
 <figure><img src="../../submissions/screenshots/04-segments-galaxy-dark.jpg" alt="Figure 2. The 3D customer galaxy: every account positioned by recency, purchase days and spend, coloured by lapse risk."><figcaption>Figure 2. The 3D customer galaxy: every account positioned by recency, purchase days and spend, coloured by lapse risk.</figcaption></figure>
 </section>
@@ -122,15 +150,25 @@ li { margin-bottom: 3px; }
 </section>
 
 <section>
+<div class="eyebrow">10b · SaaS foundations (R2, R6, R8)</div><h2>Built and tested locally; not yet hosted</h2>
+<table class=""><thead><tr><th>Area</th><th>What exists</th><th>Evidence</th></tr></thead><tbody><tr><td>Workspaces and roles</td><td>One workspace per company; owner, reviewer and viewer roles; every query scoped to the workspace; sign-in throttling and weak-password refusal</td><td>66 API tests collected</td></tr><tr><td>Row-level security</td><td>Supabase migration with Postgres policies; a two-tenant test raises on any cross-tenant read or viewer write</td><td>CI job <span class="mono">rls</span> applies the migration to a local Supabase stack</td></tr><tr><td>Load test</td><td>20 concurrent users for 30 s: 10,261 requests, 342 per second, 0 errors</td><td>p95 270.9 ms vs 500 ms target (met); reports/load_test.json</td></tr><tr><td>Restore drill</td><td>Backup restored; checksum and integrity check passed; row counts matched in all 14 tables</td><td>SYNTHETIC seeded database; reports/restore_drill.md</td></tr><tr><td>LLM red team</td><td>OWASP Top 10 for LLM Applications (2025) mapped to deterministic controls</td><td>23 cases in CI; docs/security/LLM_RED_TEAM.md</td></tr><tr><td>Browser tests</td><td>Every route, both themes, accessibility and mobile layout; one live upload → score → review → draft → approve flow</td><td>52 static + 1 live Playwright tests</td></tr></tbody></table>
+<p>Test counts were collected on 2026-11-01 with the commands in design/test_counts.json (61 ML, 66 API, 52 + 1 browser). The load test ran on a local machine and the restore drill on a small synthetic database; neither has run on hosted infrastructure because no Render, Supabase or Stripe account exists yet.</p>
+<div class="two"><figure><img src="../../submissions/screenshots/22-status-light.jpg" alt="Figure 8. Status page: live component checks and service-level targets (light)."><figcaption>Figure 8. Status page: live component checks and service-level targets (light).</figcaption></figure><figure><img src="../../submissions/screenshots/16-landing-dark.jpg" alt="Figure 9. Public landing page (dark). Pilot stage: no paying customers."><figcaption>Figure 9. Public landing page (dark). Pilot stage: no paying customers.</figcaption></figure></div>
+</section>
+
+<section>
 <div class="eyebrow">11 · Course outcome mapping</div><h2>Where each outcome is shown</h2>
-<table class=""><thead><tr><th>Outcome</th><th>Evidence in RetentionLens</th></tr></thead><tbody><tr><td>A · Marketing research and predictive analytics</td><td>Data profile and card; rolling-cutoff lapse models; cohort terrain</td></tr><tr><td>B · Traditional, web and social data</td><td>Wikipedia seasonality; co-purchase network; synthetic social posts; scraper</td></tr><tr><td>C · CLV, churn, retention, new customers</td><td>BG/NBD + Gamma-Gamma; RFM segments; k-means; lookalike scoring</td></tr><tr><td>D · Generative AI for marketing decisions</td><td>Outreach studio with checker, critic, consent gate and live evaluation</td></tr><tr><td>Weeks 1–11</td><td>Mapped topic by topic on the Course evidence page</td></tr><tr><td>Labs (weeks 2, 4, 6, 8, 10)</td><td>Scaffolds with commands and evidence in labs/</td></tr></tbody></table>
-<div class="eyebrow" style="margin-top:12px">12 · Limitations and next steps</div><h2>What this does not show yet</h2>
+<table class=""><thead><tr><th>Outcome</th><th>Evidence in RetentionLens</th></tr></thead><tbody><tr><td>A · Marketing research and predictive analytics</td><td>Data profile and card; rolling-cutoff lapse models; cohort terrain</td></tr><tr><td>B · Traditional, web and social data</td><td>Wikipedia seasonality; co-purchase network; synthetic social posts; scraper</td></tr><tr><td>C · CLV, churn, retention, new customers</td><td>BG/NBD + Gamma-Gamma; RFM segments; k-means; lookalike scoring</td></tr><tr><td>D · Generative AI for marketing decisions</td><td>Outreach studio with checker, critic, consent gate and live evaluation</td></tr><tr><td>Weeks 1–11</td><td>Mapped topic by topic on the Course evidence page</td></tr><tr><td>Labs (weeks 2, 4, 6, 8, 10)</td><td>Scaffolds and generated EVIDENCE.md in labs/ · <b>[OWNER: lab reports to be written]</b></td></tr></tbody></table>
+<div class="eyebrow" style="margin-top:12px">12 · What is still missing</div><h2>The software exists; the market evidence does not yet</h2>
 <ul>
-<li>No interviews, usability sessions or pilot: buyer, workflow and price remain hypotheses.</li>
-<li>One UK giftware wholesaler, 2009–2011; seasonality not modelled; no campaign data, so no causal effect of outreach.</li>
-<li>The AI reviewer is uncalibrated; social data is synthetic.</li>
-<li>Not a SaaS: no sign-in, tenants, billing or hosted API. Next: CSV upload, interviews, seasonal features, auth and a pilot.</li>
+<li><b>No customer interviews</b>: buyer, workflow and price remain hypotheses (kit ready in docs/research).</li>
+<li><b>No usability sessions</b>: the ten-minute first-run target is untested with real users.</li>
+<li><b>No pilot and no customers</b>: the holdout queue has produced no uplift result, so there is no causal evidence that outreach helps.</li>
+<li><b>No hosting</b>: Render, Supabase and Stripe test accounts are not created; everything ran locally or as a static demo.</li>
+<li>The AI reviewer is uncalibrated (no human labels); social data is synthetic; one UK giftware wholesaler, 2009–2011.</li>
 </ul>
+<h3>Reflection</h3>
+<div class="note"><b>[OWNER: reflection and learning narrative to be written by the student. Not generated.]</b></div>
 <h3>References</h3>
 <p class="mono">Chen, D. (2019). Online Retail II. UCI Machine Learning Repository. doi:10.24432/C5CG6D · Fader, Hardie &amp; Lee (2005). Counting your customers the easy way. Marketing Science 24(2) · Wang, Liu &amp; Miao (2019). A deep probabilistic model for CLV prediction. arXiv:1912.07753 · Hwang (2019). Hands-on Data Science for Marketing. Packt · Winston (2014). Marketing Analytics. Wiley · Grigsby (2018). Marketing Analytics. Kogan Page · OWASP Top 10 for LLM Applications (2025).</p>
 </section>
@@ -139,6 +177,7 @@ li { margin-bottom: 3px; }
 <div class="eyebrow">Appendix · Mobile</div><h2>The same product on a phone</h2>
 <div class="phones">
 <figure><img src="../../submissions/screenshots/13-phone-overview-dark.jpg" alt="Overview, 390 px, dark"><figcaption>Overview, 390 px, dark</figcaption></figure><figure><img src="../../submissions/screenshots/14-phone-accounts-light.jpg" alt="Account evidence, 390 px, light"><figcaption>Account evidence, 390 px, light</figcaption></figure><figure><img src="../../submissions/screenshots/15-phone-segments-dark.jpg" alt="Segments, 390 px, dark"><figcaption>Segments, 390 px, dark</figcaption></figure>
+<figure><img src="../../submissions/screenshots/24-phone-landing-dark.jpg" alt="Landing page, 390 px, dark"><figcaption>Landing page, 390 px, dark</figcaption></figure><figure><img src="../../submissions/screenshots/25-phone-queue-light.jpg" alt="Weekly queue, 390 px, light"><figcaption>Weekly queue, 390 px, light</figcaption></figure>
 </div>
 <p class="mono">Illustrations generated by the author with ChatGPT Images (gpt-image-2). Screenshots captured from the running application on 2026-11-01.</p>
 </section>

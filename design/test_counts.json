@@ -1,0 +1,15 @@
+{
+  "collected_on": "2026-11-01",
+  "commands": {
+    "ml": "cd ml && uv run pytest --collect-only -q",
+    "api": "PYTHONPATH=services/api services/api/.venv/bin/pytest --collect-only -q services/api/tests",
+    "api_redteam": "PYTHONPATH=services/api services/api/.venv/bin/pytest --collect-only -q services/api/tests/test_redteam.py",
+    "e2e_static": "cd apps/web && npx playwright test --list",
+    "e2e_live": "cd apps/web && E2E_LIVE=1 npx playwright test --list"
+  },
+  "ml": 61,
+  "api": 66,
+  "api_redteam": 23,
+  "e2e_static": 52,
+  "e2e_live": 1
+}

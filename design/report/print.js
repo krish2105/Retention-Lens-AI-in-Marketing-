@@ -3,7 +3,8 @@ const path = require('path');
 const { chromium } = require('playwright');
 (async () => {
   const root = process.argv[2];
-  const browser = await chromium.launch();
+  // Installed Google Chrome by default (Playwright's own Chromium download does not work on the owner's Mac); PW_CHANNEL= to override.
+  const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'chrome' });
   const page = await browser.newPage();
   await page.goto('file://' + path.join(root, 'design/report/report.html'), { waitUntil: 'networkidle' });
   await page.evaluate(() => document.fonts.ready);

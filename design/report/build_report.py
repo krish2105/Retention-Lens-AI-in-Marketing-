@@ -4,6 +4,7 @@ Run from the repo root: python3 design/report/build_report.py
 Then print: node design/report/print.js <repoRoot>   (Playwright, A4, page numbers)
 """
 import json
+import re
 from datetime import date
 from html import escape
 from pathlib import Path
@@ -18,10 +19,19 @@ look = J("apps/web/public/data/lookalikes.json")
 signals = J("apps/web/public/data/signals.json")
 lab = J("apps/web/public/data/product_lab.json")
 genai = J("reports/genai_eval.json")
+r5 = J("reports/r5_results.json")
+load = J("reports/load_test.json")
+drill = (ROOT / "reports/restore_drill.md").read_text()
+DRILL_TABLES = re.search(r"for all (\d+) tables", drill).group(1)
+DRILL_PASSED = "**PASSED**" in drill
+TESTS = J("design/test_counts.json")
+R5S = r5["summary"]
+pct = lambda v, d=1: f"{v*100:.{d}f}%"  # noqa: E731
 CUTS = list(model["cutoffs"])
 TEST = model["cutoffs"]["2011-09-01"]
 NAMES = {"recency_rule": "Recency rule", "logistic_rfm": "Logistic RFM", "bgnbd": "BG/NBD", "lightgbm": "LightGBM",
-         "naive_last_90": "Last 90 days", "bgnbd_gamma_gamma": "BG/NBD + Gamma-Gamma"}
+         "naive_last_90": "Last 90 days", "bgnbd_gamma_gamma": "BG/NBD + Gamma-Gamma",
+         "bgnbd_seasonal": "BG/NBD + seasonal", "ziln_nn": "ZILN network"}
 n = lambda v, d=0: f"{v:,.{d}f}"  # noqa: E731
 shot = lambda name, cap: f'<figure><img src="../../submissions/screenshots/{name}.jpg" alt="{escape(cap)}"><figcaption>{escape(cap)}</figcaption></figure>'  # noqa: E731
 
@@ -87,7 +97,7 @@ li {{ margin-bottom: 3px; }}
 
 <section>
 <div class="eyebrow">1 · Executive summary</div><h2>What was built and what it shows</h2>
-<p>RetentionLens scores {n(summary['accounts'])} trade accounts from a real UK giftware wholesaler (UCI Online Retail II, {n(profile['rows'])} invoice lines, CC BY 4.0) for the chance they place no order in the next 90 days and for their expected spend. It explains each call, groups accounts into segments, adds web and network signals, and drafts a check-in email with a local language model that a person must approve.</p>
+<p>RetentionLens scores {n(summary['accounts'])} trade accounts from a real UK giftware wholesaler (UCI Online Retail II, {n(profile['rows'])} invoice lines, CC BY 4.0) for the chance they place no order in the next 90 days and for their expected spend. It explains each call, groups accounts into segments, adds web and network signals, and drafts a check-in email with a local language model that a person must approve. Since the first version it also accepts a company's own invoice export, builds a weekly review queue with a random holdout to measure whether outreach works, and has the foundations of a multi-tenant service (workspaces, roles, row-level security, load and restore tests). None of this has yet been used by a real customer.</p>
 <div class="kpis">
  <div class="kpi"><b>{n(summary['bands']['high'])}</b><span>accounts at high lapse risk (≥ 75%)</span></div>
  <div class="kpi"><b>£{n(summary['value_at_risk_high']/1000)}k</b><span>usual 90-day spend at stake in them</span></div>
@@ -97,6 +107,7 @@ li {{ margin-bottom: 3px; }}
 <h3>Main findings</h3>
 <ul>
 <li><b>Simple probabilistic models win.</b> Across four rolling cutoffs, LightGBM beat BG/NBD on {model['comparison']['lapse_pr_auc']['bgnbd']['wins']} and logistic RFM on {model['comparison']['lapse_pr_auc']['logistic_rfm']['wins']}. A neural model is not justified by this evidence.</li>
+<li><b>A seasonal correction halves the spend bias.</b> Mean total-spend bias on the development cutoffs fell from {pct(R5S['mean_abs_total_bias_dev']['bgnbd_gamma_gamma'])} to {pct(R5S['mean_abs_total_bias_dev']['bgnbd_gamma_gamma_seasonal'])}; a ZILN neural challenger won {R5S['ziln_vs_bgnbd']['lapse_pr_auc']['wins']} of {R5S['ziln_vs_bgnbd']['lapse_pr_auc']['of']} cutoffs on lapse PR-AUC and was not adopted.</li>
 <li><b>Wholesale buying leads consumer interest by about a month.</b> For Christmas lines the correlation with Wikipedia interest rises from {xmas['correlation']:.2f} (same month) to {xmas['correlation_web_one_month_later']:.2f} (one month later). Twelve monthly points: exploratory.</li>
 <li><b>New customers can be spotted from their first order</b> (test AUC {look['test_auc']:.3f} on later customers).</li>
 <li><b>A small local LLM needs a person in the loop.</b> {genai['per_check_pass']["Numbers match the model's facts"]} drafts kept to the model's numbers; its own second-pass review passed only {genai['per_check_pass']['Second-pass review (tone, manipulation)']}.</li>
@@ -121,6 +132,15 @@ li {{ margin-bottom: 3px; }}
 </section>
 
 <section>
+<div class="eyebrow">3b · The weekly loop (R3, R4)</div><h2>Upload your own invoices, review a short queue, measure the effect</h2>
+<p>A wholesaler uploads a CSV or Excel export with one row per invoice line. The wizard guesses the column mapping (editable), then a check report counts rows read and rejected, cancellations, duplicates and date-format assumptions before anything is scored. Missing customer fields are never filled with defaults. Scoring runs in a background worker with the same seasonal model and value ranges as the reference data.</p>
+<div class="two">{shot('18-upload-mapping-dark', 'Figure 5. Upload step 2: match columns (dark). SYNTHETIC sample file.')}{shot('19-upload-check-light', 'Figure 6. Upload step 3: the check report before scoring (light). SYNTHETIC sample file.')}</div>
+<p>Each week the queue lists the accounts with the most spend at risk. A random share of eligible accounts (setting <span class="mono">RL_HOLDOUT_SHARE</span>, default 20%) is held out by a stable hash of workspace, account and week and is not shown. After the observation period the reorder rates of contacted and held-out accounts are compared with a 95% interval. <b>No uplift result exists yet</b>: it needs several weekly queues and later uploads from a real customer.</p>
+{shot('20-queue-dark', "Figure 7. This week's review queue on the reference data (dark).")}
+<p class="mono">The screenshots use apps/web/public/samples/synthetic_wholesale_invoices.csv, which is SYNTHETIC. The upload was deleted after capture.</p>
+</section>
+
+<section>
 <div class="eyebrow">4 · Method</div><h2>A protocol fixed before any result</h2>
 <ul>
 <li>Snapshots at {', '.join(CUTS[:0] + ['2010-09-01'] + CUTS)}; development cutoffs {', '.join(CUTS[:-1])}; <b>frozen test 2011-09-01, scored once</b>.</li>
@@ -134,7 +154,25 @@ li {{ margin-bottom: 3px; }}
 {table(['Model'] + CUTS, metric_rows('lapse', 'brier', 4))}
 <h3>90-day spend ranking (normalised Gini)</h3>
 {table(['Model'] + CUTS, metric_rows('value', 'normalized_gini', 3))}
-<div class="note">The test window is the Christmas peak. All models over-predict lapse there and under-predict spend: seasonality is not modelled, and this is the main modelling limitation.</div>
+<div class="note">The test window is the Christmas peak. All P2 models over-predict lapse there and under-predict spend. Section 5b reports the seasonal correction added afterwards (R5), selected on development cutoffs only.</div>
+</section>
+
+<section>
+<div class="eyebrow">5b · Seasonality, value ranges and a deep-learning challenger (R5, R5b)</div><h2>Fixing the peak-season gap, honestly</h2>
+<p>Experiment run {r5['generated_at'][:10]}, seed {r5['seed']}. Models were chosen on the development cutoffs {', '.join(r5['dev_cutoffs'])} only; the {r5['post_hoc_cutoff']} window had already been scored once in P2 and appears here only as a labelled post-hoc look.</p>
+<div class="kpis">
+ <div class="kpi"><b>{pct(R5S['mean_abs_total_bias_dev']['bgnbd_gamma_gamma'])} → {pct(R5S['mean_abs_total_bias_dev']['bgnbd_gamma_gamma_seasonal'])}</b><span>mean total-spend bias, dev cutoffs</span></div>
+ <div class="kpi"><b>{pct(R5S['post_hoc_peak_coverage']['bgnbd_gamma_gamma_seasonal'])} → {pct(R5S['post_hoc_peak_coverage']['seasonal_pooled'])}</b><span>80% range coverage on the peak window (post hoc)</span></div>
+ <div class="kpi"><b>{R5S['ziln_vs_bgnbd']['lapse_pr_auc']['wins']} / {R5S['ziln_vs_bgnbd']['lapse_pr_auc']['of']}</b><span>dev wins for ZILN on lapse PR-AUC</span></div>
+ <div class="kpi"><b>{pct(R5S['post_hoc_peak_gap_closed'], 0)}</b><span>peak spend gap closed, post hoc (optimistic)</span></div>
+</div>
+{table(['Cutoff', 'Model', 'PR-AUC', 'Brier', 'Value MAE (£)', 'Total-spend bias'], [[c + (' (post hoc)' if r5['cutoffs'][c]['role'] != 'dev' else ''), NAMES.get(m, m), f"{v['pr_auc']:.3f}", f"{v['brier']:.4f}", n(r5['cutoffs'][c]['value'][vm]['mae'], 1), f"{r5['cutoffs'][c]['value'][vm]['total_bias']*100:+.1f}%"] for c in r5['cutoffs'] for m, vm in [('bgnbd', 'bgnbd_gamma_gamma'), ('bgnbd_seasonal', 'bgnbd_gamma_gamma_seasonal'), ('ziln_nn', 'ziln_nn')] for v in [r5['cutoffs'][c]['lapse'][m]]])}
+<ul>
+<li><b>Adopted:</b> a seasonal multiplier on BG/NBD + Gamma-Gamma (better Brier and value MAE on {R5S['seasonal_bgnbd_vs_bgnbd']['value_mae']['wins']} of {R5S['seasonal_bgnbd_vs_bgnbd']['value_mae']['of']} dev cutoffs; ranking metrics cannot change because every account is rescaled equally).</li>
+<li><b>Adopted (R5b):</b> 80% split-conformal value ranges calibrated on residuals pooled from the previous 90 days and the same window last year. Dev coverage {', '.join(pct(v) for v in R5S['interval_calibration_variants']['seasonal_pooled']['dev_coverage'])}.</li>
+<li><b>Not adopted:</b> the ZILN network (value MAE wins {R5S['ziln_vs_bgnbd']['value_mae']['wins']} of {R5S['ziln_vs_bgnbd']['value_mae']['of']}); kept as the documented deep-learning challenger. Seasonal features for LightGBM were mixed and also not adopted.</li>
+</ul>
+<div class="note"><b>Disclosure.</b> Calibrating on the previous 90 days alone was best on the development cutoffs but covered only {pct(R5S['post_hoc_peak_coverage']['bgnbd_gamma_gamma_seasonal'])} of accounts on the peak window; the pooled version covered {pct(R5S['post_hoc_peak_coverage']['seasonal_pooled'])}. The peak window had already been seen, so choosing the pooled version was informed by it. The ZILN network went through three versions after dev results were seen; all three are listed in reports/r5_results.md.</div>
 </section>
 
 <section>
@@ -175,6 +213,20 @@ li {{ margin-bottom: 3px; }}
 </section>
 
 <section>
+<div class="eyebrow">10b · SaaS foundations (R2, R6, R8)</div><h2>Built and tested locally; not yet hosted</h2>
+{table(['Area', 'What exists', 'Evidence'], [
+  ['Workspaces and roles', 'One workspace per company; owner, reviewer and viewer roles; every query scoped to the workspace; sign-in throttling and weak-password refusal', f"{TESTS['api']} API tests collected"],
+  ['Row-level security', 'Supabase migration with Postgres policies; a two-tenant test raises on any cross-tenant read or viewer write', 'CI job <span class="mono">rls</span> applies the migration to a local Supabase stack'],
+  ['Load test', f"{load['users']} concurrent users for {load['seconds']} s: {n(load['requests'])} requests, {n(load['throughput_rps'])} per second, {load['errors']} errors", f"p95 {load['p95_ms']:.1f} ms vs {load['slo_p95_ms']} ms target ({'met' if load['meets_slo'] else 'missed'}); reports/load_test.json"],
+  ['Restore drill', f"Backup restored; checksum and integrity check {'passed' if DRILL_PASSED else 'failed'}; row counts matched in all {DRILL_TABLES} tables", 'SYNTHETIC seeded database; reports/restore_drill.md'],
+  ['LLM red team', 'OWASP Top 10 for LLM Applications (2025) mapped to deterministic controls', f"{TESTS['api_redteam']} cases in CI; docs/security/LLM_RED_TEAM.md"],
+  ['Browser tests', 'Every route, both themes, accessibility and mobile layout; one live upload → score → review → draft → approve flow', f"{TESTS['e2e_static']} static + {TESTS['e2e_live']} live Playwright tests"],
+])}
+<p>Test counts were collected on {TESTS['collected_on']} with the commands in design/test_counts.json ({TESTS['ml']} ML, {TESTS['api']} API, {TESTS['e2e_static']} + {TESTS['e2e_live']} browser). The load test ran on a local machine and the restore drill on a small synthetic database; neither has run on hosted infrastructure because no Render, Supabase or Stripe account exists yet.</p>
+<div class="two">{shot('22-status-light', 'Figure 8. Status page: live component checks and service-level targets (light).')}{shot('16-landing-dark', 'Figure 9. Public landing page (dark). Pilot stage: no paying customers.')}</div>
+</section>
+
+<section>
 <div class="eyebrow">11 · Course outcome mapping</div><h2>Where each outcome is shown</h2>
 {table(['Outcome', 'Evidence in RetentionLens'], [
   ['A · Marketing research and predictive analytics', 'Data profile and card; rolling-cutoff lapse models; cohort terrain'],
@@ -182,15 +234,18 @@ li {{ margin-bottom: 3px; }}
   ['C · CLV, churn, retention, new customers', 'BG/NBD + Gamma-Gamma; RFM segments; k-means; lookalike scoring'],
   ['D · Generative AI for marketing decisions', 'Outreach studio with checker, critic, consent gate and live evaluation'],
   ['Weeks 1–11', 'Mapped topic by topic on the Course evidence page'],
-  ['Labs (weeks 2, 4, 6, 8, 10)', 'Scaffolds with commands and evidence in labs/'],
+  ['Labs (weeks 2, 4, 6, 8, 10)', 'Scaffolds and generated EVIDENCE.md in labs/ · <b>[OWNER: lab reports to be written]</b>'],
 ])}
-<div class="eyebrow" style="margin-top:12px">12 · Limitations and next steps</div><h2>What this does not show yet</h2>
+<div class="eyebrow" style="margin-top:12px">12 · What is still missing</div><h2>The software exists; the market evidence does not yet</h2>
 <ul>
-<li>No interviews, usability sessions or pilot: buyer, workflow and price remain hypotheses.</li>
-<li>One UK giftware wholesaler, 2009–2011; seasonality not modelled; no campaign data, so no causal effect of outreach.</li>
-<li>The AI reviewer is uncalibrated; social data is synthetic.</li>
-<li>Not a SaaS: no sign-in, tenants, billing or hosted API. Next: CSV upload, interviews, seasonal features, auth and a pilot.</li>
+<li><b>No customer interviews</b>: buyer, workflow and price remain hypotheses (kit ready in docs/research).</li>
+<li><b>No usability sessions</b>: the ten-minute first-run target is untested with real users.</li>
+<li><b>No pilot and no customers</b>: the holdout queue has produced no uplift result, so there is no causal evidence that outreach helps.</li>
+<li><b>No hosting</b>: Render, Supabase and Stripe test accounts are not created; everything ran locally or as a static demo.</li>
+<li>The AI reviewer is uncalibrated (no human labels); social data is synthetic; one UK giftware wholesaler, 2009–2011.</li>
 </ul>
+<h3>Reflection</h3>
+<div class="note"><b>[OWNER: reflection and learning narrative to be written by the student. Not generated.]</b></div>
 <h3>References</h3>
 <p class="mono">Chen, D. (2019). Online Retail II. UCI Machine Learning Repository. doi:10.24432/C5CG6D · Fader, Hardie &amp; Lee (2005). Counting your customers the easy way. Marketing Science 24(2) · Wang, Liu &amp; Miao (2019). A deep probabilistic model for CLV prediction. arXiv:1912.07753 · Hwang (2019). Hands-on Data Science for Marketing. Packt · Winston (2014). Marketing Analytics. Wiley · Grigsby (2018). Marketing Analytics. Kogan Page · OWASP Top 10 for LLM Applications (2025).</p>
 </section>
@@ -199,6 +254,7 @@ li {{ margin-bottom: 3px; }}
 <div class="eyebrow">Appendix · Mobile</div><h2>The same product on a phone</h2>
 <div class="phones">
 {shot('13-phone-overview-dark', 'Overview, 390 px, dark')}{shot('14-phone-accounts-light', 'Account evidence, 390 px, light')}{shot('15-phone-segments-dark', 'Segments, 390 px, dark')}
+{shot('24-phone-landing-dark', 'Landing page, 390 px, dark')}{shot('25-phone-queue-light', 'Weekly queue, 390 px, light')}
 </div>
 <p class="mono">Illustrations generated by the author with ChatGPT Images (gpt-image-2). Screenshots captured from the running application on {date.today().isoformat()}.</p>
 </section>

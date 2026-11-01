@@ -19,6 +19,14 @@ const segments = J('apps/web/public/data/segments.json');
 const look = J('apps/web/public/data/lookalikes.json');
 const genai = J('reports/genai_eval.json');
 const lab = J('apps/web/public/data/product_lab.json');
+const r5 = J('reports/r5_results.json');
+const load = J('reports/load_test.json');
+const drill = fs.readFileSync(path.join(ROOT, 'reports/restore_drill.md'), 'utf8');
+const drillTables = (drill.match(/for all (\d+) tables/) || [])[1];
+const drillPassed = /\*\*PASSED\*\*/.test(drill);
+// Test counts from collection (pytest --collect-only, playwright --list) on the day the pack was built.
+const TESTS = J('design/test_counts.json');
+const pct = (v, d = 1) => (v * 100).toFixed(d) + '%';
 
 const C = { night: '070912', ink: 'EEF0FF', muted: 'A7ADC8', panel: '12152A', edge: '2A2E48', cyan: '67E8F9', magenta: 'F472B6', amber: 'FBBF24', violet: 'A78BFA', paper: 'F3F4FB', inkDark: '11132A', mutedDark: '4E5470', cyanDark: '0E7490', magentaDark: 'BE185D' };
 const FONT = { head: 'Calibri', body: 'Calibri' };
@@ -94,19 +102,48 @@ const notes = (s, t) => s.addNotes(t);
 // 3. Product
 {
   const s = pres.addSlide({ masterName: 'AURORA' });
-  title(s, 'The product', 'One weekly review: predict, explain, segment, draft, approve');
+  title(s, 'The product', 'One weekly loop: upload, score, review, draft, approve, measure');
   framed(s, SHOT('01-overview-dark'), M, 1.75, 7.6, 4.75, 'RetentionLens overview screen in the dark Aurora theme');
-  const items = [['Predict', '90-day lapse probability and expected spend for every account'], ['Explain', 'plain-language reasons and the account history behind each call'], ['Segment', 'RFM segments, clusters and a 3D customer galaxy'], ['Draft', 'a local AI writes the check-in; checks run on every draft'], ['Approve', 'a person approves with a consent basis; nothing is sent']];
+  const items = [['Upload', 'any invoice CSV or Excel export; columns matched, bad rows listed'], ['Score', '90-day lapse probability and expected spend with an 80% range'], ['Review', 'this week\'s queue, most spend at risk first, with reasons'], ['Draft', 'a local AI writes the check-in; checks run on every draft'], ['Approve', 'a person approves with a consent basis; nothing is sent'], ['Measure', 'a random holdout shows whether contacting accounts helps']];
   items.forEach(([h, b], i) => {
-    const y = 1.8 + i * 0.95;
-    s.addShape(pres.shapes.OVAL, { x: 8.55, y: y + 0.08, w: 0.22, h: 0.22, fill: { color: [C.cyan, C.violet, C.amber, C.magenta, C.cyan][i] }, line: { type: 'none' } });
+    const y = 1.8 + i * 0.8;
+    s.addShape(pres.shapes.OVAL, { x: 8.55, y: y + 0.08, w: 0.22, h: 0.22, fill: { color: [C.cyan, C.violet, C.amber, C.magenta, C.cyan, C.violet][i] }, line: { type: 'none' } });
     text(s, h, { x: 8.95, y, w: 3.8, h: 0.35, fontSize: 16, fontFace: FONT.head });
-    text(s, b, { x: 8.95, y: y + 0.36, w: 3.8, h: 0.5, fontSize: 11.5, color: C.muted });
+    text(s, b, { x: 8.95, y: y + 0.34, w: 3.8, h: 0.45, fontSize: 11, color: C.muted });
   });
-  notes(s, 'The live demo is read-only; the local install adds AI drafting with Ollama and the decision log.');
+  notes(s, 'The public demo is read-only and runs on the real UCI data. The local install adds upload, the weekly queue, AI drafting with Ollama and the decision log.');
 }
 
-// 4. Data
+// 4. Self-serve upload
+{
+  const s = pres.addSlide({ masterName: 'AURORA' });
+  title(s, 'Self-serve upload · R3', 'Bring your own invoices: match columns, see every rejected row');
+  framed(s, SHOT('18-upload-mapping-dark'), M, 1.75, 6.0, 3.75, 'Upload wizard step 2: matching the file columns to invoice fields');
+  framed(s, SHOT('19-upload-check-light'), M + 6.2, 1.75, 6.0, 3.75, 'Upload wizard step 3: the check report before scoring');
+  bullets(s, [
+    'Four steps: upload, match columns (guessed, editable), check, score. Scoring runs in a background worker.',
+    'The check report counts rows read and rejected, cancellations, duplicates and date-format guesses. Nothing is silently filled in.',
+    'The same seasonal BG/NBD + Gamma-Gamma model and value ranges as the reference data.',
+  ], { x: M, y: 5.7, w: 12.1, h: 1.2, fontSize: 13 });
+  text(s, 'SYNTHETIC sample file shown (apps/web/public/samples/synthetic_wholesale_invoices.csv). The upload was deleted after capture.', { x: M, y: 6.72, w: 12, h: 0.3, fontSize: 10, color: C.amber });
+  notes(s, 'Screens captured from the running app on 2026-11-01 using the synthetic sample file, which is labelled SYNTHETIC wherever it appears. The counts in the check report are for the synthetic file only. No real customer has uploaded data yet.');
+}
+
+// 5. Weekly holdout queue
+{
+  const s = pres.addSlide({ masterName: 'AURORA' });
+  title(s, 'Weekly queue and holdout · R4', 'A short list each week, and a built-in test of whether outreach works');
+  framed(s, SHOT('20-queue-dark'), M, 1.75, 7.4, 4.65, "This week's review queue with spend at risk and the holdout count");
+  bullets(s, [
+    'The queue lists the accounts with the most spend at risk, in order, with the reasons behind each call.',
+    'A random 20% of eligible accounts is held out each week (stable hash of workspace, account and week) and not shown.',
+    'After 28 days, reorder rates of contacted and held-out accounts are compared with a 95% interval.',
+    'Result so far: none. It needs several weekly queues and a later upload; an interval that crosses zero proves nothing.',
+  ], { x: 8.3, y: 1.85, w: 4.4, h: 4.7, fontSize: 13 });
+  notes(s, 'The holdout share is the RL_HOLDOUT_SHARE setting, default 20%. The uplift panel on this page shows 0 of 0 reorders today because no real outreach has happened. This is the mechanism for a future pilot to measure causal impact, not a result.');
+}
+
+// 6. Data
 {
   const s = pres.addSlide({ masterName: 'AURORA' });
   title(s, 'Data · outcome A', 'One licensed source, checksummed, with every problem row counted');
@@ -117,7 +154,7 @@ const notes = (s, t) => s.addNotes(t);
   notes(s, 'Source: UCI Online Retail II, CC BY 4.0, DOI 10.24432/C5CG6D. Archive SHA-256 is recorded in the source register.');
 }
 
-// 5. Method
+// 7. Method
 {
   const s = pres.addSlide({ masterName: 'AURORA' });
   title(s, 'Method', 'Rolling cutoffs, fixed before any result, and one frozen test');
@@ -138,7 +175,7 @@ const notes = (s, t) => s.addNotes(t);
   notes(s, 'This protocol is in docs/superpowers/plans/2026-11-01-p2-models.md and was committed before the first run.');
 }
 
-// 6. Results
+// 8. Results
 {
   const s = pres.addSlide({ masterName: 'AURORA' });
   title(s, 'Results · outcomes A and C', 'Simple models win: BG/NBD beats gradient boosting');
@@ -153,12 +190,30 @@ const notes = (s, t) => s.addNotes(t);
     `Frozen test (${fmt(test.n_customers)} customers): BG/NBD PR-AUC ${test.lapse.bgnbd.pr_auc.toFixed(3)}, Brier ${test.lapse.bgnbd.brier.toFixed(4)}; LightGBM ${test.lapse.lightgbm.pr_auc.toFixed(3)}, ${test.lapse.lightgbm.brier.toFixed(4)}.`,
     `Across 4 cutoffs LightGBM beats BG/NBD on ${wins.bgnbd.wins} and logistic RFM on ${wins.logistic_rfm.wins}.`,
     `Spend ranking: BG/NBD + Gamma-Gamma normalised Gini ${test.value.bgnbd_gamma_gamma.normalized_gini.toFixed(3)} vs LightGBM ${test.value.lightgbm.normalized_gini.toFixed(3)}.`,
-    'Limit: seasonality is not modelled; peak-season spend is under-predicted.',
+    'Limit found here: the test window is the Christmas peak and spend was under-predicted. The next slide shows the fix.',
   ], { x: 7.5, y: 1.9, w: 5.2, h: 4.6, fontSize: 14 });
-  notes(s, 'Read directly from reports/model_results.json. The neural ZILN model was not pursued because the evidence does not justify it.');
+  notes(s, 'Read directly from reports/model_results.json. These are the P2 results on the frozen test, scored once.');
 }
 
-// 7. Segments
+// 9. R5 / R5b: seasonality, value ranges, ZILN challenger
+{
+  const s = pres.addSlide({ masterName: 'AURORA' });
+  title(s, 'Seasonality, ranges and a deep-learning challenger · R5', 'A seasonal correction halves the spend bias; the neural model lost');
+  const sm = r5.summary;
+  const bias = sm.mean_abs_total_bias_dev;
+  stat(s, M, 1.8, 3.9, `${pct(bias.bgnbd_gamma_gamma)} → ${pct(bias.bgnbd_gamma_gamma_seasonal)}`, `mean total-spend bias on ${r5.dev_cutoffs.length} dev cutoffs (${Math.round(sm.seasonal_bias_reduction_dev * 100)}% less)`, C.cyan);
+  stat(s, M + 4.1, 1.8, 3.9, `${pct(sm.post_hoc_peak_coverage.bgnbd_gamma_gamma_seasonal)} → ${pct(sm.post_hoc_peak_coverage.seasonal_pooled)}`, '80% value-range coverage on the peak window (R5b)', C.amber);
+  stat(s, M + 8.2, 1.8, 3.9, `${sm.ziln_vs_bgnbd.lapse_pr_auc.wins} of ${sm.ziln_vs_bgnbd.lapse_pr_auc.of}`, 'dev cutoffs where the ZILN network beat BG/NBD on lapse PR-AUC', C.magenta);
+  bullets(s, [
+    `Adopted: a seasonal multiplier on BG/NBD + Gamma-Gamma. Better Brier and value MAE on ${sm.seasonal_bgnbd_vs_bgnbd.value_mae.wins} of ${sm.seasonal_bgnbd_vs_bgnbd.value_mae.of} dev cutoffs; ranking cannot change because every account is rescaled equally.`,
+    `Adopted (R5b): 80% split-conformal ranges calibrated on residuals pooled from the previous 90 days and the same window last year. Dev coverage ${sm.interval_calibration_variants.seasonal_pooled.dev_coverage.map((v) => pct(v)).join(', ')}.`,
+    `Disclosure: previous-90-days alone was best on dev but covered only ${pct(sm.post_hoc_peak_coverage.bgnbd_gamma_gamma_seasonal)} on the peak. The peak window had already been seen, so choosing the pooled version was informed by it.`,
+    `Not adopted: ZILN network (value MAE wins ${sm.ziln_vs_bgnbd.value_mae.wins} of ${sm.ziln_vs_bgnbd.value_mae.of}). Kept as the documented deep-learning challenger; three versions disclosed.`,
+  ], { x: M, y: 3.3, w: 12.1, h: 3.5, fontSize: 13 });
+  notes(s, `All numbers from reports/r5_results.json (seed ${r5.seed}). Model selection used only the dev cutoffs ${r5.dev_cutoffs.join(', ')}. The 2011-09-01 window was scored once in P2; here it appears only as a labelled post-hoc look. Post hoc, ${Math.round(sm.post_hoc_peak_gap_closed * 100)}% of the peak spend gap closed, which is optimistic for that reason.`);
+}
+
+// 10. Segments
 {
   const s = pres.addSlide({ masterName: 'AURORA' });
   title(s, 'Segments · outcome C · week 5', 'Every account as a star in the customer galaxy');
@@ -169,7 +224,7 @@ const notes = (s, t) => s.addNotes(t);
   notes(s, 'k-means chose k=' + segments.clusters.k + ' by silhouette. Each RFM segment carries a suggested play for a person to judge.');
 }
 
-// 8. Signals
+// 11. Signals
 {
   const s = pres.addSlide({ masterName: 'AURORA' });
   title(s, 'Signals · outcome B · weeks 9–10', 'Wholesale buying runs a month ahead of consumer interest');
@@ -188,7 +243,7 @@ const notes = (s, t) => s.addNotes(t);
   notes(s, 'Wikipedia data covers 2016 to 2025 and invoices 2009 to 2011, so only seasonal shape is compared.');
 }
 
-// 9. Outreach
+// 12. Outreach
 {
   const s = pres.addSlide({ masterName: 'AURORA' });
   title(s, 'Outreach studio · outcome D', 'The AI writes the words; the model supplies the numbers; a person decides');
@@ -200,17 +255,32 @@ const notes = (s, t) => s.addNotes(t);
   notes(s, 'The critic is strict and still needs calibration against human labels; the labelling sheet is in reports/critic_labels.csv.');
 }
 
-// 10. Ethics
+// 13. Ethics
 {
   const s = pres.addSlide({ masterName: 'AURORA' });
   glow(s);
   title(s, 'Responsible AI · CLO4', 'Built so it cannot email a customer by itself');
-  const cards = [['No free text in prompts', 'Reviews and posts never reach the model; injection posts are flagged and tested.'], ['Every number grounded', 'Any figure not in the model output blocks the draft.'], ['Consent first', 'Companies: legitimate interest. Sole traders: consent or soft opt-in. Otherwise approval is blocked.'], ['Accountable', 'Idempotent approvals and an append-only audit log of who decided what.'], ['Honest data', 'Synthetic data labelled everywhere; licences in the source register.'], ['Accessible', 'axe-core WCAG 2.2 AA: 0 violations on 9 pages, both themes; works at 320 px.']];
+  const cards = [['Red-teamed', `No free text in prompts; ${TESTS.api_redteam} OWASP LLM Top 10 cases run in CI on every push.`], ['Every number grounded', 'Any figure not in the model output blocks the draft.'], ['Consent first', 'Companies: legitimate interest. Sole traders: consent or soft opt-in. Otherwise approval is blocked.'], ['Accountable', 'Idempotent approvals and an append-only audit log of who decided what.'], ['Honest data', 'Synthetic data labelled everywhere; licences in the source register.'], ['Accessible', 'axe-core WCAG 2.2 AA: 0 violations on 9 pages, both themes; works at 320 px.']];
   cards.forEach(([h, b], i) => { const x = M + (i % 3) * 4.05, y = 1.9 + Math.floor(i / 3) * 2.35; glass(s, x, y, 3.85, 2.1); text(s, h, { x: x + 0.25, y: y + 0.22, w: 3.4, h: 0.45, fontSize: 16, fontFace: FONT.head, color: [C.cyan, C.violet, C.amber, C.magenta, C.cyan, C.violet][i] }); text(s, b, { x: x + 0.25, y: y + 0.75, w: 3.4, h: 1.2, fontSize: 12.5, color: C.muted }); });
-  notes(s, 'Mapped to the OWASP Top 10 for LLM applications (2025): prompt injection, excessive agency, sensitive information disclosure.');
+  notes(s, 'Mapped to the OWASP Top 10 for LLM applications (2025) in docs/security/LLM_RED_TEAM.md: prompt injection, sensitive information disclosure, improper output handling, excessive agency, system prompt leakage, misinformation and unbounded consumption.');
 }
 
-// 11. Product lab
+// 14. SaaS foundations
+{
+  const s = pres.addSlide({ masterName: 'AURORA' });
+  title(s, 'SaaS foundations · R2, R6, R8', 'Built and tested locally; not yet hosted');
+  const cards = [
+    ['Workspaces and roles', 'One workspace per company; owner, reviewer and viewer roles; every query scoped to the workspace. Sign-in hardening: throttling, weak passwords refused.', C.cyan],
+    ['Row-level security in CI', 'The Supabase migration is applied to a local Postgres stack in CI and a two-tenant test fails the build on any read or write leak.', C.violet],
+    [`Load test: ${load.users} users, ${load.seconds} s`, `${fmt(load.requests)} requests, ${fmt(load.throughput_rps)} per second, ${load.errors} errors. p95 ${fmt(load.p95_ms, 1)} ms against a ${load.slo_p95_ms} ms target.`, C.amber],
+    [`Restore drill: ${drillPassed ? 'passed' : 'failed'}`, `Backup checksum and integrity check passed; row counts matched in all ${drillTables} tables. Run on a SYNTHETIC seeded database.`, C.magenta],
+  ];
+  cards.forEach(([h, b, col], i) => { const x = M + (i % 2) * 6.1, y = 1.85 + Math.floor(i / 2) * 2.25; glass(s, x, y, 5.9, 2.05); text(s, h, { x: x + 0.25, y: y + 0.2, w: 5.4, h: 0.45, fontSize: 16, fontFace: FONT.head, color: col }); text(s, b, { x: x + 0.25, y: y + 0.72, w: 5.4, h: 1.25, fontSize: 12.5, color: C.muted }); });
+  text(s, `Tests collected on ${TESTS.collected_on}: ${TESTS.ml} ML · ${TESTS.api} API · ${TESTS.e2e_static} browser (static) + ${TESTS.e2e_live} live end-to-end flow.`, { x: M, y: 6.45, w: 12, h: 0.35, fontSize: 12, color: C.cyan });
+  notes(s, 'Sources: reports/load_test.json (local machine, not a hosted server), reports/restore_drill.md (small synthetic database), the rls job in .github/workflows/ci.yml, and test collection counts in design/test_counts.json. Render, Supabase and Stripe accounts do not exist yet, so none of this has run on hosted infrastructure.');
+}
+
+// 15. Product lab
 {
   const s = pres.addSlide({ masterName: 'AURORA' });
   title(s, 'Product lab · weeks 7–8', 'What sells together, and why price data can mislead');
@@ -225,31 +295,39 @@ const notes = (s, t) => s.addNotes(t);
   notes(s, 'All product-lab results are associational; no price was randomised.');
 }
 
-// 12. Course coverage
+// 16. Course coverage
 {
   const s = pres.addSlide({ masterName: 'AURORA' });
   title(s, 'Course fit', 'Every learning outcome has a working screen and a result file');
-  const rows = [['Outcome', 'Evidence'], ['A · research and predictive analytics', 'Data profile, rolling-cutoff lapse models, cohort terrain'], ['B · traditional, web and social data', 'Wikipedia seasonality, co-purchase network, synthetic social, scraper'], ['C · CLV, churn, retention, new customers', 'BG/NBD + Gamma-Gamma, segments, lookalikes'], ['D · Generative AI for decisions', 'Outreach studio with checks, consent gate and live evaluation'], ['Labs weeks 2, 4, 6, 8, 10', 'Scaffolds in labs/ with commands and evidence'], ['Week 12 final project', 'This deck, the report, and the live demo']];
+  const rows = [['Outcome', 'Evidence'], ['A · research and predictive analytics', 'Data profile, rolling-cutoff lapse models, cohort terrain'], ['B · traditional, web and social data', 'Wikipedia seasonality, co-purchase network, synthetic social, scraper'], ['C · CLV, churn, retention, new customers', 'BG/NBD + Gamma-Gamma, segments, lookalikes'], ['D · Generative AI for decisions', 'Outreach studio with checks, consent gate and live evaluation'], ['Labs weeks 2, 4, 6, 8, 10', 'Scaffolds and EVIDENCE.md in labs/ · [OWNER: lab reports to be written]'], ['Week 12 final project', 'This deck, the report, and the live demo']];
   s.addTable(rows.map((r, i) => r.map((c) => ({ text: c, options: { bold: i === 0, color: i === 0 ? C.cyan : C.ink, fontSize: 14 } }))), { x: M, y: 1.85, w: W - 2 * M, colW: [4.6, W - 2 * M - 4.6], fill: { color: C.panel }, border: { type: 'solid', color: C.edge, pt: 0.75 }, rowH: 0.62 });
   notes(s, 'The Course evidence page in the app links each outcome to the screen and file that shows it.');
 }
 
-// 13. Limits and next steps
+// 17. What is still missing
 {
   const s = pres.addSlide({ masterName: 'AURORA' });
   glow(s);
-  title(s, 'Limits and next steps', 'What this does not show yet');
-  bullets(s, ['No customer interviews or pilot yet: the buyer, workflow and price are hypotheses.', 'One UK giftware wholesaler, 2009–2011. Seasonality is not modelled.', 'The AI critic needs calibrating against human labels.', 'Not yet a SaaS: no sign-in, tenants or hosted API.'], { x: M, y: 1.9, w: 5.9, h: 4.5 });
-  bullets(s, ['Interview 6–10 wholesalers and test the price.', 'Self-serve CSV upload reusing the data checks.', 'Seasonal features and uncertainty intervals.', 'Auth, per-tenant data and a hosted API for a pilot.'], { x: 6.9, y: 1.9, w: 5.8, h: 4.5, color: C.cyan });
-  notes(s, 'Scores and reasoning are in docs/SCORECARD.md.');
+  title(s, 'What is still missing', 'The software exists; the market evidence does not yet');
+  bullets(s, [
+    'No customer interviews yet: buyer, workflow and price are hypotheses.',
+    'No usability sessions: the 10-minute first-run target is untested with real users.',
+    'No pilot and no customers: the holdout queue has produced no uplift result.',
+    'No hosting: Render, Supabase and Stripe test accounts are not created; everything ran locally or as a static demo.',
+    'The AI critic is uncalibrated: no human labels yet. One wholesaler, 2009–2011 data.',
+  ], { x: M, y: 1.9, w: 6.3, h: 4.6, fontSize: 14.5 });
+  text(s, 'Next, in order', { x: 7.2, y: 1.9, w: 5.5, h: 0.4, fontSize: 16, fontFace: FONT.head, color: C.cyan });
+  bullets(s, ['8–10 discovery interviews (kit ready in docs/research).', '5 think-aloud sessions on upload → queue.', 'Label 16+ drafts to calibrate the critic.', 'Create hosting accounts; run the restore drill on real rows.', 'A four-week pilot with one wholesaler.'], { x: 7.2, y: 2.4, w: 5.5, h: 4.1, fontSize: 14, color: C.ink });
+  text(s, '[OWNER: add your own reflection and learning narrative here or in the talk track]', { x: M, y: 6.5, w: 12, h: 0.35, fontSize: 11, color: C.amber });
+  notes(s, '[OWNER: speaker narrative and reflection to be written by the student.] Facts only on this slide: none of the listed evidence exists yet; see project/NEXT_ACTIONS.md.');
 }
 
-// 14. Close
+// 18. Close
 {
   const s = pres.addSlide({ masterName: 'AURORA' });
   s.addImage({ path: ART('aur-09-readme-banner'), x: 0, y: 0, w: W, h: 7.5, sizing: { type: 'cover', w: W, h: 7.5 }, transparency: 35 });
   text(s, 'Thank you', { x: M, y: 2.4, w: 8, h: 1.0, fontSize: 48, fontFace: FONT.head });
-  text(s, 'Live demo · krish2105.github.io/Retention-Lens-AI-in-Marketing-\nCode · github.com/krish2105/Retention-Lens-AI-in-Marketing-', { x: M, y: 3.6, w: 10, h: 1.0, fontSize: 16, color: C.ink });
+  text(s, 'Live demo · krish2105.github.io/Retention-Lens-AI-in-Marketing- · retentionlens-demo.vercel.app\nCode · github.com/krish2105/Retention-Lens-AI-in-Marketing-', { x: M, y: 3.6, w: 10, h: 1.0, fontSize: 16, color: C.ink });
   text(s, 'Illustrations generated by the author with ChatGPT Images. Data: Chen (2019), UCI Online Retail II, CC BY 4.0.', { x: M, y: 6.3, w: 11, h: 0.4, fontSize: 11, color: C.muted });
 }
 

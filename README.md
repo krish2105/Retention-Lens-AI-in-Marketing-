@@ -46,16 +46,23 @@ Light, dark and system themes switch with a feathered reveal that grows from the
 | ![Overview](submissions/screenshots/01-overview-dark.jpg) | ![Galaxy](submissions/screenshots/04-segments-galaxy-dark.jpg) |
 | **Outreach studio: local-model draft and checks** | **Signals (light)** |
 | ![Outreach](submissions/screenshots/08-outreach-draft-dark.jpg) | ![Signals](submissions/screenshots/06-signals-light.jpg) |
+| **Upload: match columns (SYNTHETIC sample file)** | **Upload: check report before scoring (SYNTHETIC)** |
+| ![Upload mapping](submissions/screenshots/18-upload-mapping-dark.jpg) | ![Upload check](submissions/screenshots/19-upload-check-light.jpg) |
+| **This week's queue with a random holdout** | **Landing page** |
+| ![Queue](submissions/screenshots/20-queue-dark.jpg) | ![Landing](submissions/screenshots/16-landing-dark.jpg) |
+| **Status** | **Case study** |
+| ![Status](submissions/screenshots/22-status-light.jpg) | ![Case study](submissions/screenshots/23-case-study-dark.jpg) |
 
 <p align="center"><img src="submissions/screenshots/13-phone-overview-dark.jpg" width="24%" alt="Phone overview"> <img src="submissions/screenshots/14-phone-accounts-light.jpg" width="24%" alt="Phone account drawer"> <img src="submissions/screenshots/15-phone-segments-dark.jpg" width="24%" alt="Phone segments"></p>
+<p align="center"><img src="submissions/screenshots/24-phone-landing-dark.jpg" width="24%" alt="Phone landing page"> <img src="submissions/screenshots/25-phone-queue-light.jpg" width="24%" alt="Phone weekly queue"></p>
 
 ## Submission pack
 
 | File | What it is |
 |---|---|
-| [`submissions/RetentionLens_Presentation.pptx`](submissions/RetentionLens_Presentation.pptx) | 14-slide deck with speaker notes (16:9), built by `design/deck/build.js` from the result files |
-| [`submissions/RetentionLens_Project_Report.pdf`](submissions/RetentionLens_Project_Report.pdf) | 11-page A4 report, built by `design/report/build_report.py` and printed by `design/report/print.js` |
-| [`submissions/screenshots/`](submissions/screenshots/) | 15 screenshots of the running app, desktop and phone, both themes |
+| [`submissions/RetentionLens_Presentation.pptx`](submissions/RetentionLens_Presentation.pptx) | 18-slide deck with speaker notes (16:9), built by `design/deck/build.js` from the result files; covers upload, the holdout queue, R5/R5b, SaaS foundations and what is still missing |
+| [`submissions/RetentionLens_Project_Report.pdf`](submissions/RetentionLens_Project_Report.pdf) | 17-page A4 report, built by `design/report/build_report.py` and printed by `design/report/print.js`; owner placeholders mark the reflection and lab reports |
+| [`submissions/screenshots/`](submissions/screenshots/) | 25 screenshots of the running app (refreshed 2026-11-01), desktop 1440 px and phone 390 px, both themes; upload shots use the SYNTHETIC sample file |
 | [`docs/SCORECARD.md`](docs/SCORECARD.md) | Honest scoring from CEO, CMO, COO, CTO, AI-engineer and academic views |
 
 ## Results (all numbers come from saved run files)
