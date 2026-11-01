@@ -1,7 +1,7 @@
 "use client";
 import { useTheme } from "next-themes";
 import { useEffect, useState, type ReactNode } from "react";
-import { asset, type Band, type Summary } from "@/lib/api";
+import { asset, BASE, type Band, type Summary } from "@/lib/api";
 import { bandLabel, shortHash } from "@/lib/format";
 
 const ICONS: Record<string, ReactNode> = {
@@ -19,6 +19,13 @@ const ICONS: Record<string, ReactNode> = {
   evidence: <path d="M5 3h10l4 4v14H5zM9 12h6M9 16h4" />,
   settings: <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />,
   close: <path d="M6 6l12 12M18 6 6 18" />,
+  queue: <path d="M4 6h16M4 12h10M4 18h7M17 15l2 2 4-4" />,
+  upload: <path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />,
+  team: <path d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2 20a6 6 0 0 1 12 0M16 11a3 3 0 1 0 0-6M17.5 14.5A5.5 5.5 0 0 1 22 20" />,
+  shield: <path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6zM9 12l2 2 4-4" />,
+  card: <path d="M3 6h18v12H3zM3 10h18M7 15h4" />,
+  check: <path d="M5 12l5 5L20 7" />,
+  arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
 };
 
 export function Icon({ name }: { name: keyof typeof ICONS | string }) {
@@ -89,12 +96,24 @@ export function Loading({ rows = 3 }: { rows?: number }) {
 }
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
-  const notBuilt = message.includes("cli serve");
+  const notBuilt = message.includes("cli serve") || message.includes("reference dataset only");
+  const noData = message.startsWith("No data yet");
+  const apiDown = /fetch|network|load failed/i.test(message);
+  if (noData) {
+    return (
+      <div className="state">
+        <img src={asset("/img/aur-14-welcome.webp")} alt="" />
+        <strong>This workspace has no data yet</strong>
+        <span>Upload a CSV or Excel export of your invoices, or load the sample dataset to look around first.</span>
+        <a className="btn primary" href={`${BASE}/upload/`}>Upload invoices</a>
+      </div>
+    );
+  }
   return (
     <div className="state" role="alert">
       <img src={asset("/img/aur-07-offline.webp")} alt="" />
-      <strong>{notBuilt ? "These results haven't been built yet" : "Couldn't reach the RetentionLens API"}</strong>
-      <span>{notBuilt ? message : `Start it with: cd services/api && .venv/bin/uvicorn app.main:app --port 8000 (${message})`}</span>
+      <strong>{notBuilt ? "Not available for this data" : apiDown ? "Couldn't reach the RetentionLens API" : "Something went wrong"}</strong>
+      <span>{notBuilt || !apiDown ? message : `Start it with: cd services/api && .venv/bin/uvicorn app.main:app --port 8000 (${message})`}</span>
       {onRetry && (
         <button className="btn" type="button" onClick={onRetry}>
           Try again
@@ -119,11 +138,11 @@ export function Provenance({ summary, extra }: { summary?: Summary | null; extra
   if (!summary) return null;
   return (
     <p className="provenance">
-      <span>Source: UCI Online Retail II ({summary.licence})</span>
+      <span>Source: {summary.evaluation_run ? `UCI Online Retail II (${summary.licence})` : summary.data_source}</span>
       <span>data sha256 {shortHash(summary.data_sha256)}</span>
       <span>scored at {summary.scoring_cutoff}</span>
       <span>model {summary.model}</span>
-      <span>eval run {summary.evaluation_run}</span>
+      {summary.evaluation_run && <span>eval run {summary.evaluation_run}</span>}
       {extra && <span>{extra}</span>}
     </p>
   );

@@ -1,0 +1,23 @@
+{
+  "status": "static demo",
+  "static": true,
+  "slo": {
+    "read_p95_ms": 500,
+    "availability": 0.995,
+    "scoring_100k_lines_minutes": 5
+  },
+  "uptime_seconds": null,
+  "worst_read_p95_ms": null,
+  "auth_mode": "off",
+  "version": "0.4.0",
+  "components": {
+    "static_snapshot": {
+      "ok": true,
+      "detail": "Exported 2026-11-01"
+    },
+    "api": {
+      "ok": false,
+      "detail": "The public demo has no live API; run it locally or on the hosted server"
+    }
+  }
+}

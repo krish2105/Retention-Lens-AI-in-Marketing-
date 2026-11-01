@@ -1,0 +1,27 @@
+{
+  "plans": {
+    "pilot": {
+      "name": "Pilot",
+      "price_gbp_month": 0,
+      "max_accounts": 2000,
+      "seats": 3,
+      "note": "4-week pilot with a holdout test"
+    },
+    "starter": {
+      "name": "Starter",
+      "price_gbp_month": 49,
+      "max_accounts": 2000,
+      "seats": 3,
+      "note": "One sales team"
+    },
+    "growth": {
+      "name": "Growth",
+      "price_gbp_month": 149,
+      "max_accounts": 15000,
+      "seats": 10,
+      "note": "Several teams or regions"
+    }
+  },
+  "status": "Pricing hypothesis: not yet validated with customers",
+  "currency": "GBP"
+}

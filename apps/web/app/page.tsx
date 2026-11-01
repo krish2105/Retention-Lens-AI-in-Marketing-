@@ -1,130 +1,102 @@
 "use client";
-import dynamic from "next/dynamic";
 import Link from "next/link";
-import { type Account, asset, type Cohort, type Summary, useApi } from "@/lib/api";
-import { count, fixed, money, moneyShort } from "@/lib/format";
-import { useTokens } from "@/lib/tokens";
-import { ErrorState, Loading, PageHeader, Provenance, RiskPill } from "@/components/ui";
+import { useEffect, useState } from "react";
+import { asset, STATIC, type Summary } from "@/lib/api";
+import { count, fixed } from "@/lib/format";
 
-const CohortTerrain = dynamic(() => import("@/components/CohortTerrain"), {
-  ssr: false,
-  loading: () => <div className="skeleton" style={{ height: 420 }} />,
-});
+const moneyless = (n: number) => new Intl.NumberFormat("en-GB", { notation: "compact", maximumFractionDigits: 2 }).format(n);
+import { Icon } from "@/components/ui";
+import { Waitlist } from "@/components/Waitlist";
 
-export default function Overview() {
-  const summary = useApi<Summary>("/api/summary");
-  const queue = useApi<{ total: number; items: Account[] }>("/api/accounts?limit=8&sort=value_at_risk_90&band=high");
-  const cohorts = useApi<Cohort[]>("/api/cohorts");
-  const tokens = useTokens();
-  const s = summary.data;
+const STEPS = [
+  { img: "/img/aur-12a-step-upload.webp", n: "01", title: "Upload your invoices", body: "Drop in a CSV or Excel export from your accounting or order system. Map the columns once; every rejected row is listed, nothing is guessed." },
+  { img: "/img/aur-12b-step-predict.webp", n: "02", title: "See who is slipping", body: "Each account gets a 90-day lapse risk, expected spend with a range, and plain reasons: \"no order for 73 days; usual gap 14\"." },
+  { img: "/img/aur-12c-step-approve.webp", n: "03", title: "Approve the check-in", body: "A local AI drafts an email from the account's facts only. Checks block invented numbers and pressure. You approve; nothing sends itself." },
+];
 
-  if (summary.error) return <section className="glass panel"><ErrorState message={summary.error} onRetry={summary.reload} /></section>;
+const DIFFERENT = [
+  "Tested honestly: rolling time cutoffs and a frozen test set, scored once. Simpler models won, and we say so.",
+  "Built-in proof: a random fifth of each week's queue is held out, so you can see whether contacting accounts actually brings orders back.",
+  "Human in charge: every message needs your approval, a recorded consent basis (UK PECR) and passes automatic checks first.",
+  "Your data stays yours: one workspace per company, export everything, delete everything, no data used to train shared models.",
+];
 
+export default function Landing() {
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [rows, setRows] = useState<number | null>(null);
+  useEffect(() => {
+    // Numbers on this page come from the exported run files, like everywhere else.
+    fetch(asset("/data/summary.json")).then((r) => (r.ok ? r.json() : null)).then(setSummary).catch(() => setSummary(null));
+    fetch(asset("/data/data_profile.json")).then((r) => (r.ok ? r.json() : null)).then((p) => setRows(p?.rows ?? null)).catch(() => setRows(null));
+  }, []);
   return (
     <>
-      <section className="glass hero">
-        <div className="copy">
-          <p className="eyebrow">Weekly account review · scored {s?.scoring_cutoff ?? "…"}</p>
-          <h1>See retention as a landscape.</h1>
+      <section className="glass landing-hero">
+        <div className="grid" style={{ gap: 16 }}>
+          <p className="eyebrow">For wholesalers and B2B distributors</p>
+          <h1>Spot the trade accounts that are quietly leaving.</h1>
           <p className="lede">
-            Ninety-day lapse risk and expected spend for every wholesale account, the evidence behind each call, and outreach you approve before anything leaves.
+            RetentionLens reads your invoice history, predicts which accounts will not reorder in the next 90 days and how much spend that puts at risk,
+            then helps your team reach out with messages a person approves.
           </p>
-          <div className="row" style={{ marginTop: 18, gap: 10 }}>
-            <Link className="btn primary" href="/accounts?band=high">Review high-risk accounts</Link>
-            <Link className="btn" href="/model-lab">How accurate is this?</Link>
+          <div className="row" style={{ gap: 10 }}>
+            <a className="btn primary" href="#waitlist">Join the pilot waitlist</a>
+            <Link className="btn" href="/overview">{STATIC ? "Explore the live demo" : "Open the app"} <Icon name="arrow" /></Link>
           </div>
+          <p className="provenance"><span>Pilot stage: no paying customers yet. Prices are a hypothesis we are testing.</span></p>
         </div>
-        <img className="only-dark" src={asset("/img/aur-01-hero.webp")} alt="" />
-        <img className="only-light" src={asset("/img/aur-01-hero-light.webp")} alt="" />
-      </section>
-
-      <section className="stats" aria-label="Key figures">
-        <div className="glass stat">
-          <span className="label">High-risk accounts</span>
-          <span className="value tone-high">{s ? count(s.bands.high) : "…"}</span>
-          <span className="sub">of {s ? count(s.accounts) : "…"} · P(no order in 90 days) ≥ 75%</span>
-        </div>
-        <div className="glass stat">
-          <span className="label">Spend at risk, high-risk accounts</span>
-          <span className="value">{s ? moneyShort(s.value_at_risk_high) : "…"}</span>
-          <span className="sub">usual 90-day spend × lapse probability</span>
-        </div>
-        <div className="glass stat">
-          <span className="label">Expected spend, next 90 days</span>
-          <span className="value">{s ? moneyShort(s.expected_value_total) : "…"}</span>
-          <span className="sub">BG/NBD × Gamma-Gamma, net of returns</span>
-        </div>
-        <div className="glass stat">
-          <span className="label">Model PR-AUC on frozen test</span>
-          <span className="value tone-healthy">{s ? fixed(s.frozen_test.pr_auc) : "…"}</span>
-          <span className="sub">Brier {s ? fixed(s.frozen_test.brier, 4) : "…"} · {s ? count(s.frozen_test.customers) : "…"} customers, {s?.frozen_test.cutoff}</span>
+        <div>
+          <img className="only-dark" src={asset("/img/aur-11-landing-hero.webp")} alt="" />
+          <img className="only-light" src={asset("/img/aur-11-landing-hero-light.webp")} alt="" />
         </div>
       </section>
 
-      <div className="row">
-        <section className="glass panel" style={{ flex: "999 1 560px" }}>
-          <div className="panel-head">
-            <h2>Cohort retention terrain</h2>
-            <span className="hint">x months since first order · z first-order month · height share who bought again</span>
-          </div>
-          {cohorts.error && <ErrorState message={cohorts.error} onRetry={cohorts.reload} />}
-          {cohorts.data && <CohortTerrain cohorts={cohorts.data} tokens={tokens} />}
-          <div className="legend">
-            <span><i style={{ background: "var(--cyan)" }} />High repeat rate</span>
-            <span><i style={{ background: "var(--amber)" }} />Fading</span>
-            <span><i style={{ background: "var(--magenta)" }} />Low</span>
-            <span>Drag to orbit · scroll to zoom</span>
-          </div>
-          {cohorts.data && (
-            <details className="twin">
-              <summary>View the same data as a table</summary>
-              <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table" style={{ maxHeight: 320, marginTop: 10 }}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Cohort</th>
-                      <th className="num">Customers</th>
-                      {[1, 2, 3, 6, 12].map((m) => <th key={m} className="num">Month {m}</th>)}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cohorts.data.map((c) => (
-                      <tr key={c.cohort}>
-                        <td className="mono">{c.cohort}</td>
-                        <td className="num">{c.size}</td>
-                        {[1, 2, 3, 6, 12].map((m) => <td key={m} className="num">{c.retention[m] != null ? `${(c.retention[m] * 100).toFixed(1)}%` : "—"}</td>)}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </details>
-          )}
-        </section>
+      <section className="stats" aria-label="Results on the reference dataset">
+        <div className="glass stat"><span className="label">Accounts scored in the demo</span><span className="value">{summary ? count(summary.accounts) : "…"}</span><span className="sub">UCI Online Retail II, a real UK wholesaler</span></div>
+        <div className="glass stat"><span className="label">Invoice lines checked</span><span className="value">{rows ? moneyless(rows) : "…"}</span><span className="sub">every problem row flagged, none silently dropped</span></div>
+        <div className="glass stat"><span className="label">Lapse model PR-AUC, frozen test</span><span className="value tone-healthy">{summary?.frozen_test ? fixed(summary.frozen_test.pr_auc) : "…"}</span><span className="sub">{summary?.frozen_test ? `${count(summary.frozen_test.customers)} customers, cutoff ${summary.frozen_test.cutoff}` : ""}</span></div>
+        <div className="glass stat"><span className="label">Emails sent without approval</span><span className="value">0</span><span className="sub">there is no send button, by design</span></div>
+      </section>
 
-        <section className="glass panel" style={{ flex: "1 1 340px" }}>
-          <div className="panel-head">
-            <h2>Call first</h2>
-            <span className="hint">high risk, most spend at stake</span>
-          </div>
-          {queue.loading && <Loading rows={6} />}
-          {queue.error && <ErrorState message={queue.error} onRetry={queue.reload} />}
-          {queue.data?.items.map((a) => (
-            <Link key={a.customer_id} href={`/accounts?id=${a.customer_id}`} className="queue-item">
-              <span>
-                <strong>Account {a.customer_id}</strong>
-                <small>{a.reasons[0]}</small>
-              </span>
-              <span style={{ textAlign: "right" }}>
-                <RiskPill band={a.risk_band} p={a.p_lapse} />
-                <small className="mono">{money(a.value_at_risk_90)} at risk</small>
-              </span>
-            </Link>
+      <section id="how" className="grid" style={{ gap: 14, scrollMarginTop: 90 }}>
+        <div>
+          <p className="eyebrow">How it works</p>
+          <h2 style={{ fontSize: 28, letterSpacing: -0.8 }}>Three steps, about ten minutes the first time.</h2>
+        </div>
+        <div className="steps">
+          {STEPS.map((s) => (
+            <article key={s.n} className="glass step-card">
+              <img src={asset(s.img)} alt="" />
+              <span className="num-badge">STEP {s.n}</span>
+              <h3>{s.title}</h3>
+              <p style={{ color: "var(--muted)" }}>{s.body}</p>
+            </article>
           ))}
-          <Link className="btn" href="/accounts?band=high">Open the full queue</Link>
-        </section>
-      </div>
-      <Provenance summary={s} />
+        </div>
+      </section>
+
+      <section className="glass panel">
+        <h2>What makes it different</h2>
+        <ul className="ticks">
+          {DIFFERENT.map((d) => <li key={d}><Icon name="check" /><span>{d}</span></li>)}
+        </ul>
+      </section>
+
+      <section className="glass split" style={{ padding: 22 }}>
+        <div className="grid" style={{ gap: 12, alignContent: "center" }}>
+          <p className="eyebrow">Pricing</p>
+          <h2 style={{ fontSize: 26 }}>Start with a free four-week pilot.</h2>
+          <p className="lede" style={{ marginTop: 0 }}>Pilots run on your own data with a holdout group, so we both learn whether it pays for itself before anyone is billed.</p>
+          <div><Link className="btn" href="/pricing">See plans <Icon name="arrow" /></Link></div>
+        </div>
+        <img src={asset("/img/aur-25-pricing-band.webp")} alt="" />
+      </section>
+
+      <section id="waitlist" className="glass panel" style={{ scrollMarginTop: 90 }}>
+        <div className="panel-head"><h2>Join the pilot waitlist</h2><span className="hint">we reply within two working days</span></div>
+        <p className="lede" style={{ marginTop: 0 }}>We are looking for a few wholesalers with at least a year of invoice history to run a four-week pilot.</p>
+        <Waitlist />
+      </section>
     </>
   );
 }

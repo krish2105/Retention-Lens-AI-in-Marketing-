@@ -36,6 +36,8 @@ export type Account = {
   cluster?: number;
   lookalike_score?: number | null;
   top_products?: string[];
+  value_low_90?: number | null;
+  value_high_90?: number | null;
 };
 
 export type Summary = {
@@ -50,9 +52,25 @@ export type Summary = {
   bands: Record<Band, number>;
   value_at_risk_high: number;
   expected_value_total: number;
-  evaluation_run: string;
-  frozen_test: { cutoff: string; customers: number; pr_auc: number; brier: number; value_gini: number };
+  evaluation_run: string | null;
+  frozen_test: { cutoff: string; customers: number; pr_auc: number; brier: number; value_gini: number } | null;
+  intervals?: { available: boolean; level?: number; calibration_coverage?: number; reason?: string };
 };
+
+export type Me = {
+  auth_mode: "off" | "local" | "supabase";
+  user: { id: string; email: string; name: string };
+  org: { id: string; name: string; plan: string; use_sample: boolean; active_dataset: string | null };
+  role: "owner" | "reviewer" | "viewer";
+  orgs: { id: string; name: string; role: string }[];
+};
+
+export type QueueItem = Pick<Account, "customer_id" | "country" | "risk_band" | "p_lapse" | "value_at_risk_90" | "expected_value_90" | "recency_days" | "segment" | "reasons"> & {
+  status: "to_review" | "reviewed";
+  decision: string | null;
+  contacted: boolean;
+};
+export type Queue = { week: string; items: QueueItem[]; reviewed: number; total: number; cleared: boolean; holdout: number; holdout_share: number };
 
 export type Cohort = { cohort: string; size: number; retention: number[] };
 
@@ -82,7 +100,15 @@ async function staticGet(path: string): Promise<unknown> {
     return { ok: true, serving_ready: true, generated_at: summary.generated_at, ollama: { available: false, model: "qwen2.5:7b" }, static: true };
   }
   if (route === "/api/data") return { profile: await file("data_profile"), sources: await file("sources") };
-  if (route === "/api/drafts" || route === "/api/audit") return [];
+  if (route === "/api/drafts" || route === "/api/audit" || route === "/api/datasets") return [];
+  if (route === "/api/auth/me") return DEMO_ME;
+  if (route === "/api/plans") return file("plans");
+  if (route === "/api/billing") return { plan: "pilot", limits: null, usage: { active_accounts: (await file<Summary>("summary")).accounts, share: null }, billing_configured: false, note: "Public demo: billing runs only on a hosted server in Stripe test mode", status: "Pricing hypothesis: not yet validated with customers" };
+  if (route === "/api/status") return file("status");
+  if (route === "/api/org/members") return { members: [{ id: "demo", email: "demo@retentionlens.app", name: "Demo viewer", role: "viewer", created_at: null }], invites: [] };
+  if (route === "/api/outcomes") return { arms: { contact: { accounts: 0, reordered: 0, rate: null, contacted: 0 }, holdout: { accounts: 0, reordered: 0, rate: null, contacted: 0 } }, uplift: { difference: null, ci95: null }, observe_days: 28, pending: 0, weeks: [], method: "No outreach is recorded in the public demo." };
+  if (route === "/api/critic/calibration") return { labelled: 0, target: 46, kappa_target: 0.6 };
+  if (route === "/api/queue") return staticQueue(await file<Account[]>("accounts"));
   if (route === "/api/accounts") {
     const q = url.searchParams;
     const term = (q.get("search") ?? "").trim().toLowerCase();
@@ -106,9 +132,42 @@ async function staticGet(path: string): Promise<unknown> {
   throw new Error(READ_ONLY_MESSAGE);
 }
 
+const DEMO_ME: Me = {
+  auth_mode: "off",
+  user: { id: "demo", email: "demo@retentionlens.app", name: "Demo viewer" },
+  org: { id: "demo", name: "Public demo", plan: "pilot", use_sample: true, active_dataset: null },
+  role: "viewer",
+  orgs: [{ id: "demo", name: "Public demo", role: "viewer" }],
+};
+
+/** Same rule as the API: top value-at-risk accounts, a seeded 20% holdout, this week's Monday. */
+function staticQueue(accounts: Account[]): Queue {
+  const today = new Date();
+  const monday = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7)));
+  const week = monday.toISOString().slice(0, 10);
+  const hash = (s: string) => [...s].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261) / 2 ** 32;
+  const atRisk = accounts.filter((a) => a.risk_band !== "healthy").sort((a, b) => b.value_at_risk_90 - a.value_at_risk_90).slice(0, 32);
+  const shown = atRisk.filter((a) => hash(`demo|${a.customer_id}|${week}`) >= 0.2).slice(0, 25);
+  return {
+    week,
+    items: shown.map((a) => ({ ...a, segment: a.segment, status: "to_review", decision: null, contacted: false })),
+    reviewed: 0,
+    total: shown.length,
+    cleared: false,
+    holdout: atRisk.length - atRisk.filter((a) => hash(`demo|${a.customer_id}|${week}`) >= 0.2).length,
+    holdout_share: 0.2,
+  };
+}
+
+/** The API answers 401 when sign-in is on and the session is missing or expired. */
+export class AuthRequired extends Error {}
+
+const HEADERS = { "X-RL-Client": "web" };
+
 export async function apiGet<T>(path: string): Promise<T> {
   if (STATIC) return staticGet(path) as Promise<T>;
-  const response = await fetch(API + path, { cache: "no-store" });
+  const response = await fetch(API + path, { cache: "no-store", credentials: "include", headers: { ...HEADERS } });
+  if (response.status === 401) throw new AuthRequired("Sign in to continue");
   if (!response.ok) {
     let detail = `${response.status}`;
     try {
@@ -121,11 +180,21 @@ export async function apiGet<T>(path: string): Promise<T> {
 
 export async function apiPost<T>(path: string, body: unknown, idempotencyKey?: string): Promise<T> {
   if (STATIC) throw new Error(READ_ONLY_MESSAGE);
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = { "Content-Type": "application/json", ...HEADERS };
   if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
-  const response = await fetch(API + path, { method: "POST", headers, body: JSON.stringify(body) });
+  const response = await fetch(API + path, { method: "POST", headers, body: JSON.stringify(body), credentials: "include" });
   const payload = await response.json().catch(() => ({}));
+  if (response.status === 401 && !path.startsWith("/api/auth/sign")) throw new AuthRequired("Sign in to continue");
   if (!response.ok) throw new Error(typeof payload.detail === "string" ? payload.detail : JSON.stringify(payload.detail ?? response.status));
+  return payload;
+}
+
+/** Raw file upload (CSV/XLSX bytes as the request body). */
+export async function apiUpload<T>(path: string, file: File): Promise<T> {
+  if (STATIC) throw new Error(READ_ONLY_MESSAGE);
+  const response = await fetch(API + path, { method: "POST", body: file, credentials: "include", headers: { "Content-Type": file.type || "application/octet-stream", ...HEADERS } });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(typeof payload.detail === "string" ? payload.detail : `Upload failed (${response.status})`);
   return payload;
 }
 
@@ -139,7 +208,13 @@ export function useApi<T>(path: string | null) {
     setError(null);
     apiGet<T>(path)
       .then(setData)
-      .catch((e: Error) => setError(e.message))
+      .catch((e: Error) => {
+        if (e instanceof AuthRequired) {
+          window.location.assign(`${BASE}/signin/?next=${encodeURIComponent(window.location.pathname)}`);
+          return;
+        }
+        setError(e.message);
+      })
       .finally(() => setLoading(false));
   }, [path]);
   useEffect(load, [load]);

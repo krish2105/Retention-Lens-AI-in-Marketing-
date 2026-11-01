@@ -80,7 +80,7 @@ function AccountDrawer({ id, onClose }: { id: string; onClose: () => void }) {
               <div><span>P(no order in 90 days)</span><strong>{pct(a.p_lapse, 1)}</strong></div>
               <div><span>P(still active)</span><strong>{pct(a.p_alive, 1)}</strong></div>
               <div><span>Expected orders, 90 days</span><strong>{a.expected_purchases_90.toFixed(2)}</strong></div>
-              <div><span>Expected spend, 90 days</span><strong>{money(a.expected_value_90)}</strong></div>
+              <div><span>Expected spend, 90 days</span><strong>{money(a.expected_value_90)}</strong>{a.value_high_90 != null && <span>80% range {money(a.value_low_90)}–{money(a.value_high_90)}</span>}</div>
               <div><span>Spend at risk</span><strong>{money(a.value_at_risk_90)}</strong></div>
               <div><span>Lifetime net spend</span><strong>{money(a.net_sales_total)}</strong></div>
               <div><span>Last order</span><strong>{a.recency_days} days ago</strong></div>

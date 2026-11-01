@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import { Shell } from "@/components/Shell";
+import { Analytics } from "@vercel/analytics/next";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -32,6 +33,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Providers>
           <Shell>{children}</Shell>
         </Providers>
+        {/* Cookie-free page-view counts, only on the Vercel deployment (enabled in its project settings). */}
+        {process.env.NEXT_PUBLIC_VERCEL_ANALYTICS === "1" && <Analytics />}
       </body>
     </html>
   );
