@@ -63,3 +63,16 @@ def test_csv_exports_neutralise_formulas(client):
     client.post("/api/accounts/12345/reviews", json={"decision": "contact", "note": "=HYPERLINK(1)", "reviewer": "R"})
     text = client.get("/api/reviews/export.csv").text
     assert "'=HYPERLINK(1)" in text
+
+
+def test_production_refuses_auth_off(monkeypatch):
+    import pytest
+
+    from app.settings import load_settings
+
+    monkeypatch.setenv("RL_ENV", "production")
+    monkeypatch.setenv("RL_AUTH_MODE", "off")
+    with pytest.raises(ValueError, match="refused"):
+        load_settings()
+    monkeypatch.setenv("RL_AUTH_MODE", "local")
+    assert load_settings().auth_mode == "local"

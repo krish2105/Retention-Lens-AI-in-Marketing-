@@ -13,6 +13,8 @@ services:
       mountPath: /data       # SQLite database and uploaded files survive restarts
       sizeGB: 1
     envVars:
+      - key: RL_ENV
+        value: production
       - key: RL_AUTH_MODE
         value: local
       - key: RL_COOKIE_SECURE

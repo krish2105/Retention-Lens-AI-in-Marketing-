@@ -8,7 +8,7 @@
 - [ ] Write the five lab reports and the presentation narrative (`docs/COURSEWORK_REVIEW.md`).
 - [ ] Coordinator ruling on solo work, synthetic social data and the deep-learning wording.
 
-## M0 — first Work session, <=4 hours
+## M0 — first Work session (historical; most items superseded by later phases)
 - [x] 2026-11-01: audit outline vs repo, run tests/API/build (see GAP_ANALYSIS.md).
 - [ ] Ask coordinator: solo allowed? Cloud Lab expectation? "deep learning" wording? B/D scope for final project.
 - [ ] Create lab/exercise log + report template aligned to rubric (weeks 2,4,6,8,10).

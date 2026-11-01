@@ -1,4 +1,36 @@
-# Project scorecard — 2026-11-01
+# Project scorecard
+
+## Re-score after the R1–R8 build — 2026-11-01 (independent reviewer)
+
+Scored by a separate reviewer agent that read the repository cold, ran the ML and API test suites, checked CI
+and recomputed report arithmetic. It did not run the browser suites, the load test or the restore drill.
+
+| Lens | Before | After | Why it isn't higher |
+|---|---|---|---|
+| CEO | 62 | 67 | No interviews, waitlist sign-ups or pilot yet; pricing is a hypothesis |
+| CMO | 70 | 74 | Holdout uplift design exists, but no campaign has run or been measured |
+| COO | 60 | 75 | Upload, worker, load test and restore drill are real, but only local; backups not scheduled |
+| CTO | 72 | 81 | SQLite on one disk; nothing hosted; Postgres RLS written but not applied |
+| AI engineer | 78 | 85 | Critic uncalibrated (0/16 labels); 1/16 live drafts pass all checks; peak-season ranges too narrow |
+| Professor of AI in Marketing | 80 | 82 | Graded writing and primary research not done |
+| Course outline coverage | 82 | 84 | Labs and exercises log (60% of marks) not written |
+| Real MVP | 62 | 73 | No usability sessions; no hosted instance |
+| Real SaaS | 18 | 38 | Nothing deployed, no keys, no customers, no support process |
+| **Unweighted mean** | **65** | **73** | |
+
+Problems the reviewer found, and what was done: peak-season interval coverage (74.2%) was omitted from the
+README and case study (now stated); two baseline numbers for the same model (explained: R5 fits net-of-returns
+snapshots); a tie on the frozen test was phrased as a win in the LinkedIn kit (reworded); red-team count 22 vs 23
+(corrected); stale BLOCKERS, roadmap status and model-card line (updated); the API could start open if a hosted
+deploy forgot `RL_AUTH_MODE` (now refused when `RL_ENV=production`, tested). Still open: the restore drill ran on
+a near-empty database, and one `/accounts` browser test is timing-flaky locally (passes on retry).
+
+The biggest remaining gains are all owner actions: interviews, usability sessions, labelling drafts, a pilot,
+hosting accounts, and the lab reports and exercises log.
+
+---
+
+## Baseline — 2026-11-01 (before the roadmap)
 
 An honest assessment of RetentionLens as it stands on `main`: CI green, demo live at https://krish2105.github.io/Retention-Lens-AI-in-Marketing-/. Scores are judgement calls, each with its reasons. Evidence lives in the files named.
 

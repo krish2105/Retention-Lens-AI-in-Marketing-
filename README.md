@@ -37,7 +37,7 @@ Built for **AI in Marketing (MAIB AI 208)** as a solo project and portfolio piec
 | **Team, privacy, billing** | Workspaces with owner, reviewer and viewer roles, invite links, export and delete-my-workspace, Stripe Checkout in test mode |
 | **Status** | Live component checks and the service level objectives they are measured against |
 
-Light, dark and system themes switch with a feathered reveal that grows from the toggle, and a sliding indicator marks the active theme. The UI respects reduced motion and reduced transparency, and every 3D view has a table or 2D fallback. Playwright tests in CI check every route, WCAG 2.2 AA with axe in both themes, 375 px layouts and an Arabic right-to-left layout; number and date formats switch between en-GB and en-AE. A short, skippable onboarding tour introduces the weekly loop.
+Light, dark and system themes switch with a feathered reveal that grows from the toggle, and a sliding indicator marks the active theme. The UI respects reduced motion and reduced transparency, and every 3D view has a table or 2D fallback. Playwright tests in CI check every route, WCAG 2.2 AA with axe in both themes, 375 px layouts and a right-to-left layout check for Arabic users (the text itself is not translated yet); number and date formats switch between en-GB and en-AE. A short, skippable onboarding tour introduces the weekly loop.
 
 ## Screenshots
 
@@ -77,9 +77,9 @@ What the evidence supports, across all 4 evaluation cutoffs:
 - **New customers can be spotted early.** A lookalike model on first-order features identifies future top-20% spenders with **test AUC 0.821** on later customers.
 - **The local LLM needs a human.** `qwen2.5:7b` kept to the model's numbers in 15 of 16 drafts. Its own second-pass review flagged 15 of 16 for tone, so every draft goes to a person. The critic's accuracy still needs a human-labelled check.
 
-**R5 additions** (selection on the three dev cutoffs only; the frozen test was not reused to choose anything, see [R5 results](reports/r5_results.md)):
+**R5 additions** (selection on the three dev cutoffs only; the frozen test was not reused to choose anything, see [R5 results](reports/r5_results.md)). R5 refits every model on net-of-returns snapshots, as served, so its baseline numbers differ slightly from the table above (for example value MAE £360 vs £362 at 2011-09-01):
 - **Seasonality now served.** A same-window-last-year multiplier cut BG/NBD + Gamma-Gamma's total-spend bias from 32.9% to 16.8% on dev cutoffs and won lapse Brier and value MAE on 3 of 3.
-- **Value ranges.** 80% split-conformal ranges covered 79.5%, 82.2% and 82.4% of accounts on the dev cutoffs; every account shows one.
+- **Value ranges.** 80% split-conformal ranges covered 79.5%, 82.2% and 82.4% of accounts on the dev cutoffs; every account shows one. On the Sep–Nov peak window (post hoc) coverage fell to 74.2%, outside the ±5-point target: the ranges are too narrow going into Christmas.
 - **Deep-learning challenger.** A zero-inflated lognormal network (NumPy, hand-derived gradients) won 0 of 3 on lapse PR-AUC and was not adopted. Two fixes made after seeing dev results are disclosed.
 
 Full detail: [model card](docs/MODEL_CARD.md) · [model results](reports/model_results.md) · [data card](docs/DATA_CARD.md) · [GenAI evaluation](reports/genai_eval.md)
@@ -125,7 +125,7 @@ cd apps/web && npm install && echo "NEXT_PUBLIC_API_URL=http://localhost:8001" >
 
 Open http://localhost:3000 (the app is at `/overview`). Turn on sign-in with `RL_AUTH_MODE=local`; all settings are in [`.env.example`](.env.example). Hosted option: the `Dockerfile` and [`render.yaml`](render.yaml), with Postgres row-level security in [`supabase/`](supabase/).
 
-Tests: `cd ml && uv run pytest` (61) · `PYTHONPATH=services/api pytest services/api/tests` (60, including two-tenant isolation and 22 OWASP LLM red-team cases) · `cd apps/web && npx playwright test` (52 browser tests) · `npm run test:e2e:live` (upload-to-approval flow against a running API).
+Tests: `cd ml && uv run pytest` (61) · `PYTHONPATH=services/api pytest services/api/tests` (60, including two-tenant isolation and 23 OWASP LLM red-team cases) · `cd apps/web && npx playwright test` (52 browser tests) · `npm run test:e2e:live` (upload-to-approval flow against a running API).
 
 The public demo is a static export of the same UI, with the serving JSON copied by `scripts/export_static_data.py` and deployed by `.github/workflows/pages.yml`.
 

@@ -49,7 +49,7 @@ Actual 90-day spend at test: £2,618,168.
 - **BG/NBD is the strongest lapse model.** LightGBM beats it on 0 of 4 cutoffs for both PR-AUC and Brier.
 - **LightGBM does not beat logistic regression** (PR-AUC 1 of 4, Brier 1 of 4). It reliably beats only the recency rule (4 of 4).
 - **For value, BG/NBD + Gamma-Gamma ranks spend best** on 3 of 4 cutoffs; LightGBM wins 1 of 4 on Gini and 2 of 4 on MAE, so no winner claim. Both beat the naive baseline on 4 of 4.
-- Conclusion for the research question: on ~4–5k customers and invoice data alone, a classic probabilistic model matches or beats gradient boosting. A neural two-head model (ZILN) is not justified by this evidence and stays optional.
+- Conclusion for the research question: on ~4–5k customers and invoice data alone, a classic probabilistic model matches or beats gradient boosting. A neural two-head model (ZILN) was later tested in R5 as a challenger and not adopted (see below).
 
 ## Known limitations
 
@@ -71,9 +71,10 @@ Ranking accounts for a human to review each week. It is not for automated contac
 - **Why:** on the three dev cutoffs it beat the plain model on lapse Brier and value MAE 3 of 3, and cut mean
   absolute total-spend bias from 32.9% to 16.8%. PR-AUC and Gini cannot change: it rescales all accounts equally.
 - **Value ranges:** 80% split-conformal on log1p residuals, calibrated on the 90 days before the scoring date.
-  Dev coverage 79.5%, 82.2%, 82.4%. Most lower bounds are £0 because many accounts do not order in a given 90 days.
+  Dev coverage 79.5%, 82.2%, 82.4%; post hoc on the Sep–Nov peak 74.2% (too narrow before Christmas). Most lower bounds are £0 because many accounts do not order in a given 90 days.
 - **Not adopted:** ZILN neural network (0/3 dev wins on lapse PR-AUC), seasonal LightGBM (mixed).
 - **Effect on the live queue:** at the 2011-12-10 scoring date the multiplier is 0.70 (January–March is quiet),
   so more accounts are in the high-risk band than before (3,124 vs 2,456). That is the intended correction, but
   reviewers should know the band counts moved.
+- **Baselines differ slightly from P2** because R5 fits on net-of-returns snapshots (as served); e.g. value MAE at 2011-09-01 is £359.7 here vs £362.4 in P2.
 - **Frozen test:** not re-scored for selection. The post-hoc look at 2011-09-01 is reported separately and labelled.

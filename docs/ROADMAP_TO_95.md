@@ -1,6 +1,6 @@
 # Roadmap to 95+ on every lens
 
-Status: **plan only, not started.** Wait for the owner's go-ahead (Krishna). Baseline scores are from `docs/SCORECARD.md` (2026-11-01).
+Status: **code-side work built 2026-11-01** (see `project/CURRENT_STATE.md`). Items marked [OWNER] remain open, as do hosted deployment and real accounts. Baseline scores are from `docs/SCORECARD.md` (2026-11-01).
 
 | Lens | Now | Target | Main gap |
 |---|---|---|---|

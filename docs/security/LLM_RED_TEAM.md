@@ -1,6 +1,6 @@
 # GenAI red team: OWASP Top 10 for LLM Applications (2025)
 
-Automated cases live in `services/api/tests/test_redteam.py` and run in CI on every push. They test
+23 automated cases live in `services/api/tests/test_redteam.py` and run in CI on every push. They test
 deterministic controls, so they fail the build on a regression rather than depending on a model's mood.
 
 | OWASP item | Applies? | Control | Tests |

@@ -24,9 +24,9 @@ problem row (cancellations, duplicates, missing customers, postage lines) is fla
 | Decision | Evidence |
 |---|---|
 | Fix the evaluation before modelling: rolling time cutoffs, a frozen test scored once | `reports/model_results.md` |
-| Serve the simpler model: BG/NBD + Gamma-Gamma beat LightGBM | Frozen test, 5,224 customers: lapse PR-AUC 0.820, Brier 0.186, value Gini 0.825 |
+| Serve the simpler model: LightGBM did not beat BG/NBD on any of 4 cutoffs (on the test, 0.819 vs 0.820: a tie) | Frozen test, 5,224 customers: lapse PR-AUC 0.820, Brier 0.186, value Gini 0.825 |
 | Add seasonality: a multiplier from the same window last year | Dev cutoffs: mean absolute total-spend bias 32.9% → 16.8% (49% lower); won Brier and MAE on 3 of 3 |
-| Show uncertainty: 80% split-conformal value ranges | Coverage 79.5%, 82.2%, 82.4% on the three dev cutoffs |
+| Show uncertainty: 80% split-conformal value ranges | Coverage 79.5%, 82.2%, 82.4% on the three dev cutoffs; 74.2% on the peak window (post hoc), below target |
 | Test a deep-learning challenger honestly: ZILN network | 0 of 3 dev wins on lapse PR-AUC; not adopted; two dev-informed fixes disclosed |
 | Find likely high-value newcomers | Lookalike model, time-based split: AUC 0.821 on 1,285 later customers |
 | Measure outreach causally | Weekly queue holds out a random 20%; contact vs holdout reorder rates with a 95% CI |
@@ -39,7 +39,7 @@ a UK PECR consent gate and no send path; workspaces with owner/reviewer/viewer r
 
 ## Engineering
 
-- 61 ML tests, 60 API tests (two-tenant isolation, roles, jobs, billing signatures, 22 OWASP LLM red-team cases),
+- 61 ML tests, 60 API tests (two-tenant isolation, roles, jobs, billing signatures, 23 OWASP LLM red-team cases),
   52 static browser tests (every route, WCAG 2.2 AA in light and dark, 375 px, Arabic right-to-left) and a live
   upload-to-approval browser flow.
 - Load test: 10,261 requests from 20 simulated reviewers in 30 s, 0 errors, p95 270.9 ms. The first run caught
@@ -48,7 +48,7 @@ a UK PECR consent gate and no send path; workspaces with owner/reviewer/viewer r
 
 ## What surprised me
 
-1. Simple, well-understood models beat gradient boosting on the frozen test.
+1. Gradient boosting never beat the simple probabilistic model (0 of 4 cutoffs); on the frozen test they tied.
 2. Seasonality, not model class, was the biggest source of error.
 3. The neural network failed for data reasons (constant features, extrapolated calendar features), not
    architecture reasons.
@@ -58,7 +58,8 @@ a UK PECR consent gate and no send path; workspaces with owner/reviewer/viewer r
 
 - One company's data from 2009–2011.
 - Customer interviews, usability sessions and a pilot have **not** happened yet. Pricing is a hypothesis.
-- The AI critic is not calibrated against human labels yet.
+- The AI critic is not calibrated against human labels yet, and only 1 of 16 live drafts passed every check.
+- Value ranges are too narrow before Christmas (74.2% coverage on the peak window against an 80% target).
 - Hosting (Render/Supabase) and Stripe test mode are prepared but need the owner's accounts.
 
 ## Pilot results

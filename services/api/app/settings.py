@@ -37,6 +37,9 @@ def load_settings() -> Settings:
     auth_mode = os.environ.get("RL_AUTH_MODE", "off")
     if auth_mode not in ("off", "local", "supabase"):
         raise ValueError("RL_AUTH_MODE must be off, local or supabase")
+    # A hosted deployment that forgot RL_AUTH_MODE must not come up open to the internet.
+    if os.environ.get("RL_ENV", "development") == "production" and auth_mode == "off":
+        raise ValueError("RL_AUTH_MODE=off is refused when RL_ENV=production: set local or supabase")
     return Settings(
         serving_dir=Path(os.environ.get("RL_SERVING_DIR", REPO / "artefacts" / "serving")),
         state_db=Path(os.environ.get("RL_STATE_DB", state / "retentionlens.sqlite3")),

@@ -70,9 +70,11 @@ jobs:
       - run: docker build -t retentionlens-api .
       - name: Container answers its health check
         run: |
-          docker run -d --name api -p 8000:8000 -e RL_AUTH_MODE=off retentionlens-api
+          docker run -d --name api -p 8000:8000 retentionlens-api
           for i in $(seq 1 30); do curl -fs http://127.0.0.1:8000/api/health && exit 0; sleep 2; done
           docker logs api; exit 1
+      - name: Container refuses to start with sign-in off
+        run: "! docker run --rm -e RL_AUTH_MODE=off retentionlens-api python -c 'import sys; sys.path.insert(0, \"services/api\"); import app.main'"
 
   security:
     runs-on: ubuntu-latest

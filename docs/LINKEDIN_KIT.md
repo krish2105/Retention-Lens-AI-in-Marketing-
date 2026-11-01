@@ -11,8 +11,8 @@ has read and edited it in their own voice.
 >
 > RetentionLens predicts which wholesale trade accounts will stop ordering in the next 90 days. On 1,067,371
 > real invoice lines (UCI Online Retail II), I fixed the evaluation first: rolling time cutoffs and a frozen
-> test scored once. A classic BG/NBD + Gamma-Gamma model beat LightGBM, reaching a lapse PR-AUC of 0.820 on
-> 5,224 customers.
+> test scored once. LightGBM never beat a classic BG/NBD + Gamma-Gamma model on any of four cutoffs; on the
+> frozen test of 5,224 customers they tied (lapse PR-AUC 0.820 vs 0.819).
 >
 > The bigger error was seasonality. A simple same-window-last-year multiplier cut the total-spend bias by 49%
 > on the development cutoffs. A zero-inflated lognormal neural network was tested too, and lost.
@@ -31,9 +31,9 @@ Suggested image: the case-study cover above, or a screenshot of the weekly queue
 
 ## CV bullets: AI/ML Analyst
 
-1. Built RetentionLens, a churn and CLV system on 1,067,371 invoice lines (PyMC-Marketing, LightGBM, FastAPI, Next.js); BG/NBD beat LightGBM with 0.820 PR-AUC on a frozen test of 5,224 customers.
-2. Added seasonality and 80% split-conformal value ranges to a BG/NBD + Gamma-Gamma model, cutting total-spend bias 49% and reaching 79.5–82.4% interval coverage across three time-based validation cutoffs.
-3. Shipped a grounded GenAI outreach tool on a local open model with deterministic output checks, 22 OWASP LLM red-team tests in CI and human approval, with no automated send path.
+1. Built RetentionLens, a churn and CLV system on 1,067,371 invoice lines (PyMC-Marketing, LightGBM, FastAPI, Next.js); LightGBM beat BG/NBD on 0 of 4 time cutoffs (frozen-test PR-AUC 0.820, 5,224 customers).
+2. Added seasonality and 80% split-conformal value ranges to a BG/NBD + Gamma-Gamma model, cutting total-spend bias 49% and reaching 79.5–82.4% interval coverage across three validation cutoffs (74.2% in peak season).
+3. Shipped a grounded GenAI outreach tool on a local open model with deterministic output checks, 23 OWASP LLM red-team tests in CI and human approval, with no automated send path.
 
 ## CV bullets: AI Business Analyst
 

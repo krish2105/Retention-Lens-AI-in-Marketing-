@@ -7,6 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 \
     RL_SERVING_DIR=/app/apps/web/public/data \
     RL_STATE_DB=/data/retentionlens.sqlite3 \
     RL_DATA_DIR=/data/orgs \
+    RL_ENV=production \
     RL_AUTH_MODE=local \
     RL_COOKIE_SECURE=1
 
