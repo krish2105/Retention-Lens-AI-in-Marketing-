@@ -41,7 +41,7 @@ export default function DataPage() {
           <div className="row">
             <section className="glass panel" style={{ flex: "1 1 460px" }}>
               <h2>Data-quality flags</h2>
-              <div className="table-wrap">
+              <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
                 <table>
                   <thead><tr><th>Flag</th><th className="num">Rows</th><th className="num">Share</th></tr></thead>
                   <tbody>
@@ -54,7 +54,7 @@ export default function DataPage() {
             </section>
             <section className="glass panel" style={{ flex: "1 1 340px" }}>
               <h2>Most common non-product codes</h2>
-              <div className="table-wrap">
+              <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
                 <table>
                   <thead><tr><th>Code</th><th className="num">Rows</th></tr></thead>
                   <tbody>{Object.entries(p.top_non_product_codes).map(([k, v]) => <tr key={k}><td className="mono">{k}</td><td className="num">{count(v)}</td></tr>)}</tbody>
@@ -64,7 +64,7 @@ export default function DataPage() {
           </div>
           <section className="glass panel">
             <h2>Source register</h2>
-            <div className="table-wrap">
+            <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
               <table>
                 <thead><tr><th>Source</th><th>Licence</th><th>Accessed</th><th>SHA-256</th><th>Allowed use</th></tr></thead>
                 <tbody>

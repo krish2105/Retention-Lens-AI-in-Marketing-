@@ -78,7 +78,7 @@ export default function Overview() {
           {cohorts.data && (
             <details className="twin">
               <summary>View the same data as a table</summary>
-              <div className="table-wrap" style={{ maxHeight: 320, marginTop: 10 }}>
+              <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table" style={{ maxHeight: 320, marginTop: 10 }}>
                 <table>
                   <thead>
                     <tr>

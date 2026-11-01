@@ -16,8 +16,11 @@ export function useTokens(): Tokens {
       const get = (name: string) => style.getPropertyValue(`--${name}`).trim();
       setTokens({ ink: get("ink"), muted: get("muted"), edge: get("edge-strong"), cyan: get("cyan"), magenta: get("magenta"), amber: get("amber"), violet: get("violet"), bg: get("bg") });
     };
-    const frame = requestAnimationFrame(read);
-    return () => cancelAnimationFrame(frame);
+    read();
+    // next-themes may flip data-theme after this effect; re-read whenever the attribute changes.
+    const observer = new MutationObserver(read);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "class", "style"] });
+    return () => observer.disconnect();
   }, [resolvedTheme]);
   return tokens;
 }

@@ -27,7 +27,7 @@ export default function ProductLab() {
         <>
           <section className="glass panel">
             <div className="panel-head"><h2>Basket rules: bought together</h2><span className="hint">top {lab.rules.length} by lift · support ≥ 1% of invoices</span></div>
-            <div className="table-wrap" style={{ maxHeight: 380 }}>
+            <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table" style={{ maxHeight: 380 }}>
               <table>
                 <thead><tr><th>If they buy</th><th>They also buy</th><th className="num">Confidence</th><th className="num">Lift</th><th className="num">Invoices</th></tr></thead>
                 <tbody>{lab.rules.map((r) => <tr key={r.if + r.then}><td>{r.if}</td><td>{r.then}</td><td className="num">{pct(r.confidence)}</td><td className="num">{r.lift.toFixed(1)}×</td><td className="num">{count(r.invoices)}</td></tr>)}</tbody>
@@ -57,7 +57,7 @@ export default function ProductLab() {
             </section>
             <section className="glass panel" style={{ flex: "1 1 360px" }}>
               <div className="panel-head"><h2>Product loyalty</h2><span className="hint">share of buyers who reorder</span></div>
-              <div className="table-wrap" style={{ maxHeight: 360 }}>
+              <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table" style={{ maxHeight: 360 }}>
                 <table>
                   <thead><tr><th>Product</th><th className="num">Buyers</th><th className="num">Reorder</th></tr></thead>
                   <tbody>{lab.loyalty.slice(0, 15).map((r) => <tr key={r.product}><td>{r.product}</td><td className="num">{count(r.buyers)}</td><td className="num">{pct(r.repeat_rate)}</td></tr>)}</tbody>
@@ -69,7 +69,7 @@ export default function ProductLab() {
           <section className="glass panel">
             <div className="panel-head"><h2>Price elasticity: a lesson in confounding</h2><span className="badge">associational · do not use for pricing</span></div>
             <p>Weekly log-log regressions with quarter controls give elasticities far below anything plausible for giftware. The reason: wholesale <strong>price breaks</strong> mean big orders get lower unit prices, so low prices and high quantities go together. That is the price list, not customer price sensitivity. A randomised price test would be needed for a causal answer.</p>
-            <div className="table-wrap" style={{ maxHeight: 300 }}>
+            <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table" style={{ maxHeight: 300 }}>
               <table>
                 <thead><tr><th>Product</th><th className="num">Elasticity</th><th className="num">95% interval</th><th className="num">Weeks</th><th className="num">R²</th></tr></thead>
                 <tbody>{lab.elasticities.map((e) => <tr key={e.product}><td>{e.product}</td><td className="num">{e.elasticity.toFixed(2)}</td><td className="num">{e.ci_low.toFixed(1)} to {e.ci_high.toFixed(1)}</td><td className="num">{e.weeks}</td><td className="num">{e.r2.toFixed(2)}</td></tr>)}</tbody>

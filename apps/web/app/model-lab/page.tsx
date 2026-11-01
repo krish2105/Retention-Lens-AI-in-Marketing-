@@ -26,7 +26,7 @@ function MetricTable({ data, kind, metric, digits, higher }: { data: Eval; kind:
   const cutoffs = Object.keys(data.cutoffs);
   const models = Object.keys(data.cutoffs[cutoffs[0]][kind]);
   return (
-    <div className="table-wrap">
+    <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
       <table>
         <thead>
           <tr>
@@ -114,7 +114,7 @@ export default function ModelLab() {
           </div>
           <section className="glass panel">
             <h2>Does LightGBM beat each baseline? (a claim needs 3 of 4 cutoffs)</h2>
-            <div className="table-wrap">
+            <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
               <table>
                 <thead><tr><th>Comparison</th><th>Baseline</th><th className="num">LightGBM wins</th><th>Verdict</th></tr></thead>
                 <tbody>

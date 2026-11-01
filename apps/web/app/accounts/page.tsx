@@ -189,7 +189,7 @@ function AccountsInner() {
         {list.loading && !list.data && <Loading rows={10} />}
         {list.data && list.data.total === 0 && <EmptyState image="/img/aur-03-import.webp" title="No accounts match" body="Clear the search or choose another risk level." />}
         {list.data && list.data.total > 0 && (
-          <div className="table-wrap">
+          <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
             <table>
               <caption className="sr-only">Accounts sorted by {SORTS.find((s) => s[0] === sort)?.[1]}</caption>
               <thead>

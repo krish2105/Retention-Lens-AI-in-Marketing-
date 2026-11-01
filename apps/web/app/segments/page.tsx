@@ -55,7 +55,7 @@ export default function SegmentsPage() {
         {segments.loading && <Loading rows={6} />}
         {segments.error && <ErrorState message={segments.error} onRetry={segments.reload} />}
         {segments.data && (
-          <div className="table-wrap">
+          <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
             <table>
               <thead>
                 <tr><th>Segment</th><th className="num">Accounts</th><th className="num">Median last order</th><th className="num">Median purchase days</th><th className="num">Median net spend</th><th className="num">Expected 90-day spend</th><th className="num">High risk</th><th>Suggested play</th></tr>
@@ -87,7 +87,7 @@ export default function SegmentsPage() {
           {lookalikes.data && (
             <>
               <p>{lookalikes.data.definition}. Test AUC <strong className="mono">{lookalikes.data.test_auc.toFixed(3)}</strong> on {count(lookalikes.data.test_customers)} later customers ({lookalikes.data.split}).</p>
-              <div className="table-wrap" style={{ maxHeight: 320 }}>
+              <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table" style={{ maxHeight: 320 }}>
                 <table>
                   <thead><tr><th>New account</th><th className="num">Lookalike score</th></tr></thead>
                   <tbody>
@@ -106,7 +106,7 @@ export default function SegmentsPage() {
           {segments.data && (
             <>
               <p>Chosen k = <strong>{segments.data.clusters.k}</strong> by silhouette score ({Object.entries(segments.data.clusters.silhouette).map(([k, v]) => `k${k}: ${v.toFixed(3)}`).join(" · ")}).</p>
-              <div className="table-wrap">
+              <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
                 <table>
                   <thead><tr><th>Cluster</th><th className="num">Accounts</th><th className="num">Median last order</th><th className="num">Median purchase days</th><th className="num">Median net spend</th></tr></thead>
                   <tbody>

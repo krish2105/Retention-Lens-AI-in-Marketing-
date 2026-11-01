@@ -107,7 +107,7 @@ export default function SignalsPage() {
                 <div><span>Injection attempts flagged</span><strong>{s.social.injection_flagged} of {s.social.injection_posts}</strong></div>
               </div>
               <h3>Most negative products</h3>
-              <div className="table-wrap" style={{ maxHeight: 260 }}>
+              <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table" style={{ maxHeight: 260 }}>
                 <table>
                   <thead><tr><th>Product</th><th className="num">Posts</th><th className="num">Negative</th></tr></thead>
                   <tbody>{s.social.most_negative_products.map((p) => <tr key={p.product}><td>{p.product}</td><td className="num">{p.posts}</td><td className="num">{pct(p.negative_share)}</td></tr>)}</tbody>
@@ -131,7 +131,7 @@ export default function SignalsPage() {
               <div className="row">
                 <div style={{ flex: "1 1 320px" }}>
                   <h3>Average price by star rating ({s.competitor.items} listings)</h3>
-                  <div className="table-wrap"><table>
+                  <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table"><table>
                     <thead><tr><th>Rating</th><th className="num">Listings</th><th className="num">Mean price</th></tr></thead>
                     <tbody>{Object.entries(s.competitor.price_by_rating).map(([r, v]) => <tr key={r}><td>{"★".repeat(Number(r))}</td><td className="num">{v.items}</td><td className="num">£{v.mean_price.toFixed(2)}</td></tr>)}</tbody>
                   </table></div>

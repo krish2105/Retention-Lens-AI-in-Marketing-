@@ -78,7 +78,7 @@ export default function EvidencePage() {
       </section>
       <section className="glass panel">
         <h2>Weekly topics and labs</h2>
-        <div className="table-wrap">
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
           <table>
             <thead><tr><th>Week</th><th>Topic</th><th>What in RetentionLens covers it</th><th>File</th></tr></thead>
             <tbody>

@@ -197,7 +197,7 @@ function OutreachInner() {
         {drafts.error && <ErrorState message={drafts.error} onRetry={drafts.reload} />}
         {drafts.data && drafts.data.length === 0 && <p style={{ color: "var(--muted)" }}>No drafts yet.</p>}
         {drafts.data && drafts.data.length > 0 && (
-          <div className="table-wrap">
+          <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
             <table>
               <thead><tr><th>Draft</th><th>Account</th><th>Subject</th><th>Source</th><th>Status</th><th>Created</th></tr></thead>
               <tbody>
