@@ -97,3 +97,14 @@ def test_rate_difference_ci():
     r = rate_difference(30, 100, 20, 100)
     assert r["difference"] == 0.1 and r["ci95"][0] < 0.1 < r["ci95"][1]
     assert rate_difference(1, 0, 1, 1)["difference"] is None
+
+
+def test_funnel_times_upload_to_first_decision(client):
+    assert client.get("/api/funnel").json()["minutes_upload_to_first_decision"] is None
+    up = client.post("/api/datasets?filename=f.csv", content=CSV).json()
+    client.post(f"/api/datasets/{up['id']}/validate", json={"mapping": MAPPING})
+    client.post(f"/api/datasets/{up['id']}/score")
+    wait_ready(client, up["id"])
+    client.post("/api/accounts/U1/reviews", json={"decision": "contact", "note": "first decision"})
+    f = client.get("/api/funnel").json()
+    assert f["minutes_upload_to_scored"] is not None and f["minutes_upload_to_first_decision"] < 1 and f["within_target"] is True

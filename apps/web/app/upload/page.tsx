@@ -36,6 +36,7 @@ const STAGE_LABEL: Record<string, string> = { queued: "Waiting for the scoring w
 export default function UploadPage() {
   const me = useApi<Me>("/api/auth/me");
   const list = useApi<Row[]>("/api/datasets");
+  const funnel = useApi<{ minutes_upload_to_scored: number | null; minutes_upload_to_first_decision: number | null; target_minutes: number }>(STATIC ? null : "/api/funnel");
   const [ds, setDs] = useState<Dataset | null>(null);
   const [mapping, setMapping] = useState<Mapping>({});
   const [dateOrder, setDateOrder] = useState("auto");
@@ -238,6 +239,9 @@ export default function UploadPage() {
             )}
           </div>
           {list.error && <ErrorState message={list.error} onRetry={list.reload} />}
+          {funnel.data && funnel.data.minutes_upload_to_scored != null && (
+            <p className="provenance"><span>First upload to scored: {funnel.data.minutes_upload_to_scored} min</span><span>to first decision: {funnel.data.minutes_upload_to_first_decision ?? "not yet"}{funnel.data.minutes_upload_to_first_decision != null ? " min" : ""} (target under {funnel.data.target_minutes})</span></p>
+          )}
           {list.data && list.data.length === 0 && <p style={{ color: "var(--muted)" }}>No uploads yet. {me.data?.org.use_sample ? "You are looking at the UCI sample dataset." : ""}</p>}
           {list.data && list.data.length > 0 && (
             <div className="table-wrap" tabIndex={0} role="region" aria-label="Uploads">

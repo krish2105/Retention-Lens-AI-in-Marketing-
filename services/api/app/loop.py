@@ -117,6 +117,27 @@ def router(env: Env, ctx, require) -> APIRouter:
             env.db.audit(db, context.email, "reorder_logged", body.customer_id, body.model_dump(), context.org_id)
         return {"ok": True}
 
+    @api.get("/api/funnel")
+    def funnel(context: Ctx = Depends(ctx)):
+        """Time from first upload to scored data to first decision, from the audit log (the R2 usability gate)."""
+        events = env.db.rows(
+            "SELECT action, MIN(at) AS first FROM audit_events WHERE org_id=? AND action IN ('dataset_uploaded', 'dataset_ready', 'review') GROUP BY action",
+            (context.org_id,),
+        )
+        first = {e["action"]: e["first"] for e in events}
+
+        def minutes(a: str, b: str):
+            if a not in first or b not in first or first[b] < first[a]:
+                return None
+            from datetime import datetime
+
+            return round((datetime.fromisoformat(first[b]) - datetime.fromisoformat(first[a])).total_seconds() / 60, 1)
+
+        to_decision = minutes("dataset_uploaded", "review")
+        return {"first_upload": first.get("dataset_uploaded"), "first_scored": first.get("dataset_ready"), "first_decision": first.get("review"),
+                "minutes_upload_to_scored": minutes("dataset_uploaded", "dataset_ready"), "minutes_upload_to_first_decision": to_decision,
+                "target_minutes": 10, "within_target": None if to_decision is None else to_decision <= 10}
+
     @api.get("/api/outcomes")
     def outcomes(context: Ctx = Depends(ctx)):
         rows = env.db.rows("SELECT * FROM outreach_outcomes WHERE org_id=? ORDER BY week DESC, customer_id", (context.org_id,))

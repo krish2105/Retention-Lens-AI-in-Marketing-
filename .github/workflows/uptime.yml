@@ -1,0 +1,27 @@
+name: Uptime check
+
+# Synthetic monitoring for the public demo: every 6 hours, key pages and data files must answer 200.
+# A failed run notifies the repository owner by GitHub's normal workflow-failure email.
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Public demo answers
+        run: |
+          fail=0
+          for base in https://retentionlens-demo.vercel.app https://krish2105.github.io/Retention-Lens-AI-in-Marketing-; do
+            for path in / /overview/ /queue/ /status/ /case-study/ /data/summary.json /data/accounts.json; do
+              code=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 20 "$base$path")
+              echo "$code $base$path"
+              [ "$code" = "200" ] || fail=1
+            done
+          done
+          exit $fail
