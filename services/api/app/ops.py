@@ -71,7 +71,7 @@ def install(app, env: Env, metrics: Metrics) -> None:
     async def observe(request: Request, call_next):
         request_id = request.headers.get("x-request-id") or secrets.token_hex(8)
         client = request.client.host if request.client else "unknown"
-        if request.url.path.startswith("/api/") and not env.limiter.allow(f"global:{client}", 600, 60):
+        if request.url.path.startswith("/api/") and not env.limiter.allow(f"global:{client}", env.settings.rate_limit_per_minute, 60):
             return JSONResponse({"detail": "Too many requests"}, status_code=429, headers={"Retry-After": "60"})
         start = time.perf_counter()
         status = 500

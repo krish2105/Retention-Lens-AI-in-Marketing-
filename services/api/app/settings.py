@@ -28,6 +28,7 @@ class Settings:
     public_web_url: str
     holdout_share: float
     queue_size: int
+    rate_limit_per_minute: int
 
 
 def load_settings() -> Settings:
@@ -54,4 +55,5 @@ def load_settings() -> Settings:
         public_web_url=os.environ.get("RL_PUBLIC_WEB_URL", "http://localhost:3000"),
         holdout_share=float(os.environ.get("RL_HOLDOUT_SHARE", "0.2")),
         queue_size=int(os.environ.get("RL_QUEUE_SIZE", "25")),
+        rate_limit_per_minute=int(os.environ.get("RL_RATE_LIMIT_PER_MIN", "600")),
     )

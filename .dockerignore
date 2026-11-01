@@ -1,0 +1,7 @@
+**
+!ml/pyproject.toml
+!ml/retentionlens/**
+!services/api/requirements.txt
+!services/api/app/**
+!apps/web/public/data/**
+**/__pycache__

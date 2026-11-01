@@ -81,13 +81,14 @@ def router(env: Env, ctx, require) -> APIRouter:
         take = math.ceil(settings.queue_size / max(1 - settings.holdout_share, 0.05))
         chosen = at_risk[:take]
         arms = {a["customer_id"]: ("holdout" if in_holdout(context.org_id, a["customer_id"], key, settings.holdout_share) else "contact") for a in chosen}
-        with env.db.connect() as db:
-            if context.at_least("reviewer"):
-                db.executemany(
-                    "INSERT OR IGNORE INTO outreach_outcomes (org_id, customer_id, week, arm, created_at) VALUES (?,?,?,?,?)",
-                    [(context.org_id, cid, key, arm, now()) for cid, arm in arms.items()],
-                )
-            stored = {r["customer_id"]: dict(r) for r in db.execute("SELECT * FROM outreach_outcomes WHERE org_id=? AND week=?", (context.org_id, key))}
+        stored = {r["customer_id"]: r for r in env.db.rows("SELECT * FROM outreach_outcomes WHERE org_id=? AND week=?", (context.org_id, key))}
+        missing = [(context.org_id, cid, key, arm, now()) for cid, arm in arms.items() if cid not in stored]
+        # Write only the first time an account enters this week's queue: repeat reads stay read-only,
+        # so concurrent reviewers do not queue behind SQLite's write lock (found by the load test).
+        if missing and context.at_least("reviewer"):
+            with env.db.connect() as db:
+                db.executemany("INSERT OR IGNORE INTO outreach_outcomes (org_id, customer_id, week, arm, created_at) VALUES (?,?,?,?,?)", missing)
+                stored.update({r["customer_id"]: dict(r) for r in db.execute("SELECT * FROM outreach_outcomes WHERE org_id=? AND week=?", (context.org_id, key))})
         reviews = env.db.rows(
             "SELECT customer_id, decision, reviewer, created_at FROM reviews WHERE org_id=? AND created_at>=? ORDER BY id", (context.org_id, key)
         )

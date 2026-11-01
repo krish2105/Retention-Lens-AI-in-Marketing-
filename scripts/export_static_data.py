@@ -23,6 +23,10 @@ sys.path.insert(0, str(REPO / "services" / "api"))
 from app.billing import PLANS, STATUS  # noqa: E402
 from app.ops import SLO  # noqa: E402
 
+# Evidence files shown on the case-study page (numbers come from runs, not from page copy).
+for src, name in ((REPO / "reports" / "r5_results.json", "r5"), (REPO / "reports" / "load_test.json", "load_test"), (REPO / "reports" / "model_registry.json", "registry")):
+    if src.exists():
+        shutil.copyfile(src, DST / f"{name}.json")
 (DST / "plans.json").write_text(json.dumps({"plans": PLANS, "status": STATUS, "currency": "GBP"}, indent=2) + "\n")
 summary = json.loads((SRC / "summary.json").read_text())
 (DST / "status.json").write_text(json.dumps({

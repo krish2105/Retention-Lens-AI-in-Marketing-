@@ -35,3 +35,8 @@ apps/web/out/
 .vercel/
 RetentionLens_AUR_Complete_Image_Collection/
 RetentionLens_AUR_Complete_Image_Collection.zip
+
+# Playwright
+apps/web/test-results/
+apps/web/playwright-report/
+apps/web/.next-e2e/

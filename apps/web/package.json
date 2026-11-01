@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test:e2e": "playwright test",
+    "test:e2e:live": "E2E_LIVE=1 playwright test"
   },
   "dependencies": {
     "@react-three/drei": "10.7.9",
@@ -19,10 +21,15 @@
     "three": "0.187.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.11.0",
+    "@playwright/test": "1.56.1",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/three": "^0.187.0",
     "typescript": "^5.8.0"
+  },
+  "overrides": {
+    "postcss": "8.5.32"
   }
 }

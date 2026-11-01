@@ -1,0 +1,33 @@
+# Render Blueprint for the hosted API (R3). Not deployed yet: needs the owner's Render account.
+# The web app stays on Vercel; set NEXT_PUBLIC_API_URL there to this service's URL.
+services:
+  - type: web
+    name: retentionlens-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter            # free instances sleep after ~15 min; starter keeps the scoring worker alive
+    region: frankfurt
+    healthCheckPath: /api/health
+    disk:
+      name: retentionlens-data
+      mountPath: /data       # SQLite database and uploaded files survive restarts
+      sizeGB: 1
+    envVars:
+      - key: RL_AUTH_MODE
+        value: local
+      - key: RL_COOKIE_SECURE
+        value: "1"
+      - key: RL_CORS_ORIGINS
+        value: https://retentionlens-demo.vercel.app
+      - key: RL_PUBLIC_WEB_URL
+        value: https://retentionlens-demo.vercel.app
+      - key: RL_ADMIN_TOKEN
+        generateValue: true
+      - key: STRIPE_SECRET_KEY        # sk_test_... only; live keys are refused by the API
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_STARTER
+        sync: false
+      - key: STRIPE_PRICE_GROWTH
+        sync: false

@@ -18,7 +18,7 @@ PRODUCTS = [("GC-100", "Gift card set", 2.5), ("MUG-12", "Enamel mug", 4.2), ("C
 COUNTRIES = ["United Kingdom"] * 7 + ["United Arab Emirates", "France", "Germany"]
 
 
-def main(seed: int = 7, customers: int = 120) -> None:
+def main(seed: int = 7, customers: int = 120, out: Path = OUT) -> None:
     rng = random.Random(seed)
     start, end = date(2024, 1, 2), date(2025, 6, 30)
     rows, invoice = [], 50000
@@ -40,13 +40,19 @@ def main(seed: int = 7, customers: int = 120) -> None:
                              "Unit Price": "4.20", "Account": account, "Country": country})
             day += timedelta(days=max(3, int(rng.gauss(gap, gap / 3))))
     rows.append({"Order No": "SO-BAD", "SKU": "TEA-20", "Item": "Loose tea tin", "Qty": "twelve", "Order Date": "not a date", "Unit Price": "3.60", "Account": "ACC-1000", "Country": "United Kingdom"})
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    with OUT.open("w", newline="") as handle:
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with out.open("w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
-    print(f"wrote {len(rows)} rows for {customers} synthetic accounts to {OUT}")
+    print(f"wrote {len(rows)} rows for {customers} synthetic accounts to {out}")
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--customers", type=int, default=120)
+    parser.add_argument("--out", type=Path, default=OUT)
+    args = parser.parse_args()
+    main(customers=args.customers, out=args.out)
