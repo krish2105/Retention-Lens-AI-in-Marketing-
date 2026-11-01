@@ -9,12 +9,13 @@ type Mapping = Record<string, string | null>;
 type Validation = {
   rows: number; valid_rows: number; rejected_rows: number; customers: number; repeat_customers: number; usable_lines: number;
   date_min: string | null; date_max: string | null; can_score: boolean; blocking: string[]; warnings: string[];
+  date_examples?: { raw: string; read_as: string | null }[];
   errors: { row: number; column: string; value: string; problem: string }[]; issues: Record<string, number>;
 };
 type Dataset = {
   id: string; filename: string; bytes: number; status: string; stage: string | null; pct: number; error: string | null; active: boolean;
   date_order: string; mapping: Mapping | null; duplicate?: boolean;
-  inspect: { rows: number; headers: string[]; suggested_mapping: Mapping; problems: string[]; sample: Record<string, string>[] } | null;
+  inspect: { rows: number; headers: string[]; suggested_mapping: Mapping; problems: string[]; sample: Record<string, string>[]; sheets?: string[] } | null;
   validation: Validation | null;
   summary: { accounts: number; bands: Record<string, number>; value_at_risk_high: number; scoring_cutoff: string; drift?: { psi: number | null; note: string }; intervals?: { available: boolean; calibration_coverage?: number } } | null;
 };
@@ -137,6 +138,14 @@ export default function UploadPage() {
                     </select>
                   </label>
                 ))}
+                {(ds.inspect.sheets?.length ?? 0) > 1 && (
+                  <label className="field">Excel sheet
+                    <select value={mapping._sheet ?? ""} onChange={(e) => setMapping({ ...mapping, _sheet: e.target.value || null })}>
+                      <option value="">All sheets with the same columns</option>
+                      {ds.inspect.sheets!.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </label>
+                )}
                 <label className="field">Date format
                   <select value={dateOrder} onChange={(e) => setDateOrder(e.target.value)}>
                     <option value="auto">Detect (assume day first if unclear)</option>
@@ -173,6 +182,9 @@ export default function UploadPage() {
                   <div><span>From</span><strong>{date(v.date_min)}</strong></div>
                   <div><span>To</span><strong>{date(v.date_max)}</strong></div>
                 </div>
+                {v.date_examples && v.date_examples.length > 0 && (
+                  <p className="provenance"><span>Dates were read as:</span>{v.date_examples.map((e) => <span key={e.raw}>{e.raw} → {e.read_as ? date(e.read_as) : "unreadable"}</span>)}</p>
+                )}
                 {v.blocking.map((b) => <p key={b} className="toast error">{b}</p>)}
                 {v.warnings.map((w) => <p key={w} className="notice">{w}</p>)}
                 <p className="provenance"><span>Flagged, not dropped: {count(v.issues.is_cancellation)} cancellations · {count(v.issues.is_duplicate)} duplicates · {count(v.issues.is_non_product)} postage/fee lines · {count(v.issues.is_missing_customer)} without a customer</span></p>

@@ -39,7 +39,7 @@ app.add_middleware(
     allow_origins=list(settings.cors_origins),
     allow_credentials=True,
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type", "Idempotency-Key", "Authorization", "X-Org-Id", "X-Request-ID", "X-RL-Client"],
+    allow_headers=["Content-Type", "Idempotency-Key", "Authorization", "X-Org-Id", "X-Request-ID", "X-RL-Client", "X-Admin-Token"],
 )
 metrics = ops.Metrics()
 ops.install(app, env, metrics)

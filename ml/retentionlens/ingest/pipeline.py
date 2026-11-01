@@ -41,16 +41,27 @@ def file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def read_table(path: Path) -> pd.DataFrame:
-    """All cells as text; Excel sheets with the same headers as the first are stacked."""
+def sheet_names(path: Path) -> list[str]:
+    if path.suffix.lower() not in (".xlsx", ".xlsm", ".xls"):
+        return []
+    return list(pd.ExcelFile(path).sheet_names)
+
+
+def read_table(path: Path, sheet: str | None = None) -> pd.DataFrame:
+    """All cells as text. Excel: one chosen sheet, or by default every sheet with the same headers as the first."""
     suffix = path.suffix.lower()
     if suffix in (".xlsx", ".xlsm", ".xls"):
         sheets = pd.read_excel(path, sheet_name=None, dtype=str, keep_default_na=False)
-        frames = list(sheets.values())
-        if not frames:
-            raise IngestError("The workbook has no sheets")
-        first = list(frames[0].columns)
-        frame = pd.concat([f for f in frames if list(f.columns) == first], ignore_index=True)
+        if sheet:
+            if sheet not in sheets:
+                raise IngestError(f"The workbook has no sheet called '{sheet}'")
+            frame = sheets[sheet]
+        else:
+            frames = list(sheets.values())
+            if not frames:
+                raise IngestError("The workbook has no sheets")
+            first = list(frames[0].columns)
+            frame = pd.concat([f for f in frames if list(f.columns) == first], ignore_index=True)
     elif suffix in (".csv", ".txt", ".tsv"):
         frame = None
         for encoding in ("utf-8-sig", "cp1252", "latin-1"):
@@ -76,6 +87,7 @@ def inspect(path: Path) -> dict:
     headers = list(frame.columns)
     mapping = suggest_mapping(headers)
     return {
+        "sheets": sheet_names(path),
         "rows": int(len(frame)),
         "headers": headers,
         "suggested_mapping": mapping,
@@ -118,6 +130,9 @@ def validate_frame(raw: pd.DataFrame, mapping: dict, date_order: str = "auto") -
     quantity = _numbers(text["quantity"])
     price = _numbers(text["price"])
     dates, date_note = parse_dates(text["invoice_date"], date_order)
+    # Show how dates were read, so day/month order mistakes are visible before scoring.
+    examples = [{"raw": str(r), "read_as": None if pd.isna(d) else d.date().isoformat()} for r, d in
+                zip(text["invoice_date"].drop_duplicates().head(4), dates.loc[text["invoice_date"].drop_duplicates().head(4).index])]
     invoice = text["invoice"]
     customer = text["customer_id"].str.replace(r"\.0+$", "", regex=True).replace("", pd.NA)
 
@@ -189,13 +204,14 @@ def validate_frame(raw: pd.DataFrame, mapping: dict, date_order: str = "auto") -
         "usable_lines": int(len(usable)),
         "blocking": blocking,
         "warnings": warnings,
+        "date_examples": examples,
         "can_score": not blocking,
     }
     return report, flagged
 
 
 def validate(path: Path, mapping: dict, date_order: str = "auto") -> dict:
-    report, _ = validate_frame(read_table(path), mapping, date_order)
+    report, _ = validate_frame(read_table(path, mapping.get("_sheet")), mapping, date_order)
     return report
 
 
@@ -213,7 +229,7 @@ def score(path: Path, mapping: dict, out_dir: Path, date_order: str = "auto", pr
     from .intervals import add_value_intervals
 
     progress("reading", 5)
-    raw = read_table(path)
+    raw = read_table(path, mapping.get("_sheet"))
     progress("validating", 15)
     report, flagged = validate_frame(raw, mapping, date_order)
     if not report["can_score"]:

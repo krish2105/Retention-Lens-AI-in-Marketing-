@@ -1,21 +1,48 @@
 "use client";
 import Link from "next/link";
-import { API, type Queue, STATIC, useApi } from "@/lib/api";
+import { useState } from "react";
+import { API, apiPost, type Queue, STATIC, useApi } from "@/lib/api";
 import { date, money, pct } from "@/lib/format";
 import { EmptyState, ErrorState, Loading, PageHeader, RiskPill } from "@/components/ui";
 
 type Arm = { accounts: number; reordered: number; rate: number | null; contacted: number };
 type Outcomes = { arms: { contact: Arm; holdout: Arm }; uplift: { difference: number | null; ci95: [number, number] | null }; observe_days: number; pending: number; method: string };
 
+function monday(offsetWeeks: number) {
+  const d = new Date();
+  d.setUTCHours(0, 0, 0, 0);
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7) + 7 * offsetWeeks);
+  return d.toISOString().slice(0, 10);
+}
+
 export default function QueuePage() {
-  const queue = useApi<Queue>("/api/queue");
+  const [offset, setOffset] = useState(0);
+  const queue = useApi<Queue>(`/api/queue?week=${monday(offset)}`);
   const outcomes = useApi<Outcomes>("/api/outcomes");
+  const [logged, setLogged] = useState<Record<string, string>>({});
+  const logReorder = async (customerId: string) => {
+    if (!queue.data) return;
+    try {
+      await apiPost("/api/outcomes/reorder", { customer_id: customerId, week: queue.data.week, reordered_on: new Date().toISOString().slice(0, 10) });
+      setLogged((l) => ({ ...l, [customerId]: "Reorder logged" }));
+      outcomes.reload();
+    } catch (e) {
+      setLogged((l) => ({ ...l, [customerId]: (e as Error).message }));
+    }
+  };
   const q = queue.data;
   const o = outcomes.data;
   return (
     <>
       <PageHeader eyebrow={q ? `Week of ${date(q.week)}` : "This week"} title="This week's review queue." lede="The accounts with the most spend at risk, in order. Open each one, read the evidence and record a decision. A random share is held out each week so the effect of contacting accounts can be measured.">
-        {!STATIC && <a className="btn" href={`${API}/api/reviews/export.csv`}>Export decisions (CSV)</a>}
+        <div className="row" style={{ gap: 8, alignItems: "center" }}>
+          {!STATIC && <div className="segmented glass" role="group" aria-label="Week">
+            <button type="button" onClick={() => setOffset(offset - 1)} aria-label="Previous week">← Previous</button>
+            <button type="button" aria-pressed={offset === 0} onClick={() => setOffset(0)}>This week</button>
+            <button type="button" onClick={() => setOffset(offset + 1)} disabled={offset >= 0} aria-label="Next week">Next →</button>
+          </div>}
+          {!STATIC && <a className="btn" href={`${API}/api/reviews/export.csv`}>Export decisions (CSV)</a>}
+        </div>
       </PageHeader>
       <section className="glass panel">
         {queue.loading && <Loading rows={6} />}
@@ -42,6 +69,21 @@ export default function QueuePage() {
                   </span>
                 </Link>
               ))}
+              {!STATIC && q.items.some((i) => i.status === "reviewed") && (
+                <details className="twin" style={{ marginTop: 12 }}>
+                  <summary>Log a reorder you heard about (phone, email, rep visit)</summary>
+                  <p style={{ color: "var(--muted)", margin: "8px 0" }}>Reorders are also picked up automatically from your next upload. Logging one here records today&apos;s date for this week&apos;s queue.</p>
+                  <div className="grid" style={{ gap: 6 }}>
+                    {q.items.filter((i) => i.status === "reviewed").map((i) => (
+                      <div key={i.customer_id} className="row" style={{ gap: 8, alignItems: "center" }}>
+                        <span style={{ minWidth: 140 }}>Account {i.customer_id}</span>
+                        <button className="btn" type="button" onClick={() => logReorder(i.customer_id)} disabled={Boolean(logged[i.customer_id])}>They reordered</button>
+                        {logged[i.customer_id] && <span role="status" style={{ color: "var(--muted)" }}>{logged[i.customer_id]}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
             </div>
           </>
         )}

@@ -102,3 +102,19 @@ def test_conformal_interval_covers_nominal_share():
     assert abs(coverage(truth[2000:], low, high) - 0.8) < 0.03
     with pytest.raises(ValueError):
         residual_quantiles([1.0] * 5, [1.0] * 5)
+
+
+def test_excel_sheet_choice_and_date_examples(tmp_path):
+    csv = synthetic_csv(tmp_path / "f.csv")
+    frame = pd.read_csv(csv, dtype=str)
+    xlsx = tmp_path / "book.xlsx"
+    with pd.ExcelWriter(xlsx) as writer:
+        frame.to_excel(writer, sheet_name="2024", index=False)
+        pd.DataFrame({"Notes": ["not invoices"]}).to_excel(writer, sheet_name="Notes", index=False)
+    info = inspect(xlsx)
+    assert info["sheets"] == ["2024", "Notes"] and info["rows"] == len(frame)
+    report = validate(xlsx, {**MAPPING, "_sheet": "2024"})
+    assert report["can_score"] and report["date_examples"] and all(e["read_as"] for e in report["date_examples"])
+    with pytest.raises(IngestError):
+        validate(xlsx, {**MAPPING, "_sheet": "Missing"})
+    assert not check_mapping({**MAPPING, "_sheet": "2024"}, list(MAPPING.values()))

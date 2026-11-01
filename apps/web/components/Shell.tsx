@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { apiPost, asset, BASE, type Me, STATIC, useApi } from "@/lib/api";
 import { getLocale } from "@/lib/format";
+import { supabase } from "@/lib/supabase";
 import { OnboardingTour } from "./OnboardingTour";
 import { Icon, ThemeToggle } from "./ui";
 
@@ -63,6 +64,7 @@ function AppShell({ path, aurora, children }: { path: string; aurora: ReactNode;
   const me = useApi<Me>("/api/auth/me");
   const signOut = async () => {
     await apiPost("/api/auth/signout", {}).catch(() => undefined);
+    await supabase()?.auth.signOut().catch(() => undefined);
     window.location.assign(`${BASE}/signin/`);
   };
   return (

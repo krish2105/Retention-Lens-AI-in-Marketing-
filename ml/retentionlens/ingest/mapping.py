@@ -47,7 +47,8 @@ def suggest_mapping(headers: list[str]) -> dict[str, str | None]:
 def check_mapping(mapping: dict[str, str | None], headers: list[str]) -> list[str]:
     """Problems that stop an import: missing required columns, unknown headers, a header used twice."""
     problems = [f"Choose a column for {c.replace('_', ' ')}" for c in REQUIRED if not mapping.get(c)]
-    chosen = [h for h in mapping.values() if h]
+    # Keys starting with "_" are options (e.g. "_sheet"), not columns.
+    chosen = [h for k, h in mapping.items() if h and not k.startswith("_")]
     problems += [f"Column '{h}' is not in the file" for h in chosen if h not in headers]
     problems += [f"Column '{h}' is used more than once" for h in sorted({h for h in chosen if chosen.count(h) > 1})]
     return problems

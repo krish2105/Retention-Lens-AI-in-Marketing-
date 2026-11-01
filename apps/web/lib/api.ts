@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
+import { SUPABASE_ENABLED, supabaseToken } from "./supabase";
 
 export const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 /** Public demo build: reads exported JSON instead of the API and is read-only. */
@@ -165,9 +166,16 @@ export class AuthRequired extends Error {}
 
 const HEADERS = { "X-RL-Client": "web" };
 
+/** Adds the Supabase bearer token when Supabase Auth is configured; cookie sessions need nothing extra. */
+async function authHeaders(): Promise<Record<string, string>> {
+  if (!SUPABASE_ENABLED) return {};
+  const token = await supabaseToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export async function apiGet<T>(path: string): Promise<T> {
   if (STATIC) return staticGet(path) as Promise<T>;
-  const response = await fetch(API + path, { cache: "no-store", credentials: "include", headers: { ...HEADERS } });
+  const response = await fetch(API + path, { cache: "no-store", credentials: "include", headers: { ...HEADERS, ...(await authHeaders()) } });
   if (response.status === 401) throw new AuthRequired("Sign in to continue");
   if (!response.ok) {
     let detail = `${response.status}`;
@@ -181,7 +189,7 @@ export async function apiGet<T>(path: string): Promise<T> {
 
 export async function apiPost<T>(path: string, body: unknown, idempotencyKey?: string): Promise<T> {
   if (STATIC) throw new Error(READ_ONLY_MESSAGE);
-  const headers: Record<string, string> = { "Content-Type": "application/json", ...HEADERS };
+  const headers: Record<string, string> = { "Content-Type": "application/json", ...HEADERS, ...(await authHeaders()) };
   if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
   const response = await fetch(API + path, { method: "POST", headers, body: JSON.stringify(body), credentials: "include" });
   const payload = await response.json().catch(() => ({}));
@@ -193,7 +201,7 @@ export async function apiPost<T>(path: string, body: unknown, idempotencyKey?: s
 /** Raw file upload (CSV/XLSX bytes as the request body). */
 export async function apiUpload<T>(path: string, file: File): Promise<T> {
   if (STATIC) throw new Error(READ_ONLY_MESSAGE);
-  const response = await fetch(API + path, { method: "POST", body: file, credentials: "include", headers: { "Content-Type": file.type || "application/octet-stream", ...HEADERS } });
+  const response = await fetch(API + path, { method: "POST", body: file, credentials: "include", headers: { "Content-Type": file.type || "application/octet-stream", ...HEADERS, ...(await authHeaders()) } });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(typeof payload.detail === "string" ? payload.detail : `Upload failed (${response.status})`);
   return payload;

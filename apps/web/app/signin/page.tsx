@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { apiPost, asset, BASE, STATIC, useApi } from "@/lib/api";
+import { supabase, SUPABASE_ENABLED } from "@/lib/supabase";
 
 type Health = { auth_mode: "off" | "local" | "supabase" };
 
@@ -30,7 +31,19 @@ function SignIn() {
     setBusy(true);
     setError(null);
     try {
-      if (mode === "signin") await apiPost("/api/auth/signin", { email: form.email, password: form.password });
+      if (authMode === "supabase") {
+        const sb = supabase();
+        if (!sb) throw new Error("Supabase is not configured in this build (NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY)");
+        const result = mode === "signin"
+          ? await sb.auth.signInWithPassword({ email: form.email, password: form.password })
+          : await sb.auth.signUp({ email: form.email, password: form.password, options: { data: { name: form.name } } });
+        if (result.error) throw new Error(result.error.message);
+        if (mode === "signup" && !result.data.session) {
+          setError("Check your email to confirm the account, then sign in.");
+          return;
+        }
+        if (invite) await apiPost("/api/auth/accept-invite", { token: invite });
+      } else if (mode === "signin") await apiPost("/api/auth/signin", { email: form.email, password: form.password });
       else await apiPost("/api/auth/signup", { ...form, invite });
       const target = next && next.startsWith("/") && !next.startsWith("//") ? next : `${BASE}/queue/`;
       window.location.assign(target);
@@ -53,9 +66,9 @@ function SignIn() {
         <h1 style={{ fontSize: 32 }}>{mode === "signin" ? "Sign in to your workspace" : "Create your account"}</h1>
         {STATIC && <p className="notice">The public demo has no accounts. <Link href="/overview">Open the demo</Link> to look around, or run RetentionLens with sign-in turned on.</p>}
         {authMode === "off" && <p className="notice">Sign-in is turned off on this local server, so you are using the single local workspace. <Link href="/queue">Open the app</Link>.</p>}
-        {authMode === "supabase" && <p className="notice">This server uses Supabase Auth. Sign in through your organisation&apos;s Supabase login.</p>}
+        {authMode === "supabase" && !SUPABASE_ENABLED && <p className="notice">This server uses Supabase Auth, but this web build has no Supabase settings. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY and rebuild.</p>}
         {health.error && <p className="toast error" role="alert">Couldn&apos;t reach the API: {health.error}</p>}
-        {authMode === "local" && (
+        {(authMode === "local" || (authMode === "supabase" && SUPABASE_ENABLED)) && (
           <>
             <div className="segmented glass" role="tablist" aria-label="Account">
               <button type="button" role="tab" aria-selected={mode === "signin"} aria-pressed={mode === "signin"} onClick={() => setMode("signin")}>Sign in</button>
