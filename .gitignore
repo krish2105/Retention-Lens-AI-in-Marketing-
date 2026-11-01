@@ -29,3 +29,4 @@ course/outline.docx
 
 # Model run artefacts (predictions carry customer IDs)
 artefacts/
+*.tsbuildinfo
