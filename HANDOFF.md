@@ -1,0 +1,34 @@
+# Handoff — resume here
+
+Kept current at every push so any session (local or cloud) can continue. Last update: 2026-11-01.
+
+## Status
+
+| Phase | State |
+|---|---|
+| P1 data, P2 models | Done (see `PROGRESS.md`) |
+| P3 API + Aurora UI shell | **Done**: `cli serve`, FastAPI (`services/api`), Next.js Overview / Accounts / Model lab / Data / Settings, 3D cohort terrain, light/dark/system theme |
+| P4 segments + 3D galaxy + lookalikes | Next |
+| P5 signals, P6 outreach studio, P7 product lab, P8 README/evidence/CI | Pending (see `REMAINING.md`) |
+
+## Rebuild everything from a clean clone
+
+```bash
+cd ml && uv sync --python 3.12
+uv run python -m retentionlens.cli data                 # downloads UCI Online Retail II (~45 MB), checksums it
+uv run python -m retentionlens.cli models --include-test  # P2 evaluation (re-scores the frozen test; results are deterministic)
+uv run python -m retentionlens.cli serve                # writes artefacts/serving/*.json for the API
+cd ../services/api && uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt
+.venv/bin/uvicorn app.main:app --port 8001              # API
+cd ../../apps/web && npm install && echo "NEXT_PUBLIC_API_URL=http://localhost:8001" > .env.local && npm run dev  # UI on :3000
+```
+
+Tests: `cd ml && uv run pytest -q` · `PYTHONPATH=services/api services/api/.venv/bin/pytest -q services/api/tests` · `cd apps/web && npx next build`.
+
+## Conventions that matter
+
+- Commits carry the owner's name only. **No AI co-author lines anywhere.**
+- Never commit `data/raw`, `data/interim`, `artefacts/`, `.env*`, or the image collection folder/zip at the repo root.
+- Every number in the UI must come from a serving JSON file; label synthetic data `SYNTHETIC`.
+- New per-account columns from later phases go through `ml/retentionlens/serving/extras.py` (`EXTRA_BUILDERS`).
+- In the Claude desktop preview, the API must start through `uv` (see `.claude/launch.json`); port 8001.
