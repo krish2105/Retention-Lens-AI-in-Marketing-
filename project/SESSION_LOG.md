@@ -32,3 +32,6 @@ Branch `roadmap`. R2: `retentionlens.ingest` (any-header mapping, row-level vali
 
 ### 2026-11-01 — Independent re-score and fixes
 Reviewer agent re-scored (mean 65 → 73; table in `docs/SCORECARD.md`). Fixed what it found: peak-season coverage 74.2% now stated; baseline-number difference explained; tie no longer called a win; red-team count is 23 (the earlier entry said 22); stale BLOCKERS/roadmap/model card updated; API refuses `RL_AUTH_MODE=off` when `RL_ENV=production` (Dockerfile and render.yaml set it; test added; API tests 61). CI on 32adfe0 fully green including e2e and docker. Vercel redeployed and aliased; Pages deployed.
+
+### 2026-11-01 — Second build pass ("build everything you can")
+R5b pooled conformal calibration (dev 79.5/85.1/84.7%, peak 80.0%, disclosed as informed by the seen window); labelling UI + calibration panel; sign-in hardening; scheduled backups + seeded restore drill (passed); funnel metric; usability kit; uptime workflow; exercises log; lab evidence packs; captioned demo video (Playwright + Homebrew ffmpeg, since the bundled ffmpeg does not run on this macOS); Supabase RLS CI job (first two runs failed: storage schema timing, then an invalid container hostname from the repo folder name; both fixed). API tests 66, ML 61. Not done: deck/report refresh (next session). Ollama has no models installed right now.

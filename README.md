@@ -125,7 +125,7 @@ cd apps/web && npm install && echo "NEXT_PUBLIC_API_URL=http://localhost:8001" >
 
 Open http://localhost:3000 (the app is at `/overview`). Turn on sign-in with `RL_AUTH_MODE=local`; all settings are in [`.env.example`](.env.example). Hosted option: the `Dockerfile` and [`render.yaml`](render.yaml), with Postgres row-level security in [`supabase/`](supabase/).
 
-Tests: `cd ml && uv run pytest` (61) · `PYTHONPATH=services/api pytest services/api/tests` (60, including two-tenant isolation and 23 OWASP LLM red-team cases) · `cd apps/web && npx playwright test` (52 browser tests) · `npm run test:e2e:live` (upload-to-approval flow against a running API).
+Tests: `cd ml && uv run pytest` (61) · `PYTHONPATH=services/api pytest services/api/tests` (66, including two-tenant isolation and 23 OWASP LLM red-team cases) · Postgres row-level security isolation test against a local Supabase stack in CI · `cd apps/web && npx playwright test` (52 browser tests) · `npm run test:e2e:live` (upload-to-approval flow against a running API).
 
 The public demo is a static export of the same UI, with the serving JSON copied by `scripts/export_static_data.py` and deployed by `.github/workflows/pages.yml`.
 
@@ -135,7 +135,8 @@ The public demo is a static export of the same UI, with the serving JSON copied 
 |---|---|
 | [Load test](reports/load_test.md) | 10,261 requests from 20 simulated reviewers in 30 s, 0 errors, p95 270.9 ms (SLO: every read route under 500 ms) |
 | Scoring benchmark | 114,886 synthetic invoice lines scored in 9.1 s (target: 100k in under 5 minutes) |
-| [Restore drill](reports/restore_drill.md) | Passed: checksum, `integrity_check` and row counts |
+| [Restore drill](reports/restore_drill.md) | Passed on a seeded synthetic database (5 workspaces, 1,000 reviews, 1,095 audit events): checksum, `integrity_check`, row counts. Backups run inside the API every 24 h |
+| Demo video | [`submissions/demo/RetentionLens_demo_silent.mp4`](submissions/demo/RetentionLens_demo_silent.mp4): 63 s, captioned, recorded by `e2e/demo.spec.ts` |
 | [ASVS L1 checklist](docs/security/ASVS_L1_CHECKLIST.md) · [LLM red team](docs/security/LLM_RED_TEAM.md) | Self-assessed; open items listed |
 | CI | ML, API, browser e2e, Docker build and health check, `pip-audit`, `npm audit`, CodeQL |
 

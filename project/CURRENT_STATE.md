@@ -9,6 +9,16 @@
 - Docker image builds and passes its health check in CI; the whole CI run on 32adfe0 (ml, api, web, e2e, docker, security) passed, as did CodeQL.
 - Load test `reports/load_test.md` (SLO met); restore drill `reports/restore_drill.md` (passed); `npm audit` 0 high; `pip-audit` clean.
 
+## Added in the second build pass (same day)
+- R5b season-aware value ranges (peak coverage 74.2% → 80.0%, choice informed by the seen peak window); serving and demo data rebuilt.
+- Outreach studio: human labelling and a live critic-calibration panel (kappa, false alarms). API tests 66.
+- Sign-in hardening: failed sign-ins audited (hashed), per-account throttle, common/weak passwords refused.
+- Backups scheduled in the API (`RL_BACKUP_HOURS`); restore drill re-run on a seeded synthetic database.
+- `/api/funnel` (upload → scored → first decision minutes), usability kit with SUS, uptime workflow.
+- Exercises log template; `labs/*/EVIDENCE.md` generated from run files; 63-second captioned demo video.
+- CI job applying the Supabase migration to a local stack and running the RLS leak test (see CI for its latest result).
+- Ollama currently has no models installed (`qwen2.5:7b` missing): drafts use the labelled template until it is pulled again.
+
 ## Not verified / not done
 - Hosted API (Render/Azure), Supabase migration, Stripe test checkout: need the owner's accounts.
 - Vercel Analytics: code gated by `NEXT_PUBLIC_VERCEL_ANALYTICS=1`; must be enabled in the Vercel project.

@@ -5,7 +5,10 @@
 - [ ] Label 16+ drafts (Outreach studio or `reports/critic_labels.csv`); then `GET /api/critic/calibration`.
 - [ ] 5 think-aloud usability sessions on upload → queue (gate: 4 of 5 under 10 minutes).
 - [ ] Create Render, Supabase and Stripe (test mode) accounts; apply `supabase/` and `render.yaml`.
-- [ ] Write the five lab reports and the presentation narrative (`docs/COURSEWORK_REVIEW.md`).
+- [ ] Write the five lab reports (numbers in `labs/*/EVIDENCE.md`) and keep `project/EXERCISES_LOG.md` weekly.
+- [ ] Record a voice-over for `submissions/demo/RetentionLens_demo_silent.mp4`.
+- [ ] `ollama pull qwen2.5:7b` (≈4.7 GB) so drafts use the model again; then label drafts in the Outreach studio.
+- [ ] Claude, next session: refresh screenshots, deck and PDF report with R2–R5b results.
 - [ ] Coordinator ruling on solo work, synthetic social data and the deep-learning wording.
 
 ## M0 — first Work session (historical; most items superseded by later phases)

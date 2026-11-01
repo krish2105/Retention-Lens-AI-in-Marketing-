@@ -19,7 +19,8 @@ test.describe("every route renders without errors", () => {
       page.on("console", (m) => { if (m.type() === "error" && !serverNoise.test(m.text())) errors.push(m.text()); });
       await settle(page);
       await page.goto(route);
-      await expect(page.locator("h1").first()).toBeVisible();
+      // /accounts hydrates behind a Suspense boundary after a large JSON file; give it room on the slow test server.
+      await expect(page.locator("h1").first()).toBeVisible({ timeout: route === "/accounts/" ? 25_000 : 10_000 });
       await page.waitForLoadState("networkidle");
       expect(errors).toEqual([]);
     });
