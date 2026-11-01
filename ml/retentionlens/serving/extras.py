@@ -4,6 +4,7 @@ Each builder takes (prepared, scored, out_dir), may write its own JSON files, an
 either None or a DataFrame of extra per-account columns indexed by customer_id.
 """
 from ..signals.build import build_signals
+from .products import build_account_products
 from .segments import build_segments
 
-EXTRA_BUILDERS: list = [build_segments, build_signals]
+EXTRA_BUILDERS: list = [build_segments, build_signals, build_account_products]

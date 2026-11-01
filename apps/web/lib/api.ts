@@ -29,6 +29,7 @@ export type Account = {
   segment?: string;
   cluster?: number;
   lookalike_score?: number | null;
+  top_products?: string[];
 };
 
 export type Summary = {

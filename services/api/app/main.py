@@ -135,3 +135,133 @@ def audit(limit: int = Query(100, ge=1, le=500)):
 for _name, _path in {"segments": "/api/segments", "galaxy": "/api/galaxy", "lookalikes": "/api/lookalikes",
                      "signals": "/api/signals", "product_lab": "/api/product-lab"}.items():
     app.add_api_route(_path, (lambda n: lambda: _get(n))(_name), methods=["GET"], name=_name)
+
+
+# ---- Outreach studio (P6): grounded drafts, human approval, no send path ----
+import csv as _csv
+import io as _io
+import json as _json
+
+from fastapi import Header
+from fastapi.responses import PlainTextResponse
+
+from .genai.drafting import TONES, Facts, OllamaClient, check_draft, generate
+
+CONSENT_RULES = {
+    # UK PECR: corporate subscribers may receive B2B marketing under legitimate interests;
+    # sole traders and some partnerships count as individuals and need consent or the soft opt-in.
+    "company": {"legitimate_interest_b2b", "explicit_consent"},
+    "sole_trader": {"explicit_consent", "soft_opt_in_existing_customer"},
+}
+
+
+class DraftRequest(BaseModel):
+    customer_id: str = Field(min_length=1, max_length=20)
+    tone: Literal["warm", "brief", "seasonal"] = "warm"
+    reviewer: str = Field(min_length=1, max_length=100)
+
+
+class Decision(BaseModel):
+    decision: Literal["approve", "reject"]
+    reviewer: str = Field(min_length=1, max_length=100)
+    recipient_type: Literal["company", "sole_trader", "unknown"] = "unknown"
+    consent_basis: Literal["legitimate_interest_b2b", "explicit_consent", "soft_opt_in_existing_customer", "none"] = "none"
+    edited_body: str | None = Field(default=None, max_length=4000)
+    acknowledge_review: bool = False
+    note: str = Field(default="", max_length=1000)
+
+
+def _play_for(segment: str | None) -> str:
+    try:
+        rows = store.get("segments")["segments"]
+        return next((r["play"] for r in rows if r["segment"] == segment), "Check in and offer help with the next order.")
+    except NotBuilt:
+        return "Check in and offer help with the next order."
+
+
+def _draft_row(draft_id: int) -> dict:
+    rows = database.rows("SELECT * FROM drafts WHERE id=?", (draft_id,))
+    if not rows:
+        raise HTTPException(404, "Unknown draft")
+    row = rows[0]
+    row["checks"] = _json.loads(row["checks"])
+    row["context"] = _json.loads(row["context"])
+    return row
+
+
+@app.post("/api/drafts")
+def create_draft(request: DraftRequest):
+    account_row = store.account(request.customer_id) if store.ready() else None
+    if account_row is None:
+        raise HTTPException(404, "Unknown account")
+    facts = Facts.from_account(account_row, _play_for(account_row.get("segment")))
+    client = OllamaClient(settings.ollama_url, settings.ollama_model) if ollama_status()["available"] else None
+    result = generate(facts, request.tone, client)
+    status = "pending_approval" if result["passed"] else "needs_revision"
+    context = {"facts": facts.prompt_lines(), "tone": TONES[request.tone], "prompt": result["prompt"], "error": result["error"], "seconds": result["seconds"]}
+    with database.connect() as db:
+        cursor = db.execute(
+            "INSERT INTO drafts (customer_id, status, source, model, subject, body, checks, context, created_at) VALUES (?,?,?,?,?,?,?,?,?)",
+            (request.customer_id, status, result["source"], settings.ollama_model if result["source"] == "model" else None,
+             result["subject"], result["body"], _json.dumps(result["checks"]), _json.dumps(context), now()),
+        )
+        draft_id = cursor.lastrowid
+        database.audit(db, request.reviewer, "draft_created", f"draft:{draft_id}",
+                       {"customer_id": request.customer_id, "source": result["source"], "status": status, "passed": result["passed"]})
+    return _draft_row(draft_id)
+
+
+@app.get("/api/drafts")
+def list_drafts(status: str | None = None, limit: int = Query(100, ge=1, le=500)):
+    sql, params = "SELECT id, customer_id, status, source, subject, created_at, decided_by FROM drafts", ()
+    if status:
+        sql, params = sql + " WHERE status=?", (status,)
+    return database.rows(sql + " ORDER BY id DESC LIMIT ?", (*params, limit))
+
+
+@app.get("/api/drafts/export.csv", response_class=PlainTextResponse)
+def export_drafts():
+    rows = database.rows("SELECT id, customer_id, subject, body, recipient_type, consent_basis, decided_by, decided_at FROM drafts WHERE status='approved' ORDER BY id")
+    buffer = _io.StringIO()
+    writer = _csv.DictWriter(buffer, fieldnames=["id", "customer_id", "subject", "body", "recipient_type", "consent_basis", "decided_by", "decided_at"])
+    writer.writeheader()
+    writer.writerows(rows)
+    return PlainTextResponse(buffer.getvalue(), media_type="text/csv", headers={"Content-Disposition": "attachment; filename=approved_drafts.csv"})
+
+
+@app.get("/api/drafts/{draft_id}")
+def get_draft(draft_id: int):
+    return _draft_row(draft_id)
+
+
+@app.post("/api/drafts/{draft_id}/decision")
+def decide(draft_id: int, decision: Decision, idempotency_key: str = Header(..., alias="Idempotency-Key", min_length=8, max_length=100)):
+    previous = database.rows("SELECT response FROM idempotency WHERE key=?", (idempotency_key,))
+    if previous:
+        return _json.loads(previous[0]["response"])
+    draft = _draft_row(draft_id)
+    if draft["status"] in ("approved", "rejected"):
+        raise HTTPException(409, f"Draft already {draft['status']}")
+    body = decision.edited_body.strip() if decision.edited_body else draft["body"]
+    if decision.decision == "approve":
+        account_row = store.account(draft["customer_id"])
+        facts = Facts.from_account(account_row, _play_for(account_row.get("segment")))
+        checks = check_draft(draft["subject"], body, facts)
+        if not checks.passed:
+            raise HTTPException(422, "Draft fails checks: " + "; ".join(c["name"] for c in checks.checks if not c["passed"]))
+        critic = next((c for c in draft["checks"] if c["name"].startswith("Second-pass")), None)
+        if critic and not critic["passed"] and not decision.acknowledge_review and decision.edited_body is None:
+            raise HTTPException(422, "The second-pass review raised issues: edit the draft or confirm you have read them")
+        if decision.consent_basis not in CONSENT_RULES.get(decision.recipient_type, set()):
+            raise HTTPException(422, "No valid consent basis for this recipient type (UK PECR): record the recipient type and basis first")
+    status = "approved" if decision.decision == "approve" else "rejected"
+    with database.connect() as db:
+        db.execute(
+            "UPDATE drafts SET status=?, body=?, recipient_type=?, consent_basis=?, decided_by=?, decided_at=? WHERE id=?",
+            (status, body, decision.recipient_type, decision.consent_basis, decision.reviewer, now(), draft_id),
+        )
+        database.audit(db, decision.reviewer, f"draft_{status}", f"draft:{draft_id}",
+                       {"edited": decision.edited_body is not None, "recipient_type": decision.recipient_type, "consent_basis": decision.consent_basis, "note": decision.note})
+        response = {"id": draft_id, "status": status}
+        db.execute("INSERT INTO idempotency (key, response, created_at) VALUES (?,?,?)", (idempotency_key, _json.dumps(response), now()))
+    return response
