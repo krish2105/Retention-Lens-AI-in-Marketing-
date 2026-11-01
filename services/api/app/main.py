@@ -331,10 +331,12 @@ def create_draft(request: DraftRequest, context: Ctx = Depends(require("reviewer
 
 @app.get("/api/drafts")
 def list_drafts(status: str | None = None, limit: int = Query(100, ge=1, le=500), context: Ctx = Depends(ctx)):
-    sql, params = "SELECT id, customer_id, status, source, subject, created_at, decided_by FROM drafts WHERE org_id=?", (context.org_id,)
+    sql = ("SELECT d.id, d.customer_id, d.status, d.source, d.subject, d.created_at, d.decided_by, l.label AS human_label FROM drafts d "
+           "LEFT JOIN critic_labels l ON l.org_id=d.org_id AND l.draft_id=d.id WHERE d.org_id=?")
+    params = (context.org_id,)
     if status:
-        sql, params = sql + " AND status=?", (*params, status)
-    return database.rows(sql + " ORDER BY id DESC LIMIT ?", (*params, limit))
+        sql, params = sql + " AND d.status=?", (*params, status)
+    return database.rows(sql + " ORDER BY d.id DESC LIMIT ?", (*params, limit))
 
 
 @app.get("/api/drafts/export.csv", response_class=PlainTextResponse)
@@ -428,7 +430,8 @@ def critic_calibration(context: Ctx = Depends(ctx)):
         if critic is not None:
             pairs.append((row["label"], "pass" if critic["passed"] else "revise"))
     labelled = len(pairs)
-    result = {"labelled": labelled, "target": 46, "kappa_target": 0.6}
+    result = {"labelled": labelled, "target": 46, "kappa_target": 0.6,
+              "confusion": {f"human_{h}_critic_{c}": sum(p == (h, c) for p in pairs) for h in ("pass", "revise") for c in ("pass", "revise")}}
     if labelled >= 2:
         human, critic = [p[0] for p in pairs], [p[1] for p in pairs]
         result.update({"agreement": round(sum(h == c for h, c in pairs) / labelled, 3), "cohen_kappa": round(cohen_kappa(human, critic), 3)})

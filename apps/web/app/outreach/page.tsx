@@ -10,7 +10,8 @@ type Draft = {
   id: number; customer_id: string; status: string; source: "model" | "template"; model: string | null; subject: string; body: string;
   checks: Check[]; context: { facts: string[]; tone: string; error: string | null; seconds: number }; recipient_type: string | null; consent_basis: string | null; decided_by: string | null; created_at: string;
 };
-type DraftRow = { id: number; customer_id: string; status: string; source: string; subject: string; created_at: string };
+type DraftRow = { id: number; customer_id: string; status: string; source: string; subject: string; created_at: string; human_label?: string | null };
+type Calibration = { labelled: number; target: number; kappa_target: number; agreement?: number; cohen_kappa?: number; confusion?: Record<string, number> };
 type Health = { ollama: { available: boolean; model: string } };
 
 const STATUS: Record<string, string> = { pending_approval: "Awaiting approval", needs_revision: "Needs revision", approved: "Approved", rejected: "Rejected" };
@@ -120,7 +121,59 @@ function DraftView({ id, onChanged }: { id: number; onChanged: () => void }) {
         </form>
       )}
       {message && <p className={`toast ${message.ok ? "ok" : "error"}`} role="status">{message.text}</p>}
+      {!STATIC && <HumanLabel id={d.id} critic={critic} onChanged={onChanged} />}
     </div>
+  );
+}
+
+/** A person's verdict on the draft, used only to measure how far the AI critic can be trusted. */
+function HumanLabel({ id, critic, onChanged }: { id: number; critic?: Check; onChanged: () => void }) {
+  const [note, setNote] = useState("");
+  const [saved, setSaved] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const label = async (value: "pass" | "revise") => {
+    setError(null);
+    try {
+      await apiPost(`/api/drafts/${id}/label`, { label: value, note });
+      setSaved(value);
+      onChanged();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  };
+  return (
+    <details className="twin">
+      <summary>Label this draft for critic calibration</summary>
+      <div className="grid" style={{ gap: 8, paddingTop: 8 }}>
+        <p style={{ color: "var(--muted)" }}>Would you send this as written (pass) or would it need changes (revise)? Decide before reading the critic&apos;s verdict{critic ? " below" : ""}. Your labels measure whether the AI reviewer agrees with people.</p>
+        <label className="field">Why (optional)<input value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. too formal, wrong product" /></label>
+        <div className="row" style={{ gap: 8 }}>
+          <button className="btn" type="button" onClick={() => label("pass")}>Pass</button>
+          <button className="btn" type="button" onClick={() => label("revise")}>Revise</button>
+        </div>
+        {saved && <p className="toast ok" role="status">Saved as {saved}. {critic ? `The critic said ${critic.passed ? "pass" : "revise"}.` : ""}</p>}
+        {error && <p className="toast error" role="alert">{error}</p>}
+      </div>
+    </details>
+  );
+}
+
+function CalibrationPanel({ refresh }: { refresh: number }) {
+  const cal = useApi<Calibration>(`/api/critic/calibration?r=${refresh}`);
+  const c = cal.data;
+  if (!c) return null;
+  return (
+    <section className="glass panel">
+      <div className="panel-head"><h2>Can the AI critic be trusted?</h2><span className="hint">target: {c.target} labels, Cohen&apos;s kappa ≥ {c.kappa_target}</span></div>
+      <div className="progress" role="progressbar" aria-label="Drafts labelled" aria-valuenow={c.labelled} aria-valuemin={0} aria-valuemax={c.target}><span style={{ width: `${Math.min(100, (100 * c.labelled) / c.target)}%` }} /></div>
+      <div className="kv">
+        <div><span>Drafts labelled by people</span><strong>{c.labelled} of {c.target}</strong></div>
+        <div><span>Agreement with the critic</span><strong>{c.agreement == null ? "—" : `${Math.round(c.agreement * 100)}%`}</strong></div>
+        <div><span>Cohen&apos;s kappa</span><strong className={c.cohen_kappa != null && c.cohen_kappa >= c.kappa_target ? "tone-healthy" : undefined}>{c.cohen_kappa == null ? "—" : c.cohen_kappa.toFixed(2)}</strong><span>{c.cohen_kappa == null ? "needs 2+ labels" : c.cohen_kappa >= c.kappa_target ? "meets the target" : "below the target"}</span></div>
+        {c.confusion && <div><span>Critic said revise, person said pass</span><strong>{c.confusion.human_pass_critic_revise}</strong><span>false alarms</span></div>}
+      </div>
+      <p className="provenance"><span>Kappa corrects agreement for chance. Labels are a person&apos;s judgement; never let a model fill them in.</span></p>
+    </section>
   );
 }
 
@@ -133,6 +186,7 @@ function OutreachInner() {
   const [tone, setTone] = useState("warm");
   const [reviewer, setReviewer] = useState("");
   const [selected, setSelected] = useState<number | null>(null);
+  const [calRefresh, setCalRefresh] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const online = health.data?.ollama.available;
@@ -186,7 +240,7 @@ function OutreachInner() {
           ))}
         </section>
         <section className="glass panel" style={{ flex: "999 1 520px" }}>
-          {selected ? <DraftView id={selected} onChanged={drafts.reload} /> : <EmptyState image="/img/aur-04-outreach.webp" title="Pick an account and draft an email" body="Or open an existing draft from the list below." />}
+          {selected ? <DraftView id={selected} onChanged={() => { drafts.reload(); setCalRefresh((n) => n + 1); }} /> : <EmptyState image="/img/aur-04-outreach.webp" title="Pick an account and draft an email" body="Or open an existing draft from the list below." />}
         </section>
       </div>
       <section className="glass panel">
@@ -199,12 +253,12 @@ function OutreachInner() {
         {drafts.data && drafts.data.length > 0 && (
           <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
             <table>
-              <thead><tr><th>Draft</th><th>Account</th><th>Subject</th><th>Source</th><th>Status</th><th>Created</th></tr></thead>
+              <thead><tr><th>Draft</th><th>Account</th><th>Subject</th><th>Source</th><th>Status</th><th>Human label</th><th>Created</th></tr></thead>
               <tbody>
                 {drafts.data.map((d) => (
                   <tr key={d.id} className="clickable" aria-selected={selected === d.id} onClick={() => setSelected(d.id)}>
                     <td><button className="row-btn" type="button" onClick={(e) => { e.stopPropagation(); setSelected(d.id); }}>#{d.id}</button></td>
-                    <td>{d.customer_id}</td><td>{d.subject}</td><td>{d.source}</td><td>{STATUS[d.status] ?? d.status}</td><td className="mono">{d.created_at.slice(0, 16)}</td>
+                    <td>{d.customer_id}</td><td>{d.subject}</td><td>{d.source}</td><td>{STATUS[d.status] ?? d.status}</td><td>{d.human_label ?? "—"}</td><td className="mono">{d.created_at.slice(0, 16)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -212,6 +266,7 @@ function OutreachInner() {
           </div>
         )}
       </section>
+      {!STATIC && <CalibrationPanel refresh={calRefresh} />}
     </>
   );
 }

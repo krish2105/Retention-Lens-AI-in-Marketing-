@@ -76,3 +76,17 @@ def test_draft_approval_flow_with_consent_and_idempotency(client, serving, monke
 
 def test_missing_idempotency_key_rejected(client):
     assert client.post("/api/drafts/1/decision", json={"decision": "reject", "reviewer": "KM"}).status_code == 422
+
+
+def test_human_labels_drive_critic_calibration(client, monkeypatch):
+    monkeypatch.setattr(main, "ollama_status", lambda: {"available": False, "model": "x"})
+    ids = [client.post("/api/drafts", json={"customer_id": "12345"}).json()["id"] for _ in range(3)]
+    assert client.get("/api/critic/calibration").json()["labelled"] == 0
+    for draft_id, label in zip(ids, ["pass", "pass", "revise"]):
+        assert client.post(f"/api/drafts/{draft_id}/label", json={"label": label}).status_code == 200
+    assert client.post("/api/drafts/999/label", json={"label": "pass"}).status_code == 404
+    cal = client.get("/api/critic/calibration").json()
+    # Template drafts carry no critic verdict, so nothing can be compared yet; labels are still stored.
+    assert cal["labelled"] == 0 and sum(cal["confusion"].values()) == 0
+    rows = {r["id"]: r["human_label"] for r in client.get("/api/drafts").json()}
+    assert [rows[i] for i in ids] == ["pass", "pass", "revise"]
