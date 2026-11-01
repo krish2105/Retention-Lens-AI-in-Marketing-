@@ -1,5 +1,7 @@
 # What is remaining — end to end
 
+For the full plan to reach 95+ on every scorecard lens, see [docs/ROADMAP_TO_95.md](docs/ROADMAP_TO_95.md) (not started; waiting for the owner's go-ahead).
+
 Last updated: 2026-11-01 (after P3–P8). Completed work is in [PROGRESS.md](PROGRESS.md). Hour figures are **estimates**.
 
 ## 1. Blockers (no code)
