@@ -1,9 +1,10 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { apiPost, asset, BASE, type Me, STATIC, useApi } from "@/lib/api";
 import { getLocale } from "@/lib/format";
+import { t } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { OnboardingTour } from "./OnboardingTour";
 import { Icon, ThemeToggle } from "./ui";
@@ -34,10 +35,12 @@ const norm = (path: string) => (path.length > 1 ? path.replace(/\/$/, "") : path
 
 export function Shell({ children }: { children: ReactNode }) {
   const path = norm(usePathname());
+  const [, setLocaleApplied] = useState(false);
   useEffect(() => {
     const locale = getLocale();
     document.documentElement.lang = locale;
     document.documentElement.dir = locale.startsWith("ar") ? "rtl" : "ltr";
+    setLocaleApplied(true); // re-render the shell so translated labels appear
   }, []);
   const aurora = (
     <div className="aurora" aria-hidden="true">
@@ -50,7 +53,7 @@ export function Shell({ children }: { children: ReactNode }) {
     return (
       <>
         {aurora}
-        <a href="#main" className="sr-only">Skip to content</a>
+        <a href="#main" className="sr-only">{t("Skip to content")}</a>
         <SiteHeader path={path} />
         <main className="site" id="main">{children}</main>
         <SiteFooter />
@@ -70,7 +73,7 @@ function AppShell({ path, aurora, children }: { path: string; aurora: ReactNode;
   return (
     <>
       {aurora}
-      <a href="#main" className="sr-only">Skip to content</a>
+      <a href="#main" className="sr-only">{t("Skip to content")}</a>
       <div className="shell">
         <aside className="sidebar glass">
           <Link href="/overview" className="brand">
@@ -84,14 +87,14 @@ function AppShell({ path, aurora, children }: { path: string; aurora: ReactNode;
             {NAV.map((item) => (
               <Link key={item.href} href={item.href} data-tour={item.href.slice(1)} aria-current={path === item.href ? "page" : undefined}>
                 <Icon name={item.icon} />
-                {item.label}
+                {t(item.label)}
               </Link>
             ))}
-            <span className="nav-group" aria-hidden="true">Workspace</span>
+            <span className="nav-group" aria-hidden="true">{t("Workspace")}</span>
             {WORKSPACE.map((item) => (
               <Link key={item.href} href={item.href} aria-current={path === item.href ? "page" : undefined}>
                 <Icon name={item.icon} />
-                {item.label}
+                {t(item.label)}
               </Link>
             ))}
           </nav>
@@ -100,7 +103,7 @@ function AppShell({ path, aurora, children }: { path: string; aurora: ReactNode;
               <>
                 <strong>{me.data.user.name}</strong>
                 <span>{me.data.user.email} · {me.data.role}</span>
-                <button type="button" className="btn" onClick={signOut}>Sign out</button>
+                <button type="button" className="btn" onClick={signOut}>{t("Sign out")}</button>
               </>
             ) : (
               <>
@@ -108,7 +111,7 @@ function AppShell({ path, aurora, children }: { path: string; aurora: ReactNode;
                 <span>{me.data?.org.active_dataset ? "Scored in this workspace" : "1,067,371 invoice lines · CC BY 4.0"}</span>
               </>
             )}
-            <span>Decision support only. Nothing is sent without your approval.</span>
+            <span>{t("Decision support only. Nothing is sent without your approval.")}</span>
           </div>
         </aside>
         <div className="main" id="main">

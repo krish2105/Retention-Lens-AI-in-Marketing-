@@ -5,7 +5,7 @@
 export const LOCALES = [
   { value: "en-GB", label: "English (UK)" },
   { value: "en-AE", label: "English (UAE)" },
-  { value: "ar-AE", label: "العربية (layout check)" },
+  { value: "ar-AE", label: "العربية (navigation and weekly review; AI-drafted, pending native review)" },
 ] as const;
 export type Locale = (typeof LOCALES)[number]["value"];
 

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { apiGet, apiPost, apiUpload, asset, type Me, STATIC, useApi } from "@/lib/api";
 import { bytes, count, date, money, pct } from "@/lib/format";
 import { EmptyState, ErrorState, PageHeader } from "@/components/ui";
+import { t } from "@/lib/i18n";
 
 type Mapping = Record<string, string | null>;
 type Validation = {
@@ -98,7 +99,7 @@ export default function UploadPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Upload data" title="Score your own invoices." lede="Upload a CSV or Excel export with one row per invoice line. You match the columns, see every row that could not be read, and get a scored weekly queue. Files stay in this workspace." />
+      <PageHeader eyebrow="Upload data" title={t("Score your own invoices.")} lede="Upload a CSV or Excel export with one row per invoice line. You match the columns, see every row that could not be read, and get a scored weekly queue. Files stay in this workspace." />
       {STATIC && <section className="glass panel"><EmptyState image="/img/aur-15-dropzone.webp" title="Uploads need the full app" body="This public demo is read-only. Run RetentionLens locally (or on the hosted server) to upload invoices. You can still download the synthetic sample file to see the expected shape." action={<a className="btn" href={asset("/samples/synthetic_wholesale_invoices.csv")} download>Download the synthetic sample</a>} /></section>}
 
       {!STATIC && (
@@ -113,11 +114,11 @@ export default function UploadPage() {
               onDragOver={(e) => { e.preventDefault(); setOver(true); }} onDragLeave={() => setOver(false)}
               onDrop={(e) => { e.preventDefault(); setOver(false); if (canEdit) upload(e.dataTransfer.files[0]); }}>
               <img src={asset("/img/aur-15-dropzone.webp")} alt="" />
-              <strong style={{ color: "var(--ink)" }}>Drop a .csv or .xlsx file here</strong>
+              <strong style={{ color: "var(--ink)" }}>{t("Drop a .csv or .xlsx file here")}</strong>
               <span>Up to 50 MB. Needs customer ID, invoice number, date, quantity and unit price. At least 30 customers and 90 days of history.</span>
               <input ref={input} type="file" accept=".csv,.xlsx,.xlsm,.tsv,.txt" className="sr-only" id="file" onChange={(e) => upload(e.target.files?.[0])} disabled={!canEdit || busy} />
               <div className="row" style={{ gap: 8, justifyContent: "center" }}>
-                <label htmlFor="file" className="btn primary" aria-disabled={!canEdit || busy}>{busy ? "Uploading…" : "Choose a file"}</label>
+                <label htmlFor="file" className="btn primary" aria-disabled={!canEdit || busy}>{busy ? "Uploading…" : t("Choose a file")}</label>
                 <a className="btn" href={asset("/samples/synthetic_wholesale_invoices.csv")} download>Try the synthetic sample</a>
               </div>
               {!canEdit && me.data && <span>Viewers cannot upload. Ask a workspace owner for the reviewer role.</span>}

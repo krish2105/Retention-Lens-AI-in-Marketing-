@@ -39,7 +39,7 @@ export default function SettingsPage() {
           </select>
         </label>
         <p className="provenance"><span>Example: {money(1234567)} · {new Date(Date.UTC(2026, 0, 31)).toLocaleDateString(locale, { timeZone: "UTC" })}</span></p>
-        {locale.startsWith("ar") && <p className="notice">Arabic layout check: the interface switches to right-to-left so layouts can be tested for UAE users. The text itself is not translated yet.</p>}
+        {locale.startsWith("ar") && <p className="notice">Arabic: right-to-left layout, with the navigation, theme switch, tour, weekly queue and upload screens translated. The translation was drafted by AI and needs a native speaker&apos;s review; other text stays in English for now.</p>}
       </section>
       <section className="glass panel">
         <h2>Tour</h2>

@@ -3,6 +3,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState, type ReactNode } from "react";
 import { asset, BASE, type Band, type Summary } from "@/lib/api";
 import { bandLabel, shortHash } from "@/lib/format";
+import { t } from "@/lib/i18n";
 
 const ICONS: Record<string, ReactNode> = {
   sun: <path d="M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z" />,
@@ -39,7 +40,13 @@ export function Icon({ name }: { name: keyof typeof ICONS | string }) {
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const [animate, setAnimate] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+    // Place the thumb first, then allow it to slide, so it does not glide in from "Light" on every page load.
+    const id = window.requestAnimationFrame(() => window.requestAnimationFrame(() => setAnimate(true)));
+    return () => window.cancelAnimationFrame(id);
+  }, []);
   const options = [
     { value: "light", label: "Light", icon: "sun" },
     { value: "dark", label: "Dark", icon: "moon" },
@@ -64,12 +71,12 @@ export function ThemeToggle() {
     doc.startViewTransition(() => setTheme(next)).finished.finally(() => root.classList.remove("theme-switching"));
   };
   return (
-    <div className="segmented glass theme-toggle" role="group" aria-label="Colour theme" data-ready={mounted}>
+    <div className="segmented glass theme-toggle" role="group" aria-label="Colour theme" data-ready={mounted} data-animate={animate}>
       <span className="thumb" aria-hidden="true" style={{ transform: `translateX(${active * 100}%)` }} />
       {options.map((o) => (
         <button key={o.value} type="button" aria-pressed={mounted ? theme === o.value : false} aria-label={`${o.label} theme`} onClick={(e) => choose(o.value, e)}>
           <Icon name={o.icon} />
-          <span className="label">{o.label}</span>
+          <span className="label">{t(o.label)}</span>
         </button>
       ))}
     </div>

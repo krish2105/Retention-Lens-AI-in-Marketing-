@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { API, apiPost, type Queue, STATIC, useApi } from "@/lib/api";
 import { date, money, pct } from "@/lib/format";
+import { t } from "@/lib/i18n";
 import { EmptyState, ErrorState, Loading, PageHeader, RiskPill } from "@/components/ui";
 
 type Arm = { accounts: number; reordered: number; rate: number | null; contacted: number };
@@ -34,7 +35,7 @@ export default function QueuePage() {
   const o = outcomes.data;
   return (
     <>
-      <PageHeader eyebrow={q ? `Week of ${date(q.week)}` : "This week"} title="This week's review queue." lede="The accounts with the most spend at risk, in order. Open each one, read the evidence and record a decision. A random share is held out each week so the effect of contacting accounts can be measured.">
+      <PageHeader eyebrow={q ? `Week of ${date(q.week)}` : "This week"} title={t("This week's review queue.")} lede={t("The accounts with the most spend at risk, in order. Open each one, read the evidence and record a decision. A random share is held out each week so the effect of contacting accounts can be measured.")}>
         <div className="row" style={{ gap: 8, alignItems: "center" }}>
           {!STATIC && <div className="segmented glass" role="group" aria-label="Week">
             <button type="button" onClick={() => setOffset(offset - 1)} aria-label="Previous week">← Previous</button>
@@ -50,7 +51,7 @@ export default function QueuePage() {
         {q && (
           <>
             <div className="panel-head">
-              <h2>{q.reviewed} of {q.total} reviewed</h2>
+              <h2>{q.reviewed} / {q.total} {t("reviewed")}</h2>
               <span className="hint">{q.holdout} accounts held out at random ({pct(q.holdout_share)})</span>
             </div>
             <div className="progress" role="progressbar" aria-valuenow={q.reviewed} aria-valuemin={0} aria-valuemax={q.total} aria-label="Queue progress"><span style={{ width: `${q.total ? (100 * q.reviewed) / q.total : 0}%` }} /></div>
@@ -65,7 +66,7 @@ export default function QueuePage() {
                   </span>
                   <span style={{ textAlign: "end", flex: "none" }}>
                     {item.status === "reviewed" ? <span className="pill tone-healthy">{item.decision?.replace("_", " ")}</span> : <RiskPill band={item.risk_band} p={item.p_lapse} />}
-                    <small>{money(item.value_at_risk_90)} at risk</small>
+                    <small>{money(item.value_at_risk_90)} {t("at risk")}</small>
                   </span>
                 </Link>
               ))}
@@ -89,7 +90,7 @@ export default function QueuePage() {
         )}
       </section>
       <section className="glass panel">
-        <div className="panel-head"><h2>Is outreach working?</h2><span className="hint">contacted vs held out, after {o?.observe_days ?? 28} days</span></div>
+        <div className="panel-head"><h2>{t("Is outreach working?")}</h2><span className="hint">contacted vs held out, after {o?.observe_days ?? 28} days</span></div>
         {outcomes.error && <ErrorState message={outcomes.error} onRetry={outcomes.reload} />}
         {o && (
           <>
