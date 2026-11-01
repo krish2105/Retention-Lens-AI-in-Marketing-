@@ -80,3 +80,21 @@ test("onboarding tour can be skipped and stays skipped", async ({ page }) => {
   await page.reload();
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
+
+test.describe("Arabic layout check (right to left)", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+  for (const route of ["/overview/", "/queue/", "/settings/"]) {
+    test(route, async ({ page }) => {
+      await page.addInitScript(() => {
+        window.localStorage.setItem("rl-tour-done", "1");
+        window.localStorage.setItem("rl-locale", "ar-AE");
+      });
+      await page.goto(route);
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+      await expect(page.locator("html")).toHaveAttribute("lang", "ar-AE");
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(overflow).toBeLessThanOrEqual(1);
+    });
+  }
+});

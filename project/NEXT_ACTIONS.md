@@ -1,5 +1,13 @@
 # Priority backlog — RetentionLens
 
+## Now (owner, 2026-11-01): the evidence code cannot produce
+- [ ] 8–10 discovery interviews with `docs/research/INTERVIEW_KIT.md`; log in `research/interviews/`.
+- [ ] Label 16+ drafts (Outreach studio or `reports/critic_labels.csv`); then `GET /api/critic/calibration`.
+- [ ] 5 think-aloud usability sessions on upload → queue (gate: 4 of 5 under 10 minutes).
+- [ ] Create Render, Supabase and Stripe (test mode) accounts; apply `supabase/` and `render.yaml`.
+- [ ] Write the five lab reports and the presentation narrative (`docs/COURSEWORK_REVIEW.md`).
+- [ ] Coordinator ruling on solo work, synthetic social data and the deep-learning wording.
+
 ## M0 — first Work session, <=4 hours
 - [x] 2026-11-01: audit outline vs repo, run tests/API/build (see GAP_ANALYSIS.md).
 - [ ] Ask coordinator: solo allowed? Cloud Lab expectation? "deep learning" wording? B/D scope for final project.
@@ -22,16 +30,16 @@
 
 ## M2 — academic result
 - [x] P2: rolling-cutoff labels, baselines, BG/NBD + Gamma-Gamma, LightGBM, metrics per cutoff (2026-11-01; BG/NBD wins).
-- [ ] P2b (optional): seasonality-aware features or same-season training; conformal intervals once MAPIE v1 API verified.
-- [ ] P3: API over run artefacts + Aurora UI shell.
+- [x] P2b/R5 (2026-11-01): seasonal multiplier adopted, split-conformal intervals (own implementation), ZILN challenger.
+- [x] P3: API over run artefacts + Aurora UI shell.
 - [ ] Implement baselines and justified own model or user-study protocol.
 - [ ] Record true metrics / interviews, error analysis and limitations.
 - [ ] Connect evaluated results to decision UI and export.
 
 ## M3 — pilot readiness
-- [ ] Implement auth, org isolation and permitted data onboarding.
+- [x] Implement auth, org isolation and permitted data onboarding (2026-11-01, R2/R3).
 - [ ] Observe real user tasks, improve UX and test recovery.
 - [ ] Produce buyer/pilot charter and measurable acceptance gates.
 
 ## M4 — SaaS readiness (after pilot)
-- [ ] Durable jobs, quotas, billing, security review, restore test, on-call runbook and measured unit economics.
+- [x] Durable jobs, quotas, billing (test mode), restore test, runbook (2026-11-01). Open: external security review, unit economics.

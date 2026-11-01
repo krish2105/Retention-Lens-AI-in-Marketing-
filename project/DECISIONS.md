@@ -15,3 +15,11 @@
 | 2026-11-01 | Plain CSS tokens instead of Tailwind/shadcn for the Aurora UI | Faster to build and theme glass/aurora precisely; no component library needed | If the UI grows many form components |
 | 2026-11-01 | Serving values use spend net of returns | A cancelled £168k bulk order (customer 16446) inflated gross-spend CLV | Never |
 | 2026-11-01 | No free text ever reaches the LLM prompt; tone is an enum | Prompt-injection defence (OWASP LLM01) | If a reviewed free-text field is needed |
+
+## 2026-11-01 — Roadmap build decisions
+- Tenancy enforced in the app (org_id on every query, SQLite) now; Postgres RLS prepared for Supabase. Reason: no Supabase account yet; isolation tests run in CI either way.
+- ML scoring runs in a subprocess (`python -m retentionlens.ingest`) from a durable SQLite-backed queue. Reason: keeps the API light; a model crash cannot take the API down; jobs resume after restart.
+- Seasonal BG/NBD adopted for serving on dev evidence only (3/3 on Brier and MAE). ZILN not adopted (0/3). Frozen test not reused for selection.
+- Weekly queue holds out 20% at random (seeded hash of org, account, week) and reports intention-to-treat uplift.
+- Billing accepts Stripe test keys only; live keys are refused in code.
+- No email-sending capability anywhere (OWASP LLM06); approved drafts export only.

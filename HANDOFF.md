@@ -16,7 +16,9 @@ Kept current at every push so any session (local or cloud) can continue. Last up
 | Deploy | **Live** https://krish2105.github.io/Retention-Lens-AI-in-Marketing-/ via `.github/workflows/pages.yml` (static export; refresh data with `python3 scripts/export_static_data.py` after `cli serve`) |
 | Vercel | Deployed: retentionlens-demo.vercel.app (`cd apps/web && vercel deploy --prod --build-env NEXT_PUBLIC_STATIC=1`, then `vercel alias set <url> retentionlens-demo.vercel.app`). Public (owner turned off Vercel Authentication on 2026-11-01) |
 | Submission pack | `submissions/` deck + PDF report + screenshots; rebuild with `design/deck/build.js` and `design/report/` |
-| Remaining | See `REMAINING.md` (critic calibration, demo video, labs, presentation, report) |
+| Roadmap R1–R8 | **Built 2026-11-01** (branch `roadmap`, merged to main): upload wizard + scoring worker, workspaces/roles/isolation, weekly holdout queue + uplift, seasonal model + conformal ranges + ZILN challenger, OWASP LLM red team, load test, restore drill, Playwright e2e, Docker/Render/Supabase files, landing/pricing/waitlist/legal/status/case study, kits. See `project/CURRENT_STATE.md` |
+| Owner-only | Interviews, usability sessions, critic labels, pilot, Render/Supabase/Stripe accounts, lab reports, narrative, video (`project/NEXT_ACTIONS.md`) |
+| Remaining | See `REMAINING.md` and `docs/COURSEWORK_REVIEW.md` |
 
 ## Rebuild everything from a clean clone
 
@@ -30,7 +32,7 @@ cd ../services/api && uv venv --python 3.12 .venv && uv pip install --python .ve
 cd ../../apps/web && npm install && echo "NEXT_PUBLIC_API_URL=http://localhost:8001" > .env.local && npm run dev  # UI on :3000
 ```
 
-Tests: `cd ml && uv run pytest -q` · `PYTHONPATH=services/api services/api/.venv/bin/pytest -q services/api/tests` · `cd apps/web && npx next build`.
+Tests: `cd ml && uv run pytest -q` (61) · `PYTHONPATH=services/api services/api/.venv/bin/pytest -q services/api/tests` (60) · `cd apps/web && npx playwright test` (52; uses installed Chrome locally) · `npm run test:e2e:live` with API on 8001 and `npm run dev`. Sign-in: `RL_AUTH_MODE=local`. R5: `uv run python -m retentionlens.cli r5`.
 
 ## Conventions that matter
 

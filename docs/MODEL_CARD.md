@@ -53,7 +53,7 @@ Actual 90-day spend at test: £2,618,168.
 
 ## Known limitations
 
-- **Seasonality is not modelled.** The test window (Sep–Nov) is the Christmas peak. Every model over-predicts lapse there (for example, BG/NBD predicts 0.85 for a bin where the observed rate is 0.77), and every model under-predicts total spend: BG/NBD + Gamma-Gamma by 31%, LightGBM by 50%. Supervised models trained only on 2010-09-01 performed worst at 2010-12-01 for the same reason.
+- **Seasonality (P3 finding, addressed in R5, see below).** The test window (Sep–Nov) is the Christmas peak. Every model over-predicts lapse there (for example, BG/NBD predicts 0.85 for a bin where the observed rate is 0.77), and every model under-predicts total spend: BG/NBD + Gamma-Gamma by 31%, LightGBM by 50%. Supervised models trained only on 2010-09-01 performed worst at 2010-12-01 for the same reason.
 - **Tenure is censored.** History starts on 2009-12-01, so tenure can't exceed the time since then. At later cutoffs, tenure values fall outside the training range.
 - **Only one business, from 2009 to 2011.** No campaign data exists, so these are predictions, not effects of outreach.
 - **Some data choices affect the population.** Cross-sheet duplicates are removed, and 79 gift-set lines are excluded (see `docs/DATA_CARD.md`).
@@ -62,3 +62,18 @@ Actual 90-day spend at test: £2,618,168.
 ## Intended use
 
 Ranking accounts for a human to review each week. It is not for automated contact, credit or pricing decisions.
+
+## R5 update (2026-11-01): what serves now
+
+- **Serving model:** BG/NBD + Gamma-Gamma with a seasonal multiplier (`bgnbd-gg-seasonal-v1`, `reports/model_registry.json`).
+  The multiplier is purchase-days in the coming 90-day window last year divided by an average 90-day window in the
+  year before the cutoff (no adjustment with under a year of history). Lapse probability is scaled as P^m.
+- **Why:** on the three dev cutoffs it beat the plain model on lapse Brier and value MAE 3 of 3, and cut mean
+  absolute total-spend bias from 32.9% to 16.8%. PR-AUC and Gini cannot change: it rescales all accounts equally.
+- **Value ranges:** 80% split-conformal on log1p residuals, calibrated on the 90 days before the scoring date.
+  Dev coverage 79.5%, 82.2%, 82.4%. Most lower bounds are £0 because many accounts do not order in a given 90 days.
+- **Not adopted:** ZILN neural network (0/3 dev wins on lapse PR-AUC), seasonal LightGBM (mixed).
+- **Effect on the live queue:** at the 2011-12-10 scoring date the multiplier is 0.70 (January–March is quiet),
+  so more accounts are in the high-risk band than before (3,124 vs 2,456). That is the intended correction, but
+  reviewers should know the band counts moved.
+- **Frozen test:** not re-scored for selection. The post-hoc look at 2011-09-01 is reported separately and labelled.
